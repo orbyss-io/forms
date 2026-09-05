@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provider-neutral RFC 9449 DPoP validation as a CShells middleware feature.</Description>
+    <PackageId>ProgramKit.Authentication.DPoP</PackageId>
+    <PackageTags>program-kit;cshells;authentication;oauth;dpop;rfc9449</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.AspNetCore.Abstractions" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ProgramKit.Authentication.SpaPkce/ProgramKit.Authentication.SpaPkce.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

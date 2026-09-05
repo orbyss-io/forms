@@ -164,7 +164,7 @@ public sealed class ForbiddenInitializer : IShellInitializer
                 "shell": "default",
                 "producer": {
                     "kind": "ProgramKit.OpenApi.Exporter",
-                    "version": "0.9.7-preview.1",
+                    "version": "0.9.9-preview.1",
                 },
                 "features": ["Fixture.Web"],
             },
@@ -419,7 +419,7 @@ raise SystemExit(0)
                 repository,
                 staged_root,
                 repository / runtime_closure.EVIDENCE,
-                "0.9.8",
+                "0.9.9",
             )
         finally:
             sys.path.remove(str(managed))

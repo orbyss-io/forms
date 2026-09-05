@@ -14,6 +14,7 @@ services:
       - "9000:9000"
     volumes:
       - ./keycloak/program-kit-realm.json:/opt/keycloak/data/import/program-kit-realm.json:ro
+      - ./keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
       test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && grep -q UP <&3" ]
       interval: 5s

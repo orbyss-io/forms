@@ -31,7 +31,7 @@ internal sealed class ProgramKitWebOptionsValidator(
             var localHttpAllowed = environment.IsDevelopment()
                 && options.AllowHttpForLocalDevelopment
                 && authority.Scheme == Uri.UriSchemeHttp
-                && (authority.IsLoopback || authority.Host.Equals("keycloak", StringComparison.OrdinalIgnoreCase));
+                && authority.IsLoopback;
             if (authority.Scheme != Uri.UriSchemeHttps && !localHttpAllowed)
             {
                 failures.Add(

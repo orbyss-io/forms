@@ -52,6 +52,16 @@ def main() -> int:
                 "@echo off\r\n"
                 f"echo %*^|%NUGET_PACKAGES%^|%NUGET_HTTP_CACHE_PATH%^|%NUGET_SCRATCH%^|"
                 f"%NUGET_PLUGINS_CACHE_PATH%^|%DOTNET_CLI_HOME%^|%APPDATA%^|%LOCALAPPDATA%>>\"{log}\"\r\n"
+                "if \"%1\"==\"sln\" goto solution_list\r\n"
+                "if \"%1\"==\"msbuild\" goto test_property\r\n"
+                "exit /b 0\r\n"
+                ":solution_list\r\n"
+                "echo Project(s)\r\n"
+                "echo ----------\r\n"
+                "echo Consumer.csproj\r\n"
+                "exit /b 0\r\n"
+                ":test_property\r\n"
+                "echo true\r\n"
                 "exit /b 0\r\n",
                 encoding="utf-8",
             )
@@ -61,7 +71,9 @@ def main() -> int:
                 "#!/bin/sh\n"
                 f"printf '%s|%s|%s|%s|%s|%s|%s|%s\\n' \"$*\" \"$NUGET_PACKAGES\" "
                 f"\"$NUGET_HTTP_CACHE_PATH\" \"$NUGET_SCRATCH\" \"$NUGET_PLUGINS_CACHE_PATH\" "
-                f"\"$DOTNET_CLI_HOME\" \"$APPDATA\" \"$LOCALAPPDATA\" >> '{log}'\n",
+                f"\"$DOTNET_CLI_HOME\" \"$APPDATA\" \"$LOCALAPPDATA\" >> '{log}'\n"
+                "if [ \"$1\" = sln ]; then printf 'Project(s)\\n----------\\nConsumer.csproj\\n'; fi\n"
+                "if [ \"$1\" = msbuild ]; then printf 'true\\n'; fi\n",
                 encoding="utf-8",
             )
             dotnet.chmod(0o755)

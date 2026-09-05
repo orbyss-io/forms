@@ -30,7 +30,7 @@ if ([string]::IsNullOrWhiteSpace($integration)) {
 # Download, verify, and extract the target full Program Kit release first. The
 # release-owned updater avoids catalog transport and does not trust a bundle
 # record until every installed primitive and managed baseline converges.
-$releaseRoot = 'C:\path\to\program-kit-0.9.8'
+$releaseRoot = 'C:\path\to\program-kit-0.9.9'
 python "$releaseRoot\scripts\upgrade_program_kit.py" `
   --release-root $releaseRoot `
   --target . `

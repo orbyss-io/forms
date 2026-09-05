@@ -24,11 +24,26 @@ def validate_package_source_routing(path: Path) -> None:
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
+    privileged_friend_assemblies = []
+    for search_root in (root / "src", root / "tests", root / "extensions"):
+        for path in search_root.rglob("*"):
+            if not path.is_file() or "bin" in path.parts or "obj" in path.parts:
+                continue
+            if path.suffix.lower() not in {".cs", ".csproj", ".props", ".targets"}:
+                continue
+            if "InternalsVisibleTo" in path.read_text(encoding="utf-8"):
+                privileged_friend_assemblies.append(str(path.relative_to(root)))
+    if privileged_friend_assemblies:
+        raise AssertionError(
+            "InternalsVisibleTo is forbidden; validate through public contracts instead: "
+            + ", ".join(privileged_friend_assemblies)
+        )
+
     program_version = (root / "VERSION").read_text(encoding="utf-8").strip()
     runtime_version = (root / "RUNTIME_VERSION").read_text(encoding="utf-8").strip()
-    if program_version != "0.9.8":
+    if program_version != "0.9.9":
         raise AssertionError(f"Unexpected Program Kit version: {program_version}")
-    if runtime_version != "0.9.7-preview.1":
+    if runtime_version != "0.9.9-preview.1":
         raise AssertionError(f"Unexpected runtime artifact version: {runtime_version}")
 
     validate_package_source_routing(root / "NuGet.config")
@@ -68,10 +83,17 @@ def main() -> int:
     managed_versions = {
         "ProgramKit.Analyzers": runtime_version,
         "ProgramKit.Authentication": runtime_version,
+        "ProgramKit.Authentication.Assurance": runtime_version,
         "ProgramKit.Authentication.BffCookie": runtime_version,
+        "ProgramKit.Authentication.ClientCredentials": runtime_version,
+        "ProgramKit.Authentication.DownstreamApi": runtime_version,
+        "ProgramKit.Authentication.DPoP": runtime_version,
         "ProgramKit.Authentication.SpaPkce": runtime_version,
+        "ProgramKit.Authentication.TokenExchange": runtime_version,
         "ProgramKit.DomainEvents.Abstractions": runtime_version,
         "ProgramKit.DomainEvents": runtime_version,
+        "ProgramKit.Identity.Admin.Abstractions": runtime_version,
+        "ProgramKit.Identity.Keycloak.Admin": runtime_version,
         "ProgramKit.Tasks.Abstractions": runtime_version,
         "ProgramKit.Tasks": runtime_version,
         "ProgramKit.WebDefaults": runtime_version,
@@ -194,10 +216,17 @@ def main() -> int:
     for project in (
         "ProgramKit.Host",
         "ProgramKit.Authentication",
+        "ProgramKit.Authentication.Assurance",
         "ProgramKit.Authentication.BffCookie",
+        "ProgramKit.Authentication.ClientCredentials",
+        "ProgramKit.Authentication.DownstreamApi",
+        "ProgramKit.Authentication.DPoP",
         "ProgramKit.Authentication.SpaPkce",
+        "ProgramKit.Authentication.TokenExchange",
         "ProgramKit.DomainEvents",
         "ProgramKit.DomainEvents.Abstractions",
+        "ProgramKit.Identity.Admin.Abstractions",
+        "ProgramKit.Identity.Keycloak.Admin",
         "ProgramKit.Tasks",
         "ProgramKit.Tasks.Abstractions",
         "ProgramKit.WebDefaults",

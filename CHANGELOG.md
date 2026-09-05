@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 0.9.9 - 2026-09-05
+
+- Move BFF, SPA, error, and web middleware ownership into independently selectable CShell features;
+  keep the application-neutral host free of authentication and response-format policy.
+- Add provider-neutral client credentials, RFC 8693 token exchange, downstream API, DPoP, assurance,
+  and JWKS rollover packages with deterministic public-surface probes and real Keycloak conformance.
+- Prove TOTP, passkeys, recovery codes, password recovery, step-up, signing-key rotation, and custom
+  branded password-reset, verification, and required-action email templates in disposable acceptance.
+- Add provider-neutral identity-administration abstractions and ten opt-in Keycloak Admin REST features
+  for users, applications, scopes, access, enrollment, sessions, flows, identity providers,
+  organizations, and separated realm operations.
+- Adopt and isolate the OpenAPI/oasdiff/NuGet workflow and expand clean-consumer verification without
+  using `InternalsVisibleTo`.
+
 ## 0.9.8 - 2026-09-05
 
 - Preflight every Spec Kit component registry, installed integration command root, current and

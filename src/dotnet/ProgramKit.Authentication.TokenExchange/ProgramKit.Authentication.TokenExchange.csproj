@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provider-neutral OAuth RFC 8693 token exchange as a CShells feature.</Description>
+    <PackageId>ProgramKit.Authentication.TokenExchange</PackageId>
+    <PackageTags>program-kit;cshells;authentication;oauth;token-exchange;rfc8693</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.Abstractions" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

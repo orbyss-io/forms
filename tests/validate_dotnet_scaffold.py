@@ -56,9 +56,21 @@ def assert_profile(repository: Path, expected: str) -> None:
         realm = json.loads(
             (repository / "deploy/keycloak/program-kit-realm.json").read_text(encoding="utf-8")
         )
+        assert realm["loginTheme"] == "program-kit"
         selected_client = "program-kit-bff" if expected == "bff-cookie" else "program-kit-spa"
         client_ids = [client["clientId"] for client in realm["clients"]]
         assert client_ids == ["program-kit-api", selected_client]
+        theme_paths = (
+            "deploy/keycloak/themes/program-kit/login/theme.properties",
+            "deploy/keycloak/themes/program-kit/login/webauthn-register.ftl",
+            "deploy/keycloak/themes/program-kit/login/resources/css/program-kit.css",
+            "deploy/keycloak/themes/program-kit/login/resources/img/program-kit-mark.svg",
+        )
+        for relative in theme_paths:
+            assert (repository / relative).is_file(), relative
+            assert state["files"][relative]["ownership"] == "configuration", relative
+        identity_compose = (repository / "deploy/compose.identity.yml").read_text(encoding="utf-8")
+        assert "./keycloak/themes:/opt/keycloak/themes:ro" in identity_compose
     spa_only = (
         ".program-kit/spa-pkce.json",
         ".program-kit/spa-pkce.schema.json",
@@ -100,6 +112,11 @@ def main() -> int:
         .read_text(encoding="utf-8")
     )
     assert [client["clientId"] for client in neutral_realm["clients"]] == ["program-kit-api"]
+    assert neutral_realm["loginTheme"] == "program-kit"
+    assert "offline_access" in {
+        role["name"] for role in neutral_realm["roles"]["realm"]
+    }
+    assert all("offline_access" in user["realmRoles"] for user in neutral_realm["users"])
     for profile, selected_client in (
         ("bff-cookie", "program-kit-bff"),
         ("spa-pkce", "program-kit-spa"),
@@ -342,6 +359,9 @@ def main() -> int:
         bff_client = bff_realm["clients"][1]
         assert set(bff_client["defaultClientScopes"]).issubset(bff_scope_names)
         assert set(bff_client["optionalClientScopes"]).issubset(bff_scope_names)
+        assert bff_client["attributes"]["post.logout.redirect.uris"] == (
+            "http://localhost:5000/signout-callback-oidc"
+        )
         assert (browser_target / "eng/program-kit/compose_topology.py").is_file()
         assert (browser_target / "eng/program-kit/web/bff-session.ts").is_file()
         assert (browser_target / "eng/program-kit/web/tests/bff-session.spec.ts").is_file()

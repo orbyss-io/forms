@@ -20,6 +20,62 @@ if ($solutions.Count -ne 1) {
     throw "Expected exactly one solution in $root; found $($solutions.Count)."
 }
 
+function Get-TestProjectCount {
+    param(
+        [Parameter(Mandatory)]
+        [string]$SolutionPath
+    )
+
+    $solutionDirectory = Split-Path -Parent $SolutionPath
+    $solutionProjectsOutput = @(& dotnet sln $SolutionPath list 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        $solutionProjectsOutput | ForEach-Object { Write-Host $_ }
+        throw "Could not enumerate projects in solution $SolutionPath."
+    }
+
+    $projectPaths = @(
+        $solutionProjectsOutput |
+            ForEach-Object { ([string]$_).Trim() } |
+            Where-Object { $_ -match '(?i)\.(csproj|fsproj|vbproj)$' } |
+            ForEach-Object {
+                if ([System.IO.Path]::IsPathRooted($_)) {
+                    [System.IO.Path]::GetFullPath($_)
+                }
+                else {
+                    [System.IO.Path]::GetFullPath((Join-Path $solutionDirectory $_))
+                }
+            }
+    )
+
+    $testProjectCount = 0
+    foreach ($projectPath in $projectPaths) {
+        if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) {
+            throw "Solution project does not exist: $projectPath"
+        }
+
+        $testPropertyOutput = @(& dotnet msbuild $projectPath -nologo -verbosity:quiet -getProperty:IsTestProject 2>&1)
+        if ($LASTEXITCODE -ne 0) {
+            $testPropertyOutput | ForEach-Object { Write-Host $_ }
+            throw "Could not evaluate IsTestProject for $projectPath."
+        }
+
+        $testProperty = ($testPropertyOutput -join "`n").Trim()
+        if ([string]::IsNullOrWhiteSpace($testProperty)) {
+            continue
+        }
+
+        $isTestProject = $false
+        if (-not [bool]::TryParse($testProperty, [ref]$isTestProject)) {
+            throw "IsTestProject for $projectPath is not a Boolean value: '$testProperty'"
+        }
+        if ($isTestProject) {
+            $testProjectCount++
+        }
+    }
+
+    return $testProjectCount
+}
+
 $artifacts = Join-Path $root 'artifacts'
 $packages = Join-Path (Join-Path $artifacts 'packages') $version
 $openApiRegistry = Join-Path $root '.program-kit/openapi-contracts.json'
@@ -44,8 +100,14 @@ dotnet build $solutions[0].FullName -c Release --no-restore -p:Version=$version
 if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed.' }
 
 if (-not $SkipTests) {
-    dotnet test --solution $solutions[0].FullName -c Release --no-build -p:Version=$version
-    if ($LASTEXITCODE -ne 0) { throw 'dotnet test failed.' }
+    $testProjectCount = Get-TestProjectCount -SolutionPath $solutions[0].FullName
+    if ($testProjectCount -gt 0) {
+        dotnet test --solution $solutions[0].FullName -c Release --no-build -p:Version=$version
+        if ($LASTEXITCODE -ne 0) { throw 'dotnet test failed.' }
+    }
+    else {
+        Write-Host 'No .NET test projects are included in the solution; skipping dotnet test.'
+    }
 }
 
 dotnet pack $solutions[0].FullName -c Release --no-build -p:Version=$version -p:PackageOutputPath=$packages

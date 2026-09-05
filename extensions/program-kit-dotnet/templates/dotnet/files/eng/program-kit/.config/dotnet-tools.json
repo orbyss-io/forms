@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "programkit.openapi.exporter": {
-      "version": "0.9.7-preview.1",
+      "version": "0.9.9-preview.1",
       "commands": [
         "programkit-openapi-export"
       ]

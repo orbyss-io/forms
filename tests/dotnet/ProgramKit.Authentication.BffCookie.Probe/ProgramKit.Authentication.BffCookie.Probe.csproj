@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <RunAnalyzers>false</RunAnalyzers>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.AspNetCore.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Authentication.BffCookie/ProgramKit.Authentication.BffCookie.csproj" />
+  </ItemGroup>
+</Project>

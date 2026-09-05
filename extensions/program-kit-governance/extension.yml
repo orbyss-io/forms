@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: "program-kit-governance"
   name: "Program Kit Governance"
-  version: "0.9.8"
+  version: "0.9.9"
   description: "Ratifies governance and enforces modular, architecture-aware Spec Kit delivery."
   author: "Orbyss"
   repository: "https://github.com/orbyss-io/program-kit"

@@ -82,11 +82,86 @@ Invalid or incomplete selected-profile configuration prevents startup with a pat
 Checked-in local settings contain identifiers and loopback URLs only; production secrets and origins
 must be supplied by deployment.
 
+### Provider-neutral capability boundary
+
+Program Kit runtime features model standards-based authentication capabilities, never the currently
+bundled identity-provider product. Interactive OIDC/OAuth, client credentials, downstream API token
+attachment, RFC 8693 token exchange, DPoP sender constraint, assurance/step-up (`acr`/`amr`), and
+discovery/JWKS key rollover use provider-neutral options and contracts. Their package names, public
+types, configuration paths, handlers, and errors must not contain Keycloak concepts. Provider HTTP
+endpoints are discovered or explicitly configured; runtime code never assumes a realm path, admin
+API, container hostname, or provider-specific claim shape.
+
+Keycloak is the built-in local identity adapter and conformance fixture. Its realm renderer maps the
+neutral capability contract to Keycloak clients, scopes, protocol mappers, roles, authentication
+flows, keys, and themes. A future provider adapter must be able to render the same functional
+contract without changing application features or canonical permissions. A capability is not
+considered supported merely because the Keycloak fixture can perform it: it needs a provider-neutral
+runtime contract when applications participate in the protocol, deterministic wire-level tests, and
+at least one real-provider acceptance path. A genuinely provider-exclusive facility may use a
+provider-named adapter or package, but that exception must be explicit and cannot leak into the
+common authentication packages.
+
+The local-development HTTP exception follows this boundary too. Public authorities may use HTTP
+only on a loopback origin under the explicit development override. A container/provider hostname is
+not special-cased; server-only routing belongs in `BackchannelAuthority`.
+
 The local Keycloak fixture advertises `http://localhost:8080` to browsers while the application
 container retrieves discovery through `http://program-kit-identity:8080`. Keycloak derives its
 backchannel endpoints from that private request and retains the public issuer/frontchannel URLs.
 The application and identity Compose projects join the named `program-kit-local` network; replacing
 container `localhost` is forbidden because it changes loopback semantics for every process.
+
+### Authentication verification tiers
+
+Core CI continuously proves the portable contract: configuration validation, issuer/audience/key/lifetime
+validation, claims and permission normalization, BFF and SPA-PKCE journeys, machine identity, token
+exchange, downstream routing, refresh-token replay rejection, DPoP request binding, and deterministic
+discovery/JWKS rollover. These checks must remain unattended, deterministic, and provider-neutral except
+for the pinned local provider used as a baseline conformance fixture.
+
+Specialized authenticator and provider-administration lifecycles run through
+`scripts/Test-AdvancedAuthentication.ps1`. This explicit local suite proves real TOTP enrollment and
+challenge, passkey enrollment and passwordless sign-in, one-time recovery-code use and replay rejection,
+branded multipart SMTP-delivered password reset, email verification and required-action messages,
+low-to-high ACR step-up, provider signing-key promotion/overlap/retirement, and provider administration
+through a least-purpose disposable service account. DPoP issuance, token exchange, key binding,
+wrong-key rejection, and authorization-server
+proof replay are exercised by the pinned provider fixture; portable client/resource-server tests cover
+proof generation, persisted key identity, nonce challenge/consumption, request binding, and replaceable
+distributed replay/nonce seams. Moving these journeys out of per-change CI does not weaken their
+acceptance contract: an advertised capability still requires a green portable contract and a green
+real-provider path before publication. Run the advanced suite whenever authentication runtime, the
+identity adapter/theme, or the pinned provider version changes.
+
+### Identity administration boundary
+
+`ProgramKit.Identity.Admin.Abstractions` owns the provider-neutral business-orchestration contracts.
+Consumers can create and maintain users and applications, manage reusable scopes and user-attribute
+claim mappings, assign realm roles and groups, initiate credential/enrollment actions, and observe or
+revoke sessions without referencing a provider product. `ProgramKit.Identity.Keycloak.Admin` implements
+those contracts and contributes separate CShell features for Users, Applications, Scopes, Access,
+Enrollment, and Sessions. Selecting one subdomain does not register another.
+
+Keycloak-specific facilities remain behind separately selected AuthenticationFlows, IdentityProviders,
+Organizations, and RealmOperations features. RealmOperations contains key metadata, audit-event
+configuration/queries, and brute-force lockout maintenance because those structures and permission
+models are provider-specific and high privilege. Realm deletion/import, user impersonation, private-key
+export, arbitrary Admin REST transport, and persisted admin username/password login are deliberately not
+exposed. Those operations have destructive or privilege-escalating semantics that should not become an
+accidental application dependency. Each enabled feature should receive a distinct confidential service
+account with only its required fine-grained administration permissions; pipeline application/scope
+provisioning should not share credentials with subscription-driven user enrollment.
+
+The deterministic consumer probe verifies feature isolation, safe service-account token caching, path
+encoding, portable projections, enrollment-action mapping, and every supported endpoint family. The
+advanced real-provider probe performs create/use/delete lifecycles for users, roles, groups, applications,
+scopes, claim mappers, credentials, sessions, and key metadata. Provider-specific JSON is confined to the
+explicit provider interfaces so a future adapter can implement the common orchestration contracts without
+consumer changes.
+
+The complete endpoint selection, exclusions, and service-account permission model are documented in
+`references/keycloak-admin-api.md`.
 
 The presence of a configurable value does not mean its default is universal. The evidence register
 classifies every material default and states when it must be reviewed. In particular, identity time

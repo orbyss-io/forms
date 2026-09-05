@@ -26,6 +26,12 @@ namespace ProgramKit.Authentication.BffCookie;
     DependsOn = [typeof(ProgramKitAuthenticationFeature), typeof(ProgramKitWebDefaultsFeature)])]
 public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareShellFeature
 {
+    /// <summary>Preserves the token-validated issuer after protocol claim actions run.</summary>
+    private const string ValidatedIssuerClaim = "urn:program-kit:authentication:validated-issuer";
+
+    /// <summary>Preserves the token-validated subject after protocol claim actions run.</summary>
+    private const string ValidatedSubjectClaim = "urn:program-kit:authentication:validated-subject";
+
     /// <summary>Names the accepted antiforgery header.</summary>
     public const string AntiforgeryHeader = "X-CSRF-TOKEN";
 
@@ -44,7 +50,8 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddCookie(_ => { })
             .AddOpenIdConnect(_ => { });
@@ -113,6 +120,7 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
                     options.SlidingExpiration = true;
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(settings.SessionIdleMinutes);
                     options.AccessDeniedPath = settings.AccessDeniedPath;
+                    options.LoginPath = "/bff/login";
                     options.Events.OnRedirectToLogin = context => ApiRedirectAsErrorAsync(
                         context,
                         StatusCodes.Status401Unauthorized,
@@ -128,9 +136,11 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
     private static void ConfigureOpenIdConnect(IServiceCollection services)
     {
         services.AddOptions<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme)
-            .Configure<IOptions<ProgramKitWebOptions>, IHostEnvironment>((options, selected, environment) =>
+            .Configure<IOptions<ProgramKitWebOptions>, IHostEnvironment, ILoggerFactory>(
+                (options, selected, environment, loggerFactory) =>
             {
                 var settings = selected.Value;
+                var insecureLocal = environment.IsDevelopment() && settings.AllowHttpForLocalDevelopment;
                 options.Authority = settings.Authority;
                 if (!string.IsNullOrWhiteSpace(settings.BackchannelAuthority))
                 {
@@ -140,21 +150,29 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
                 options.ClientId = settings.ClientId;
                 options.ClientSecret = settings.ClientSecret;
                 options.ResponseType = "code";
+                options.ResponseMode = insecureLocal ? "query" : "form_post";
                 options.UsePkce = true;
                 options.SaveTokens = true;
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.MapInboundClaims = false;
-                options.RequireHttpsMetadata = !(environment.IsDevelopment() && settings.AllowHttpForLocalDevelopment);
+                options.RequireHttpsMetadata = !insecureLocal;
                 options.CallbackPath = settings.CallbackPath;
                 options.SignedOutCallbackPath = settings.SignedOutCallbackPath;
                 options.RemoteSignOutPath = settings.RemoteSignOutPath;
                 options.RemoteAuthenticationTimeout = TimeSpan.FromSeconds(settings.RemoteAuthenticationTimeoutSeconds);
                 options.BackchannelTimeout = TimeSpan.FromSeconds(settings.DiscoveryTimeoutSeconds);
-                if (environment.IsDevelopment() && settings.AllowHttpForLocalDevelopment)
-                {
-                    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                    options.NonceCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                }
+                options.CorrelationCookie.SecurePolicy = insecureLocal
+                    ? CookieSecurePolicy.SameAsRequest
+                    : CookieSecurePolicy.Always;
+                options.CorrelationCookie.SameSite = insecureLocal
+                    ? SameSiteMode.Lax
+                    : SameSiteMode.None;
+                options.NonceCookie.SecurePolicy = insecureLocal
+                    ? CookieSecurePolicy.SameAsRequest
+                    : CookieSecurePolicy.Always;
+                options.NonceCookie.SameSite = insecureLocal
+                    ? SameSiteMode.Lax
+                    : SameSiteMode.None;
 
                 options.Scope.Clear();
                 foreach (var scope in settings.Scopes)
@@ -165,12 +183,17 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
                 options.TokenValidationParameters = ValidationParameters(settings, settings.ClientId);
                 options.Events.OnTokenValidated = context =>
                 {
-                    if (
-                        string.IsNullOrWhiteSpace(context.Principal?.FindFirstValue("iss"))
-                        || string.IsNullOrWhiteSpace(context.Principal?.FindFirstValue("sub")))
+                    var issuer = context.Principal?.FindFirstValue("iss");
+                    var subject = context.Principal?.FindFirstValue("sub");
+                    if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(subject))
                     {
                         context.Fail("The validated OpenID Connect identity requires issuer and subject claims.");
+                        return Task.CompletedTask;
                     }
+
+                    var identity = (ClaimsIdentity)context.Principal!.Identity!;
+                    identity.AddClaim(new Claim(ValidatedIssuerClaim, issuer));
+                    identity.AddClaim(new Claim(ValidatedSubjectClaim, subject));
                     return Task.CompletedTask;
                 };
                 options.Events.OnRemoteFailure = context =>
@@ -178,6 +201,11 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
                     var code = context.Failure is HttpRequestException or TaskCanceledException
                         ? "identity_provider_unavailable"
                         : "authentication_callback_invalid";
+                    loggerFactory.CreateLogger("ProgramKit.RemoteAuthentication")
+                        .LogWarning(
+                            context.Failure,
+                            "OIDC remote authentication failed with stable code {AuthenticationErrorCode}.",
+                            code);
                     context.HandleResponse();
                     context.Response.Redirect($"{settings.AccessDeniedPath}?code={code}");
                     return Task.CompletedTask;
@@ -238,8 +266,8 @@ public sealed class ProgramKitBffCookieFeature : IWebShellFeature, IMiddlewareSh
             return;
         }
 
-        var issuer = user.FindFirstValue("iss");
-        var subject = user.FindFirstValue("sub");
+        var issuer = user.FindFirstValue(ValidatedIssuerClaim);
+        var subject = user.FindFirstValue(ValidatedSubjectClaim);
         if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(subject))
         {
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);

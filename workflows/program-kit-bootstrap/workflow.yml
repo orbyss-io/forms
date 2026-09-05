@@ -3,7 +3,7 @@ schema_version: "1.0"
 workflow:
   id: "program-kit-bootstrap"
   name: "Architecture-Governed Repository Bootstrap"
-  version: "0.9.8"
+  version: "0.9.9"
   author: "Orbyss"
   description: "Orchestrates the Program Kit bundle's governance extension through ratification, architecture, quality, and the candidate specification portfolio."
 

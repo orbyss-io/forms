@@ -30,6 +30,9 @@ jobs:
       - name: Validate web security assurance evidence
         run: python tests/validate_web_security_assurance.py
 
+      - name: Validate provider-neutral authentication boundaries
+        run: python tests/validate_authentication_provider_boundary.py
+
       - name: Validate Codex agent bootstrap boundary
         run: python tests/validate_codex_bootstrap.py
 
@@ -50,6 +53,9 @@ jobs:
 
       - name: Validate .NET runtime version coherence
         run: python tests/validate_dotnet_runtime.py
+
+      - name: Validate solution test-project discovery
+        run: python tests/validate_dotnet_test_discovery.py
 
       - name: Validate bundle manifest
         run: specify bundle validate --path . --offline

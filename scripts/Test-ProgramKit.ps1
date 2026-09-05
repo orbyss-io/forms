@@ -30,6 +30,11 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Web security assurance validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_authentication_provider_boundary.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral authentication boundary validation failed.'
+}
+
 & $python (Join-Path $projectRoot 'tests\validate_dotnet_runtime.py')
 if ($LASTEXITCODE -ne 0) {
     throw '.NET runtime version coherence validation failed.'
@@ -70,6 +75,11 @@ if ($LASTEXITCODE -ne 0) {
     throw '.NET build and restricted-profile restore validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_dotnet_test_discovery.py')
+if ($LASTEXITCODE -ne 0) {
+    throw '.NET solution test-project discovery validation failed.'
+}
+
 & $python (Join-Path $projectRoot 'tests\validate_repository_verification_hook.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Repository verification-hook validation failed.'
@@ -83,6 +93,46 @@ if ($LASTEXITCODE -ne 0) {
 & $python (Join-Path $projectRoot 'tests\validate_domain_events.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Program Kit domain-event validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_bff_cookie_options.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'BFF OIDC cookie-policy validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_assurance.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral authentication-assurance validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_client_credentials.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral OAuth client-credentials validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_token_exchange.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral OAuth token-exchange validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_downstream_api.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral authenticated downstream API validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_dpop.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral DPoP validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_jwks_rotation.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Provider-neutral discovery and JWKS rollover validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_keycloak_admin.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Keycloak Admin REST abstraction and adapter validation failed.'
 }
 
 & $python (Join-Path $projectRoot 'tests\validate_codex_bootstrap.py')

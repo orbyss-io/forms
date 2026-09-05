@@ -3,10 +3,17 @@
     <Project Path="src/dotnet/ProgramKit.Analyzers/ProgramKit.Analyzers.csproj" />
     <Project Path="src/dotnet/ProgramKit.Authentication/ProgramKit.Authentication.csproj" />
     <Project Path="src/dotnet/ProgramKit.Authentication.BffCookie/ProgramKit.Authentication.BffCookie.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Authentication.ClientCredentials/ProgramKit.Authentication.ClientCredentials.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Authentication.Assurance/ProgramKit.Authentication.Assurance.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Authentication.DownstreamApi/ProgramKit.Authentication.DownstreamApi.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Authentication.DPoP/ProgramKit.Authentication.DPoP.csproj" />
     <Project Path="src/dotnet/ProgramKit.Authentication.SpaPkce/ProgramKit.Authentication.SpaPkce.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Authentication.TokenExchange/ProgramKit.Authentication.TokenExchange.csproj" />
     <Project Path="src/dotnet/ProgramKit.DomainEvents.Abstractions/ProgramKit.DomainEvents.Abstractions.csproj" />
     <Project Path="src/dotnet/ProgramKit.DomainEvents/ProgramKit.DomainEvents.csproj" />
     <Project Path="src/dotnet/ProgramKit.Host/ProgramKit.Host.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Identity.Admin.Abstractions/ProgramKit.Identity.Admin.Abstractions.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Identity.Keycloak.Admin/ProgramKit.Identity.Keycloak.Admin.csproj" />
     <Project Path="src/dotnet/ProgramKit.OpenApi.Exporter/ProgramKit.OpenApi.Exporter.csproj" />
     <Project Path="src/dotnet/ProgramKit.Tasks.Abstractions/ProgramKit.Tasks.Abstractions.csproj" />
     <Project Path="src/dotnet/ProgramKit.Tasks/ProgramKit.Tasks.csproj" />
@@ -15,6 +22,14 @@
     <Project Path="src/dotnet/ProgramKit.Web.ProblemDetails/ProgramKit.Web.ProblemDetails.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/dotnet/ProgramKit.Authentication.BffCookie.Probe/ProgramKit.Authentication.BffCookie.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Authentication.ClientCredentials.Probe/ProgramKit.Authentication.ClientCredentials.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Authentication.Assurance.Probe/ProgramKit.Authentication.Assurance.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Authentication.DownstreamApi.Probe/ProgramKit.Authentication.DownstreamApi.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Authentication.DPoP.Probe/ProgramKit.Authentication.DPoP.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Authentication.JwksRotation.Probe/ProgramKit.Authentication.JwksRotation.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Authentication.TokenExchange.Probe/ProgramKit.Authentication.TokenExchange.Probe.csproj" />
     <Project Path="tests/dotnet/ProgramKit.DomainEvents.Probe/ProgramKit.DomainEvents.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Identity.Keycloak.Admin.Probe/ProgramKit.Identity.Keycloak.Admin.Probe.csproj" />
   </Folder>
 </Solution>

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROGRAM_KIT_REF="v0.9.8"
+PROGRAM_KIT_REF="v0.9.9"
 
 # Run from a normal user-owned Bash shell in Linux, macOS, or WSL.
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"

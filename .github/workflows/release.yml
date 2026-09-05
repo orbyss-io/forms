@@ -46,6 +46,9 @@ jobs:
       - name: Validate web security assurance evidence
         run: python tests/validate_web_security_assurance.py
 
+      - name: Validate provider-neutral authentication boundaries
+        run: python tests/validate_authentication_provider_boundary.py
+
       - name: Validate Codex agent bootstrap boundary
         run: python tests/validate_codex_bootstrap.py
 
@@ -70,6 +73,9 @@ jobs:
       - name: Validate managed build and restricted-profile restore contract
         run: python tests/validate_dotnet_build_contract.py
 
+      - name: Validate solution test-project discovery
+        run: python tests/validate_dotnet_test_discovery.py
+
       - name: Validate profile-gated .NET scaffold
         run: python tests/validate_dotnet_scaffold.py
 
@@ -84,8 +90,38 @@ jobs:
           dotnet restore ProgramKit.slnx --locked-mode --configfile NuGet.config
           dotnet build ProgramKit.slnx -c Release --no-restore
 
+      - name: Validate BFF OIDC cookie policy
+        run: python tests/validate_bff_cookie_options.py
+
+      - name: Validate provider-neutral authentication assurance
+        run: python tests/validate_assurance.py
+
+      - name: Validate provider-neutral OAuth client credentials
+        run: python tests/validate_client_credentials.py
+
+      - name: Validate provider-neutral OAuth token exchange
+        run: python tests/validate_token_exchange.py
+
+      - name: Validate provider-neutral authenticated downstream APIs
+        run: python tests/validate_downstream_api.py
+
+      - name: Validate provider-neutral DPoP enforcement
+        run: python tests/validate_dpop.py
+
+      - name: Validate provider-neutral discovery and JWKS rollover
+        run: python tests/validate_jwks_rotation.py
+
+      - name: Validate Keycloak Admin REST adapter boundaries
+        run: python tests/validate_keycloak_admin.py
+
       - name: Pack built-in .NET features for integration validation
         run: dotnet pack ProgramKit.slnx -c Release --no-build -p:PackageOutputPath="$PWD/artifacts/nuget"
+
+      - name: Validate packaged BFF identity journeys in a real browser
+        run: python tests/validate_bff_browser_flow.py
+
+      - name: Validate packaged SPA-PKCE identity journeys in a real browser
+        run: python tests/validate_spa_browser_flow.py
 
       - name: Restore representative consumer dependency graph
         run: python tests/validate_dotnet_consumer_restore.py

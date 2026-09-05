@@ -15,7 +15,7 @@ namespace ProgramKit.OpenApiExport;
 internal static class Exporter
 {
     /// <summary>Identifies the exact managed exporter contract implemented by this binary.</summary>
-    private const string ToolVersion = "0.9.7-preview.1";
+    private const string ToolVersion = "0.9.9-preview.1";
 
     /// <summary>Runs one export and converts deterministic contract failures to PKO200 diagnostics.</summary>
     public static async Task<int> RunAsync(string[] args)

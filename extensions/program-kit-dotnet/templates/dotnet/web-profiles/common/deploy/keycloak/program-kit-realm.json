@@ -2,6 +2,8 @@
   "realm": "program-kit",
   "enabled": true,
   "displayName": "Program Kit Local Identity",
+  "loginTheme": "program-kit",
+  "emailTheme": "program-kit",
   "attributes": { "programKitFixture": "local-non-production-only" },
   "sslRequired": "none",
   "registrationAllowed": false,
@@ -17,7 +19,8 @@
   "roles": {
     "realm": [
       { "name": "user", "description": "Authorized application user" },
-      { "name": "admin", "description": "Application administrator" }
+      { "name": "admin", "description": "Application administrator" },
+      { "name": "offline_access", "description": "Allows the local BFF fixture to request offline tokens" }
     ]
   },
   "clientScopes": [
@@ -250,7 +253,7 @@
       "lastName": "User",
       "email": "local-user@example.test",
       "credentials": [ { "type": "password", "value": "local-user-only", "temporary": false } ],
-      "realmRoles": [ "user" ]
+      "realmRoles": [ "user", "offline_access" ]
     },
     {
       "username": "local-admin",
@@ -260,7 +263,7 @@
       "lastName": "Administrator",
       "email": "local-admin@example.test",
       "credentials": [ { "type": "password", "value": "local-admin-only", "temporary": false } ],
-      "realmRoles": [ "user", "admin" ]
+      "realmRoles": [ "user", "admin", "offline_access" ]
     },
     {
       "username": "local-wrong-role",
@@ -270,7 +273,7 @@
       "lastName": "Role",
       "email": "local-wrong-role@example.test",
       "credentials": [ { "type": "password", "value": "local-wrong-role-only", "temporary": false } ],
-      "realmRoles": []
+      "realmRoles": [ "offline_access" ]
     }
   ]
 }

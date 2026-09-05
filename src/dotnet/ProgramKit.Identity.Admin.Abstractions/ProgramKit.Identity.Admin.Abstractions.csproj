@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provider-neutral identity administration contracts for portable business orchestration.</Description>
+    <PackageId>ProgramKit.Identity.Admin.Abstractions</PackageId>
+    <PackageTags>program-kit;identity;administration;abstractions;users;clients;roles</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

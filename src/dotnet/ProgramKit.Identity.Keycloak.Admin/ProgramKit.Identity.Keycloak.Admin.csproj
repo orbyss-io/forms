@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Opt-in CShell identity-administration features backed by the Keycloak Admin REST API.</Description>
+    <PackageId>ProgramKit.Identity.Keycloak.Admin</PackageId>
+    <PackageTags>program-kit;cshells;identity;keycloak;admin;rest</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.Abstractions" PrivateAssets="all" />
+    <ProjectReference Include="../ProgramKit.Identity.Admin.Abstractions/ProgramKit.Identity.Admin.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

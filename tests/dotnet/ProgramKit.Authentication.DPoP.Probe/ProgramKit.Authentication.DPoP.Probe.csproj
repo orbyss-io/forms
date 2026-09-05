@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.Abstractions" />
+    <PackageReference Include="CShells.AspNetCore.Abstractions" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Authentication.DPoP/ProgramKit.Authentication.DPoP.csproj" />
+  </ItemGroup>
+</Project>

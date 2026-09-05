@@ -10,7 +10,7 @@
   "frontchannelLogout": false,
   "protocol": "openid-connect",
   "redirectUris": [ "http://localhost:5000/signin-oidc" ],
-  "postLogoutRedirectUris": [ "http://localhost:5000/bff/signed-out" ],
+  "postLogoutRedirectUris": [ "http://localhost:5000/signout-callback-oidc" ],
   "webOrigins": [ "http://localhost:5000" ],
   "attributes": {
     "pkce.code.challenge.method": "S256"

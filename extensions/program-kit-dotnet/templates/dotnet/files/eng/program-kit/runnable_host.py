@@ -22,8 +22,13 @@ from program_kit_version import PROGRAM_KIT_VERSION
 
 BUILT_IN_FEATURE_PACKAGES = {
     "ProgramKit.Authentication": "ProgramKit.Authentication",
+    "ProgramKit.Authentication.Assurance": "ProgramKit.Authentication.Assurance",
     "ProgramKit.Authentication.BffCookie": "ProgramKit.Authentication.BffCookie",
+    "ProgramKit.Authentication.ClientCredentials": "ProgramKit.Authentication.ClientCredentials",
+    "ProgramKit.Authentication.DownstreamApi": "ProgramKit.Authentication.DownstreamApi",
+    "ProgramKit.Authentication.DPoP": "ProgramKit.Authentication.DPoP",
     "ProgramKit.Authentication.SpaPkce": "ProgramKit.Authentication.SpaPkce",
+    "ProgramKit.Authentication.TokenExchange": "ProgramKit.Authentication.TokenExchange",
     "ProgramKit.DomainEvents": "ProgramKit.DomainEvents",
     "ProgramKitTasks": "ProgramKit.Tasks",
     "ProgramKit.WebDefaults": "ProgramKit.WebDefaults",
@@ -44,6 +49,8 @@ BUILT_IN_FEATURE_RUNTIME_PACKAGES = {
     "ProgramKit.Authentication.BffCookie": IDENTITY_RUNTIME_PACKAGES
     | {("Microsoft.AspNetCore.Authentication.OpenIdConnect", "10.0.11")},
     "ProgramKit.Authentication.SpaPkce": IDENTITY_RUNTIME_PACKAGES
+    | {("Microsoft.AspNetCore.Authentication.JwtBearer", "10.0.11")},
+    "ProgramKit.Authentication.DPoP": IDENTITY_RUNTIME_PACKAGES
     | {("Microsoft.AspNetCore.Authentication.JwtBearer", "10.0.11")},
     "ProgramKit.Web.OpenApi": {
         ("Microsoft.AspNetCore.OpenApi", "10.0.11"),

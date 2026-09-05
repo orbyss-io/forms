@@ -92,8 +92,10 @@ ADR. Name it for the business language it owns rather than `Shared`.
 - Concrete inheritance does not create an exception merely for code reuse.
 - A feature-family extension may reference an explicitly designed abstraction or abstract base only
   under the ownership, substitutability, ADR, and allowlist rules in `modularity-and-contracts.md`.
-- `InternalsVisibleTo` is limited to tightly controlled test assemblies unless an Accepted ADR states
-  a different owner and compatibility boundary.
+- `InternalsVisibleTo` is forbidden. Tests and probes exercise the same public contracts and
+  composition seams available to consumers; they do not receive privileged access to implementation
+  details. When a behavior cannot be verified that way, introduce a deliberately owned public
+  abstraction or test it through the package's externally observable runtime behavior.
 - CI validates both the declared MSBuild `ProjectReference`/`PackageReference` graph and compiled
   assembly dependencies. The declared graph is authoritative even when a reference has not yet
   produced a CLR type dependency. Exact Accepted exceptions are allowlisted; naming conventions
