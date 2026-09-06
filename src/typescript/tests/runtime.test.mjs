@@ -70,6 +70,7 @@ import {
   validateLocalizationDocument
 } from "@orbyss/program-kit-localization-management";
 import { ProgramKitLocalizationManagement } from "@orbyss/program-kit-localization-management-react";
+import { ProgramKitLocalizationManagementVue } from "@orbyss/program-kit-localization-management-vue";
 import {
   joinProgramKitClassNames,
   programKitClassName,
@@ -833,6 +834,26 @@ test("React localization plane renders filters, windowed rows, workflow gates, a
   assert.match(markup, /class="pk-localization consumer-localization"/);
   assert.match(markup, /data-pk-slot="localization-management.table"/);
   assert.match(markup, /consumer-table/);
+});
+
+test("Vue localization plane renders the same governed filters, rows, gates, and review", async () => {
+  const app = createSSRApp({
+    render: () => h(ProgramKitLocalizationManagementVue, {
+      session: markRaw(new LocalizationManagementSession(localizationDocument())),
+      actor: { id: "editor-1", kind: "human" },
+      capabilities: { edit: true, add: true, import: true, export: true },
+      forms: [{ id: "registration", name: "Registration" }],
+      pageSize: 2,
+      className: "consumer-localization-vue",
+      classNames: { table: "consumer-localization-table-vue" }
+    })
+  });
+  const markup = await renderToString(app);
+  assert.match(markup, /data-pk-slot="localization-management.root"/);
+  assert.match(markup, /consumer-localization-vue/);
+  assert.match(markup, /consumer-localization-table-vue/);
+  assert.match(markup, /Translation filters/);
+  assert.match(markup, /Translations: 4 rows/);
 });
 
 test("theme contract exposes bounded semantic tokens and deterministic class composition", () => {

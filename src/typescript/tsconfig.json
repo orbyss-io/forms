@@ -19,6 +19,7 @@
     { "path": "packages/forms-modeler-vue" },
     { "path": "packages/localization-management" },
     { "path": "packages/localization-management-react" },
+    { "path": "packages/localization-management-vue" },
     { "path": "packages/forms-lookups" },
     { "path": "packages/forms-lookups-react" },
     { "path": "packages/forms-react" },

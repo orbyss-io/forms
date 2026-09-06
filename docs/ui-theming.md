@@ -17,6 +17,8 @@ import "@orbyss/program-kit-forms-schema-modeler-react/styles.css";
 // Vue consumers import the equivalent Vue package stylesheet instead:
 // import "@orbyss/program-kit-forms-schema-modeler-vue/styles.css";
 import "@orbyss/program-kit-localization-management-react/styles.css";
+// Vue consumers import the equivalent Vue package stylesheet instead:
+// import "@orbyss/program-kit-localization-management-vue/styles.css";
 ```
 
 Scope the built-in light, dark or operating-system-responsive theme to an application region:

@@ -64,7 +64,7 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains twenty-three independently packable packages:
+It currently contains twenty-four independently packable packages:
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -137,7 +137,10 @@ It currently contains twenty-three independently packable packages:
   preview surface, plus a validated add-message dialog for structured scope and typed ICU arguments
   and a bounded file/mapping dialog for CSV, XLSX, JSON, XLIFF 2.1 and PO preview submissions. Its
   table, filters, toolbar, dialogs, rows and import review expose the same theme slots and unstyled
-  integration mode.
+  integration mode; and
+- `@orbyss/program-kit-localization-management-vue`: the equivalent Vue management plane over the
+  same audited session, including scoped filters, bounded paging, inline values/states, lifecycle
+  gates, ICU message creation, bounded file submission and reviewed import application.
 
 JSON Forms Core 3.8.0 is an exact peer dependency of the runtime boundary. The framework-neutral
 package intentionally exposes JSON values rather than upstream framework types; React, Vue and
@@ -295,16 +298,16 @@ Verified commands and results:
   standalone-CSP checks, artifact/renderer/action/translation security tests, CodeMirror default
   checks, wizard/action navigation and state, modeler transactions/React administration/graph
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
-  behavior, rendered React/Vue binding tests, and twenty-three workspace package
+  behavior, rendered React/Vue binding tests, and twenty-four workspace package
   dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: twenty-three real npm archives contained their
+- `python tests/validate_forms_frontend_packages.py`: twenty-four real npm archives contained their
   declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
   the archives with exact JSON Forms/React/Vue/Angular peers and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and
   WebKit desktop/tablet profiles passed locally, including governed action execution, searchable
   lookup paging/selection/localized rehydration, React and Vue form-modeler synchronization,
-  strict-CSP form/schema modelers and localization management, responsive card-table reflow and
-  safe-error acceptance.
+  strict-CSP form/schema modelers, React and Vue localization add/import workflows, responsive
+  card-table reflow and safe-error acceptance.
 - `python tests/validate_dotnet_build_contract.py`: restricted-profile restore/build contract passed.
 - `python tests/validate_dotnet_runtime.py`: runtime versions and package locks coherent.
 - `python tests/validate_release_install.py`: packaged component and bundle clean-install test passed.

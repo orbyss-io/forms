@@ -53,3 +53,6 @@ into a consumer npm graph. Consumers install only the adapters they select.
   bounded import file/mapping submission, hash-bound preview review and a card reflow for phone and
   enlarged-text layouts. Parsing, authorization, conflict resolution and mutation remain server
   responsibilities.
+- `localization-management-vue` provides the equivalent Vue management plane over the same audited
+  session: scoped filters, bounded paging, inline editing, lifecycle gates, add-message/ICU authoring,
+  bounded import preview/review/apply, stable theme slots and application-owned integration callbacks.

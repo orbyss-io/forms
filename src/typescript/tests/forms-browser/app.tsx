@@ -19,10 +19,11 @@ import { SchemaModelerSession } from "@orbyss/program-kit-forms-schema-modeler";
 import { ProgramKitSchemaModeler } from "@orbyss/program-kit-forms-schema-modeler-react";
 import { LocalizationManagementSession } from "@orbyss/program-kit-localization-management";
 import { ProgramKitLocalizationManagement } from "@orbyss/program-kit-localization-management-react";
+import { ProgramKitLocalizationManagementVue } from "@orbyss/program-kit-localization-management-vue";
 import type { FormActionRequirement, JsonValue, RuntimeValidationIssue } from "@orbyss/program-kit-forms-contracts";
 import { schema } from "./schema.mjs";
 import { validate as validateGenerated } from "program-kit:validator";
-import { createApp as createVueApp, h as vueH, markRaw as markVueRaw } from "vue";
+import { createApp as createVueApp, h as vueH, markRaw as markVueRaw, ref as vueRef } from "vue";
 
 interface GeneratedError {
   readonly instancePath: string;
@@ -443,18 +444,42 @@ createRoot(root).render(<App />);
 const vueRoot = document.getElementById("vue-root");
 if (vueRoot === null) throw new Error("Vue fixture root is missing.");
 const vueModelerSession = markVueRaw(new FormModelerSession(modelerDocument));
+const vueLocalizationSession = markVueRaw(new LocalizationManagementSession(localizationDocument));
+const vueLocalizationAction = vueRef("");
 createVueApp({
-  render: () => vueH("section", { "aria-labelledby": "vue-modeler-heading", class: "fixture-modeler" }, [
-    vueH("h2", { id: "vue-modeler-heading" }, "Vue form modeler acceptance"),
-    vueH(ProgramKitFormModelerVue, {
-      session: vueModelerSession,
-      actionCatalog: modelerActionCatalog,
-      componentCatalog: modelerComponentCatalog,
-      className: "pk-form-modeler-vue-fixture",
-      classNames: { canvas: "fixture-themed-vue-canvas" },
-      editorMode: "strictCsp",
-      renderPreview: (document: FormModelerDocument) => vueH("p", `Trusted Vue preview: ${document.fields.map(field => field.label.defaultText).join(", ")}`),
-      onCommit: () => {}
-    })
+  render: () => vueH("div", [
+    vueH("section", { "aria-labelledby": "vue-modeler-heading", class: "fixture-modeler" }, [
+      vueH("h2", { id: "vue-modeler-heading" }, "Vue form modeler acceptance"),
+      vueH(ProgramKitFormModelerVue, {
+        session: vueModelerSession,
+        actionCatalog: modelerActionCatalog,
+        componentCatalog: modelerComponentCatalog,
+        className: "pk-form-modeler-vue-fixture",
+        classNames: { canvas: "fixture-themed-vue-canvas" },
+        editorMode: "strictCsp",
+        renderPreview: (document: FormModelerDocument) => vueH("p", `Trusted Vue preview: ${document.fields.map(field => field.label.defaultText).join(", ")}`),
+        onCommit: () => {}
+      })
+    ]),
+    vueH("section", { "aria-labelledby": "vue-localization-heading", class: "fixture-modeler" }, [
+      vueH("h2", { id: "vue-localization-heading" }, "Vue localization management acceptance"),
+      vueH(ProgramKitLocalizationManagementVue, {
+        session: vueLocalizationSession,
+        actor: { id: "fixture-vue-editor", kind: "human", displayName: "Vue fixture editor" },
+        capabilities: { edit: true, add: true, import: true, export: true, review: true, approve: true, publish: true },
+        forms: [{ id: "registration", name: "Registration" }],
+        pageSize: 2,
+        className: "pk-localization-vue-fixture",
+        classNames: { table: "fixture-themed-vue-table" },
+        importPreview: { previewId: "vue-preview-1", contentSha256: "abc", basedOnRevision: 3, mergePolicy: "preserveExisting", changes: [{ key: "fields.email", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "E-mail" }], diagnostics: [] },
+        previewImport: async (submission: { fileName: string; format: string; mapping: Readonly<Record<string, string>>; content: Uint8Array; mergePolicy: "addOnly" | "preserveExisting" | "replaceImported" | "replaceScope" }) => {
+          if (submission.fileName !== "registration.csv" || new TextDecoder().decode(submission.content) !== "key,source,nl\nfields.phone,Phone,Telefoon") throw new Error("Vue upload contract changed");
+          vueLocalizationAction.value = `import-previewed:${submission.format}:${submission.mapping.locale ?? "none"}`;
+          return { previewId: "vue-uploaded-preview", contentSha256: "fixture-vue-upload", basedOnRevision: 3, mergePolicy: submission.mergePolicy, changes: [{ key: "fields.phone", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "Telefoon" }], diagnostics: [] };
+        },
+        onApplyImport: (previewId: string) => { vueLocalizationAction.value = `import-applied:${previewId}`; }
+      }),
+      vueH("p", { class: "fixture-vue-localization-action", "aria-live": "polite" }, vueLocalizationAction.value)
+    ])
   ])
 }).mount(vueRoot);

@@ -62,7 +62,9 @@ As of 2026-09-06:
   session, semantic structure, stable theme slots, strict-CSP fallback and injected editor seam.
   The Vue form modeler now also reuses its framework-neutral session, catalogs and editor adapters,
   with palette/tree/canvas/inspector/preview/JSON/graph views and explicit touch/keyboard movement.
-  Vue localization management and Angular management bindings remain.
+  Vue localization management now supplies the same scoped filtering, bounded paging, optimistic
+  editing, lifecycle gates, ICU message authoring and hash-bound import-preview workflow. Angular
+  management bindings remain.
 - Slice 6 is complete: locale/fallback validation, structured scopes, ICU-style
   placeholder/plural/select checks, exact/fallback immutable resolution and deterministic bundles.
   The explicit Forms-to-Localization bridge adds missing catalog messages, preserves reviewed
@@ -109,10 +111,10 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
   shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all twenty-three packages with their exact framework peers. The
+  consumer that installs and imports all twenty-four packages with their exact framework peers. The
   Vue runtime binding shares the CSP-safe precompiled validation seam, and the first Vue management
   planes reuse the provider-neutral schema and form modeler sessions. The tagged GitHub Packages
-  publication step, remaining Vue localization/Angular management parity, physical-device/manual assistive
+  publication step, remaining Angular management parity, physical-device/manual assistive
   evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
   to `ProgramKit.Host`. Production EF Core, SQLite, migration, and object-storage choices are
   deliberately deferred to consumers rather than becoming Program Kit defaults.
@@ -302,7 +304,7 @@ cross-engine validation parity and hostile-schema/import fixtures.
 7. **Operational capabilities**: resumable drafts, optional submissions/attachments, MCP/tool
    surfaces, complete in-memory reference persistence, and consumer-owned provider contracts.
 8. **Release proof**: clean pack/install probes, cross-engine/device suites, security fixtures,
-   upgrade/migration tests, remaining Vue/Angular management bindings, evidence and consumer documentation.
+   upgrade/migration tests, remaining Angular management bindings, evidence and consumer documentation.
 
 Each slice must pass deterministic tests and clean package-isolation probes before the next slice
 relies on it. No slice may add Host-owned middleware or use `InternalsVisibleTo` for its probes.

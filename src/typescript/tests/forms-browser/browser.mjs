@@ -219,7 +219,27 @@ async function verify(engine, browserType, profile) {
     assert.match(await schemaModeler.getByRole("alert").innerText(), /outside the governed modeler subset/, `${label}: unsafe schema keywords fail closed`);
     await schemaModeler.getByRole("tab", { name: "Graph" }).click();
     assert.equal(await schemaModeler.getByRole("table").getByText("email", { exact: true }).count(), 1, `${label}: schema graph reflects property relationships`);
-    const localization = page.locator(".pk-localization");
+    const vueLocalization = page.locator(".pk-localization-vue-fixture");
+    assert.equal(await vueLocalization.getAttribute("data-pk-slot"), "localization-management.root", `${label}: Vue localization stable root slot`);
+    assert.match(await vueLocalization.locator('[data-pk-slot="localization-management.table"]').getAttribute("class") ?? "", /fixture-themed-vue-table/, `${label}: Vue localization typed theme slot`);
+    assert.match(await vueLocalization.getByRole("caption").innerText(), /4 rows/, `${label}: Vue localization bounded row projection`);
+    await vueLocalization.getByRole("button", { name: "Add message" }).click();
+    const vueAddMessage = vueLocalization.getByRole("dialog", { name: "Add localization message" });
+    await vueAddMessage.getByRole("textbox", { name: "Key" }).fill("fields.email");
+    await vueAddMessage.getByRole("textbox", { name: "Source" }).fill("Email");
+    await vueAddMessage.getByRole("button", { name: "Create message" }).click();
+    await vueAddMessage.waitFor({ state: "detached" });
+    assert.match(await vueLocalization.getByRole("caption").innerText(), /6 rows/, `${label}: Vue add-message dialog applies the shared optimistic command`);
+    await vueLocalization.getByRole("button", { name: "Import", exact: true }).click();
+    const vueImport = vueLocalization.getByRole("dialog", { name: "Preview localization import" });
+    await vueImport.getByLabel("Import file").setInputFiles({ name: "registration.csv", mimeType: "text/csv", buffer: Buffer.from("key,source,nl\nfields.phone,Phone,Telefoon") });
+    await vueImport.getByRole("textbox", { name: "Target locale" }).fill("nl");
+    await vueImport.getByRole("button", { name: "Preview import" }).click();
+    await vueImport.waitFor({ state: "detached" });
+    assert.equal(await page.locator(".fixture-vue-localization-action").innerText(), "import-previewed:csv:nl", `${label}: Vue bounded upload reaches the trusted preview adapter`);
+    await vueLocalization.getByRole("button", { name: "Apply import" }).click();
+    assert.equal(await page.locator(".fixture-vue-localization-action").innerText(), "import-applied:vue-uploaded-preview", `${label}: Vue applies only the reviewed preview identity`);
+    const localization = page.locator(".pk-localization:not(.pk-localization-vue-fixture)");
     assert.equal(await localization.getAttribute("data-pk-slot"), "localization-management.root", `${label}: stable localization root slot`);
     assert.match(await localization.locator('[data-pk-slot="localization-management.table"]').getAttribute("class") ?? "", /fixture-themed-table/, `${label}: typed localization slot class`);
     assert.match(await localization.getByRole("caption").innerText(), /4 rows/, `${label}: localization row projection`);
@@ -270,6 +290,12 @@ async function verify(engine, browserType, profile) {
       fits: document.documentElement.scrollWidth <= innerWidth + 1,
       width: document.documentElement.scrollWidth,
       viewport: innerWidth,
+      bodyWidth: document.body.scrollWidth,
+      main: (() => { const value = document.querySelector("main")?.getBoundingClientRect(); return value === undefined ? null : { left: Math.round(value.left), right: Math.round(value.right), width: Math.round(value.width) }; })(),
+      vueRoot: (() => { const value = document.querySelector("#vue-root")?.getBoundingClientRect(); return value === undefined ? null : { left: Math.round(value.left), right: Math.round(value.right), width: Math.round(value.width), scrollWidth: document.querySelector("#vue-root")?.scrollWidth }; })(),
+      active: document.activeElement === null ? null : { tag: document.activeElement.tagName, text: document.activeElement.textContent?.trim(), className: document.activeElement.className },
+      vueOffenders: (() => { const root = document.querySelector("#vue-root"); if (root === null) return []; const bounds = root.getBoundingClientRect(); return [...root.querySelectorAll("*")].filter(element => element.getBoundingClientRect().width > 0 && (element.getBoundingClientRect().right > bounds.right + 1 || element.getBoundingClientRect().left < bounds.left - 1)).slice(0, 12).map(element => ({ tag: element.tagName, className: element.className, text: element.textContent?.trim().slice(0, 40), left: Math.round(element.getBoundingClientRect().left), right: Math.round(element.getBoundingClientRect().right), width: Math.round(element.getBoundingClientRect().width), scrollWidth: element.scrollWidth })); })(),
+      vueScrollers: (() => { const root = document.querySelector("#vue-root"); if (root === null) return []; return [root, ...root.querySelectorAll("*")].filter(element => element.scrollWidth > element.clientWidth + 1).slice(0, 12).map(element => ({ tag: element.tagName, id: element.id, className: element.className, clientWidth: element.clientWidth, scrollWidth: element.scrollWidth })); })(),
       offenders: [...document.querySelectorAll("body *")].filter(element => element.getBoundingClientRect().right > innerWidth + 1 || element.getBoundingClientRect().left < -1).slice(0, 12).map(element => ({ tag: element.tagName, className: element.className, left: Math.round(element.getBoundingClientRect().left), right: Math.round(element.getBoundingClientRect().right), scrollWidth: element.scrollWidth }))
     }));
     assert(reflows.fits, `${label}: 320px/200% RTL reflow ${JSON.stringify(reflows)}`);
@@ -279,7 +305,7 @@ async function verify(engine, browserType, profile) {
       await page.screenshot({ path: resolve(evidence, `${engine}-${profile.name}.png`) });
       assertNoErrors(label, "screenshot");
     }
-    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", vueModeler: "passed", schemaModeler: "passed", localizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
+    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", vueModeler: "passed", schemaModeler: "passed", localizationManagement: "passed", vueLocalizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
   } finally {
     await context.close();
     await browser.close();

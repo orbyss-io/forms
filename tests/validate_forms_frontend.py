@@ -56,6 +56,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-vue",
         "@orbyss/program-kit-localization-management",
         "@orbyss/program-kit-localization-management-react",
+        "@orbyss/program-kit-localization-management-vue",
         "@orbyss/program-kit-ui-theme",
     }
     manifests = [json.loads(path.read_text(encoding="utf-8")) for path in package_files]
@@ -172,6 +173,14 @@ def main() -> int:
     } or localization_react.get("devDependencies") != {"@types/react": "19.2.18"}:
         raise AssertionError("The React localization plane crossed its governed framework-neutral boundary.")
 
+    localization_vue = by_name["@orbyss/program-kit-localization-management-vue"]
+    if localization_vue.get("dependencies") != {
+        "@orbyss/program-kit-localization-management": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or localization_vue.get("peerDependencies") != {"vue": "3.5.42"} \
+            or localization_vue.get("devDependencies") != {"vue": "3.5.42"}:
+        raise AssertionError("The Vue localization plane crossed its governed framework-neutral boundary.")
+
     theme = by_name["@orbyss/program-kit-ui-theme"]
     if theme.get("dependencies") or theme.get("peerDependencies") or theme.get("devDependencies"):
         raise AssertionError("The framework-neutral theme contract must remain dependency-free.")
@@ -188,6 +197,7 @@ def main() -> int:
         WORKSPACE / "packages/forms-schema-modeler-react/styles.css",
         WORKSPACE / "packages/forms-schema-modeler-vue/styles.css",
         WORKSPACE / "packages/localization-management-react/styles.css",
+        WORKSPACE / "packages/localization-management-vue/styles.css",
     ):
         content = stylesheet.read_text(encoding="utf-8")
         if "@layer program-kit.components" not in content or "var(--pk-" not in content:
@@ -198,12 +208,16 @@ def main() -> int:
     if (WORKSPACE / "packages/forms-modeler-react/styles.css").read_text(encoding="utf-8") != \
             (WORKSPACE / "packages/forms-modeler-vue/styles.css").read_text(encoding="utf-8"):
         raise AssertionError("React and Vue form modelers must expose the same portable visual contract.")
+    if (WORKSPACE / "packages/localization-management-react/styles.css").read_text(encoding="utf-8") != \
+            (WORKSPACE / "packages/localization-management-vue/styles.css").read_text(encoding="utf-8"):
+        raise AssertionError("React and Vue localization planes must expose the same portable visual contract.")
     for source in (
         WORKSPACE / "packages/forms-modeler-react/src/index.tsx",
         WORKSPACE / "packages/forms-modeler-vue/src/index.ts",
         WORKSPACE / "packages/forms-schema-modeler-react/src/index.tsx",
         WORKSPACE / "packages/forms-schema-modeler-vue/src/index.ts",
         WORKSPACE / "packages/localization-management-react/src/index.tsx",
+        WORKSPACE / "packages/localization-management-vue/src/index.ts",
     ):
         content = source.read_text(encoding="utf-8")
         if "data-pk-slot" not in content or "unstyled" not in content or "ProgramKitClassNames" not in content:
@@ -346,7 +360,7 @@ def main() -> int:
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, React/Vue form and schema modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
+    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, React/Vue form/schema/localization management UI, searchable lookups, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
     return 0
 
 
