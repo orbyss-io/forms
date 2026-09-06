@@ -40,6 +40,7 @@ import {
   serializeCompiledJsonSchema
 } from "@orbyss/program-kit-forms-schema-modeler";
 import { ProgramKitSchemaModeler } from "@orbyss/program-kit-forms-schema-modeler-react";
+import { ProgramKitSchemaModelerVue } from "@orbyss/program-kit-forms-schema-modeler-vue";
 import { FormActionRegistry, RendererRegistry } from "@orbyss/program-kit-forms-renderer-registry";
 import { ProgramKitActionController, ProgramKitActionError, parseProgramKitActionBar } from "@orbyss/program-kit-forms-actions";
 import { ProgramKitWizardController, parseProgramKitWizard } from "@orbyss/program-kit-forms-wizard";
@@ -689,6 +690,24 @@ test("React schema modeler renders themeable synchronized authoring views", () =
   assert.match(markup, /data-pk-slot="schema-modeler.root"/);
   assert.match(markup, /consumer-schema-modeler/);
   assert.match(markup, /consumer-schema-canvas/);
+  assert.match(markup, /Schema structure/);
+  assert.match(markup, /Schema canvas/);
+});
+
+test("Vue schema modeler renders the same themeable governed authoring views", async () => {
+  const app = createSSRApp({
+    render: () => h(ProgramKitSchemaModelerVue, {
+      session: markRaw(new SchemaModelerSession(schemaModelerDocument())),
+      editorMode: "strictCsp",
+      className: "consumer-schema-modeler-vue",
+      classNames: { canvas: "consumer-schema-canvas-vue" },
+      onCommit: () => {}
+    })
+  });
+  const markup = await renderToString(app);
+  assert.match(markup, /data-pk-slot="schema-modeler.root"/);
+  assert.match(markup, /consumer-schema-modeler-vue/);
+  assert.match(markup, /consumer-schema-canvas-vue/);
   assert.match(markup, /Schema structure/);
   assert.match(markup, /Schema canvas/);
 });

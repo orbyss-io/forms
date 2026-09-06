@@ -30,7 +30,8 @@ As of 2026-09-06:
   desktop, phone and tablet acceptance; Firefox remains an unconditional Linux CI gate because the
   pinned local Windows browser bundle cannot launch. A compiler-emitted .NET release fixture is
   consumed byte-for-byte by the TypeScript integrity/runtime path, including the strict allowlist
-  for Program Kit schema annotations. Vue/Angular bindings remain.
+  for Program Kit schema annotations. Vue and Angular runtime bindings now exist; deeper framework
+  management parity remains.
 - Slice 5 now includes the portable wizard parser/state machine and React renderer: translated/icon
   navigation, progress/status semantics, validation-gated movement, optional and conditional steps,
   and application-owned completion callbacks. The provider-neutral action manifest, ordered action
@@ -57,7 +58,9 @@ As of 2026-09-06:
   now owns a bounded JSON Schema 2020-12 subset, atomic optimistic/idempotent commands, undo/redo,
   strict import/compilation and tree/graph projections. Its themed React plane synchronizes palette,
   structure tree, block canvas, inspector, JSON Schema source and graph while sharing the same
-  CodeMirror/Monaco adapter contract. Vue/Angular management bindings remain.
+  CodeMirror/Monaco adapter contract. A Vue schema-modeler plane now renders the same governed
+  session, semantic structure, stable theme slots, strict-CSP fallback and injected editor seam.
+  Vue form/localization management planes and Angular management bindings remain.
 - Slice 6 is complete: locale/fallback validation, structured scopes, ICU-style
   placeholder/plural/select checks, exact/fallback immutable resolution and deterministic bundles.
   The explicit Forms-to-Localization bridge adds missing catalog messages, preserves reviewed
@@ -104,9 +107,10 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
   shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all twenty-one packages with their exact framework peers. The
-  first Vue runtime binding shares the CSP-safe precompiled validation seam. The tagged GitHub
-  Packages publication step, deeper Vue/Angular management parity, physical-device/manual assistive
+  consumer that installs and imports all twenty-two packages with their exact framework peers. The
+  Vue runtime binding shares the CSP-safe precompiled validation seam, and the first Vue management
+  plane reuses the provider-neutral schema-modeler session. The tagged GitHub Packages publication
+  step, remaining Vue/Angular management parity, physical-device/manual assistive
   evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
   to `ProgramKit.Host`. Production EF Core, SQLite, migration, and object-storage choices are
   deliberately deferred to consumers rather than becoming Program Kit defaults.
@@ -296,7 +300,7 @@ cross-engine validation parity and hostile-schema/import fixtures.
 7. **Operational capabilities**: resumable drafts, optional submissions/attachments, MCP/tool
    surfaces, complete in-memory reference persistence, and consumer-owned provider contracts.
 8. **Release proof**: clean pack/install probes, cross-engine/device suites, security fixtures,
-   upgrade/migration tests, evidence and consumer documentation.
+   upgrade/migration tests, remaining Vue/Angular management bindings, evidence and consumer documentation.
 
 Each slice must pass deterministic tests and clean package-isolation probes before the next slice
 relies on it. No slice may add Host-owned middleware or use `InternalsVisibleTo` for its probes.

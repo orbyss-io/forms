@@ -29,8 +29,9 @@ into a consumer npm graph. Consumers install only the adapters they select.
   tree, property inspector, CodeMirror JSON source and relationship graph on one governed modeler
   session, with a field/layout palette, block canvas, application-owned preview, selection,
   validation and undo/redo synchronized across views.
-- `forms-schema-modeler` and `forms-schema-modeler-react` provide the independent bounded JSON
-  Schema 2020-12 authoring model and its synchronized, themeable React tree/canvas/editor/graph plane.
+- `forms-schema-modeler` owns the independent bounded JSON Schema 2020-12 authoring model.
+  `forms-schema-modeler-react` and `forms-schema-modeler-vue` provide synchronized, themeable
+  tree/canvas/editor/graph planes over that same governed session without duplicating schema rules.
 - `forms-lookups` owns trusted searchable data-source contracts, bounded/cancellable queries,
   paging, dependent filters, selected-label rehydration and public-safe loading state without
   embedding URLs, credentials or executable fetch logic in form schemas.

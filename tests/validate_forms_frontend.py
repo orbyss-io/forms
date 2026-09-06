@@ -48,6 +48,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-modeler-react",
         "@orbyss/program-kit-forms-schema-modeler",
         "@orbyss/program-kit-forms-schema-modeler-react",
+        "@orbyss/program-kit-forms-schema-modeler-vue",
         "@orbyss/program-kit-forms-lookups",
         "@orbyss/program-kit-forms-lookups-react",
         "@orbyss/program-kit-forms-react",
@@ -137,6 +138,16 @@ def main() -> int:
             or schema_modeler_react.get("devDependencies") != {"@types/react": "19.2.18"}:
         raise AssertionError("The React schema modeler crossed its governed framework-neutral boundary.")
 
+    schema_modeler_vue = by_name["@orbyss/program-kit-forms-schema-modeler-vue"]
+    if schema_modeler_vue.get("dependencies") != {
+        "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-schema-modeler": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or schema_modeler_vue.get("peerDependencies") != {"vue": "3.5.42"} \
+            or schema_modeler_vue.get("devDependencies") != {"vue": "3.5.42"}:
+        raise AssertionError("The Vue schema modeler crossed its governed framework-neutral boundary.")
+
     localization_management = by_name["@orbyss/program-kit-localization-management"]
     if localization_management.get("dependencies") or localization_management.get("peerDependencies"):
         raise AssertionError("Localization management contracts and session state must remain dependency-free.")
@@ -163,14 +174,19 @@ def main() -> int:
     for stylesheet in (
         WORKSPACE / "packages/forms-modeler-react/styles.css",
         WORKSPACE / "packages/forms-schema-modeler-react/styles.css",
+        WORKSPACE / "packages/forms-schema-modeler-vue/styles.css",
         WORKSPACE / "packages/localization-management-react/styles.css",
     ):
         content = stylesheet.read_text(encoding="utf-8")
         if "@layer program-kit.components" not in content or "var(--pk-" not in content:
             raise AssertionError(f"Management stylesheet is outside the semantic theme contract: {stylesheet}")
+    if (WORKSPACE / "packages/forms-schema-modeler-react/styles.css").read_text(encoding="utf-8") != \
+            (WORKSPACE / "packages/forms-schema-modeler-vue/styles.css").read_text(encoding="utf-8"):
+        raise AssertionError("React and Vue schema modelers must expose the same portable visual contract.")
     for source in (
         WORKSPACE / "packages/forms-modeler-react/src/index.tsx",
         WORKSPACE / "packages/forms-schema-modeler-react/src/index.tsx",
+        WORKSPACE / "packages/forms-schema-modeler-vue/src/index.ts",
         WORKSPACE / "packages/localization-management-react/src/index.tsx",
     ):
         content = source.read_text(encoding="utf-8")
@@ -311,7 +327,7 @@ def main() -> int:
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, form/schema modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
+    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, React/Vue schema modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
     return 0
 
 
