@@ -11,6 +11,12 @@ references routed by capabilities relevant to the user's description. Do not enu
 extension or ask about capability categories that are absent or explicitly excluded.
 It conducts adaptive intake before the bootstrap workflow begins.
 
+Keep discovery bounded. Do not enumerate the repository, `.specify`, installed skills, references,
+schemas, or implementation scripts. Inspect only an explicitly supplied source artifact and existing
+canonical intake paths. Treat the JSON schemas and Python scripts as executable contracts; do not
+open them to rediscover shapes or behavior. When the conversation converges, read
+`references/intake-artifacts.md` once and author from its compact contract.
+
 ## Execution boundary
 
 The skill may create and validate intake artifacts inside the repository. It must never run
@@ -47,7 +53,7 @@ human or research/design owner, excluded, or deferred to a named trigger.
 
 For every detected need classify Program Kit coverage as `managed`, `guided`, `external`, `conflict`,
 `not-declared`, or `insufficient-evidence`, then assign one allowed disposition from
-`references/bootstrap-intake.schema.json`. Apply an applicable ordinary Program Kit default without
+`references/intake-artifacts.md`. Apply an applicable ordinary Program Kit default without
 asking. Explain material acknowledgements and consequences before asking about an override. Say
 "Program Kit has no declared managed capability for this need" for an unmatched need; do not claim
 that Program Kit or the project cannot support it.
@@ -69,6 +75,11 @@ After the questions converge, create or update:
   `python .specify/extensions/program-kit-governance/scripts/architecture_map.py export --map docs/architecture/architecture-map.json --format structurizr-dsl --output docs/architecture/workspace.dsl --force`; and
 - a draft synthesis of `docs/architecture/bootstrap-intake.json` matching
   `references/bootstrap-intake.schema.json`.
+
+Use `references/intake-artifacts.md` as the authoring contract. Do not read either JSON schema or
+either Python implementation before writing. Prefer one focused read batch, one artifact-write
+batch, and one export/validation batch; expand only to resolve a concrete validator diagnostic.
+Never print whole generated artifacts or repository-wide diffs during verification.
 
 The canonical map owns semantics. The DSL is a reviewable C4 projection and an import source. Mark
 inferred bounded contexts, capabilities, ownership, and relationships `proposed` or `unresolved`;

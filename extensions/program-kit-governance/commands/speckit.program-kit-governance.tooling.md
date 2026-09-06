@@ -19,7 +19,8 @@ trade away a required control merely to reach a target.
 Validate and read the ratified constitution before producing the quality system. Stop when the
 constitution-ratification hash is missing or stale.
 
-Read the approved bootstrap decision register. Treat explicit intake choices and reviewed Program
+Use the approved bootstrap decision register projected in the stage brief. Open the source only for
+a decisive field omitted from that projection. Treat explicit intake choices and reviewed Program
 Kit or derived defaults as Accepted baseline inputs. Research may recommend a later override but
 must not silently demote or replace an approved default.
 

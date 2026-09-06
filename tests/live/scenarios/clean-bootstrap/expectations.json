@@ -42,13 +42,24 @@
     "expected_argument_exit_code": 2
   },
   "advisory_budgets": {
-    "agent_tokens_total": 300000,
+    "agent_tokens_total": 650000,
+    "agent_tokens_by_stage": {
+      "intake-skill": 300000,
+      "assessment": 50000,
+      "research": 55000,
+      "constitution-draft": 35000,
+      "architecture": 60000,
+      "tooling": 35000,
+      "specification-roadmap": 55000,
+      "readiness": 35000
+    },
     "workflow_stderr_bytes": 1500000,
     "stage_brief_bytes": 20000,
     "artifact_bytes": {
       "docs/architecture/tooling-evaluation.md": 8192,
-      "docs/architecture/architecture.md": 12288,
-      "docs/architecture/quality-system.md": 12288,
+      "docs/architecture/architecture.md": 10240,
+      "docs/architecture/quality-system.md": 8192,
+      "docs/architecture/specification-roadmap.md": 6144,
       "docs/architecture/readiness-report.md": 4096
     }
   }

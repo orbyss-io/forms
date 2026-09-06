@@ -34,9 +34,10 @@ artifact while evaluating readiness.
 
 ## Readiness gate
 
-Inspect the ratified constitution, confirmed bootstrap intake, architecture baseline, decision backlog, ADRs,
-technology radar, tooling evaluation, quality system, specification roadmap, and traceability model.
-Report `READY`, `CONDITIONALLY READY`, or `NOT READY`.
+Evaluate the projected ratified authority, confirmed intake, architecture, decisions, risks,
+quality system, roadmap, and traceability evidence from the stage brief. Query one source only when a
+decisive readiness fact is omitted or contradictory. Report `READY`, `CONDITIONALLY READY`, or
+`NOT READY`.
 
 Write `docs/architecture/readiness-report.md` beginning at byte zero with an exact first line of
 `**Status**: READY`, `**Status**: CONDITIONALLY READY`, or `**Status**: NOT READY`, followed by the

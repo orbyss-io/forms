@@ -187,7 +187,22 @@ def main() -> int:
             "tokens used\n1,200\ntokens used\n300\n", encoding="utf-8"
         )
         (evidence / "workflow.stdout.log").write_text("{}\n", encoding="utf-8")
-        (evidence / "intake.stderr.log").write_text("tokens used\n50\n", encoding="utf-8")
+        (evidence / "intake.stdout.log").write_text(
+            json.dumps(
+                {
+                    "type": "turn.completed",
+                    "usage": {
+                        "input_tokens": 40,
+                        "cached_input_tokens": 30,
+                        "output_tokens": 10,
+                        "reasoning_output_tokens": 4,
+                    },
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        (evidence / "intake.stderr.log").write_text("", encoding="utf-8")
         monitor = [
             {"status": "running", "current_step_id": "assessment", "elapsed_seconds": 2.0},
             {"status": "running", "current_step_id": "research", "elapsed_seconds": 7.0},
@@ -198,12 +213,23 @@ def main() -> int:
         metrics = analyze_metrics(evidence, None, workflow_duration=10.0)
         if metrics["agent_tokens_by_stage"] != {"intake-skill": 50, "assessment": 1200, "research": 300}:
             raise AssertionError(f"Agent token attribution is invalid: {metrics}")
+        if metrics["intake_agent_usage"]["cached_input_tokens"] != 30:
+            raise AssertionError(f"Intake JSON usage was not preserved: {metrics}")
+        if metrics["agent_session_count"] != 3:
+            raise AssertionError(f"Agent sessions were not counted correctly: {metrics}")
         if metrics["stage_duration_seconds"] != {"assessment": 5.0, "research": 3.0}:
             raise AssertionError(f"Stage duration attribution is invalid: {metrics}")
         if performance_warnings(metrics, {"agent_tokens_total": 1000}) != [
             "Agent token total 1550 exceeds advisory budget 1000"
         ]:
             raise AssertionError("Live advisory budgets are not reported predictably")
+        stage_warnings = performance_warnings(
+            metrics, {"agent_tokens_by_stage": {"assessment": 1000, "readiness": 1}}
+        )
+        if stage_warnings != [
+            "Agent stage assessment used 1200 tokens; advisory budget is 1000"
+        ]:
+            raise AssertionError(f"Per-stage advisory budgets are invalid: {stage_warnings}")
 
     with tempfile.TemporaryDirectory(prefix="program-kit-live-failure-") as directory:
         project = Path(directory)
@@ -450,13 +476,18 @@ def main() -> int:
         raise AssertionError(f"Live scenario context coverage is incomplete: {stages}")
     budgets = expectations.get("advisory_budgets", {})
     scalar_budgets = {
-        key: value for key, value in budgets.items() if key != "artifact_bytes"
+        key: value
+        for key, value in budgets.items()
+        if key not in {"artifact_bytes", "agent_tokens_by_stage"}
     }
     artifact_budgets = budgets.get("artifact_bytes", {})
+    stage_budgets = budgets.get("agent_tokens_by_stage", {})
     if (
         not all(isinstance(value, int) and value > 0 for value in scalar_budgets.values())
         or not isinstance(artifact_budgets, dict)
         or not all(isinstance(value, int) and value > 0 for value in artifact_budgets.values())
+        or not isinstance(stage_budgets, dict)
+        or not all(isinstance(value, int) and value > 0 for value in stage_budgets.values())
     ):
         raise AssertionError(f"Live scenario advisory budgets are invalid: {budgets}")
 

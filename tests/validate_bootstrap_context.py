@@ -183,16 +183,34 @@ def main() -> int:
             path, payload = module.build_context(project, run_id, stage)
             if not path.is_file() or payload["stage"] != stage:
                 raise AssertionError(f"{stage} context was not written")
+            if path.stat().st_size >= 20 * 1024:
+                raise AssertionError(f"{stage} compact stage brief exceeds 20 KiB")
             if payload["bootstrap_intake"]["path"] != "docs/architecture/bootstrap-intake.json":
                 raise AssertionError("Bootstrap-intake provenance is not canonical")
             if payload["intake"]["status"] != "confirmed":
-                raise AssertionError("Stage context did not embed the confirmed intake")
+                raise AssertionError("Stage context did not preserve confirmed intake status")
+            if payload["intake"].get("projection") != "stage-summary":
+                raise AssertionError("Stage context did not use the compact intake projection")
+            if "evidence" in payload["intake"] or "artifacts" in payload["intake"]:
+                raise AssertionError("Stage context embedded full intake provenance collections")
             if payload["architecture_map"]["model_id"] != "tiny-application":
-                raise AssertionError("Stage context did not embed the canonical architecture map")
+                raise AssertionError("Stage context did not preserve the architecture-map identity")
+            if payload["architecture_map"].get("projection") != "stage-summary":
+                raise AssertionError("Stage context did not use the compact architecture projection")
+            if (
+                payload["architecture_map"]["source"]["path"]
+                != "docs/architecture/architecture-map.json"
+            ):
+                raise AssertionError("Architecture projection lost its canonical source")
             if payload["reading_policy"]["mode"] != "deny-by-default":
                 raise AssertionError(f"{stage} context does not enforce deny-by-default reading")
             if "artifacts" in payload:
                 raise AssertionError(f"{stage} stage brief embeds the evidence index")
+            if not any(
+                "Do not inspect schema or validator implementation" in rule
+                for rule in payload["reading_policy"]["rules"]
+            ):
+                raise AssertionError(f"{stage} context does not prevent contract rediscovery")
             output_contract = payload["output_contract"]
             for artifact, budget in output_contract["artifact_byte_budgets"].items():
                 if artifact not in output_contract["write_paths"] or budget <= 0:
@@ -203,6 +221,18 @@ def main() -> int:
             if not evidence_path.is_file():
                 raise AssertionError(f"{stage} evidence index was not written")
             module.validate_context(project, run_id, stage)
+
+            evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+            for artifact in evidence["artifacts"]:
+                if len(artifact.get("headings", [])) > module.MAX_INDEX_HEADINGS:
+                    raise AssertionError("Evidence index contains too many headings")
+                if len(artifact.get("signals", [])) > module.MAX_INDEX_SIGNALS:
+                    raise AssertionError("Evidence index contains too many signals")
+                if any(
+                    len(signal["text"]) > module.MAX_INDEX_SIGNAL_CHARS
+                    for signal in artifact.get("signals", [])
+                ):
+                    raise AssertionError("Evidence index contains an oversized signal")
 
         roadmap_path = (
             project
@@ -216,12 +246,10 @@ def main() -> int:
         adr = next(item for item in roadmap["decisions"] if item["path"].endswith("ADR-001.md"))
         if adr["status"] != "Proposed":
             raise AssertionError("ADR status was not indexed")
-        if roadmap_path.stat().st_size >= 32 * 1024:
-            raise AssertionError("Compact stage brief exceeds its deterministic size ceiling")
         roadmap_budget = roadmap["output_contract"]["artifact_byte_budgets"].get(
             "docs/architecture/architecture.md"
         )
-        if roadmap_budget != 12 * 1024:
+        if roadmap_budget != 10 * 1024:
             raise AssertionError("Roadmap did not inherit the final architecture byte budget")
 
         original = roadmap_path.read_bytes()

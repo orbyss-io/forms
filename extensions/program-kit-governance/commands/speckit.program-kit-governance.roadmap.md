@@ -28,8 +28,9 @@ Use the validated context to cover the architecture baseline, ADRs, decision bac
 evaluation, quality system, traceability model, and candidate vertical slices. Stop if ratification
 is missing or stale.
 
-Read the approved bootstrap decision register and Accepted bootstrap-baseline decision. Explicit
-intake choices and adopted Program Kit defaults do not appear as unresolved ADR prerequisites.
+Use the compact approved decision and Accepted baseline records from the stage brief. Open a source
+only for a decisive field omitted from that projection. Explicit intake choices and adopted Program
+Kit defaults do not appear as unresolved ADR prerequisites.
 Genuinely unresolved decisions block only the roadmap entries they materially affect. Deferred
 production, scale, retention, recovery, or long-running-operation choices do not block an unrelated
 first vertical slice before their named trigger.

@@ -500,6 +500,7 @@ def main() -> int:
     intake_schema = extension_root / "references/bootstrap-intake.schema.json"
     architecture_map_schema = extension_root / "references/architecture-map.schema.json"
     decisions_schema = extension_root / "references/bootstrap-decisions.schema.json"
+    intake_authoring = extension_root / "references/intake-artifacts.md"
     if not all(
         path.is_file()
         for path in (
@@ -510,6 +511,7 @@ def main() -> int:
             intake_schema,
             architecture_map_schema,
             decisions_schema,
+            intake_authoring,
         )
     ):
         raise AssertionError("Bootstrap intake/context/model generator or schema is missing")
@@ -548,8 +550,18 @@ def main() -> int:
         "adaptive Q&A",
         "architecture-map.json",
         "workspace.dsl",
+        "intake-artifacts.md",
+        "Do not enumerate the repository",
+        "Do not read either JSON schema",
         "exactly one physical",
         "bootstrap_intake=docs/architecture/bootstrap-intake.json",
+    )
+    require_text(
+        intake_authoring,
+        "Treat the JSON schemas and Python implementations as executable contracts",
+        "capability_assessments",
+        "system-context",
+        "domain-context",
     )
     require_text(
         architecture_map_script,
