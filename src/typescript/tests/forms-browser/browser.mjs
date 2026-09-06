@@ -94,9 +94,10 @@ async function verify(engine, browserType, profile) {
     } catch (error) {
       throw new Error(`${label}: core control labels were ${JSON.stringify(await page.locator("label").allTextContents())}: ${error.message}`);
     }
-    await page.getByRole("textbox", { name: "Notes" }).click();
-    await page.getByRole("textbox", { name: "Notes" }).pressSequentially("Needs a governed renderer suite.");
-    await waitForFormData(page, '"notes":"Needs a governed renderer suite."');
+    const notes = page.getByRole("textbox", { name: "Notes" });
+    await notes.click();
+    await notes.fill("Note");
+    await waitForFormData(page, '"notes":"Note"');
     await page.getByRole("spinbutton", { name: "Quantity" }).click();
     await page.getByRole("spinbutton", { name: "Quantity" }).pressSequentially("3");
     await waitForFormData(page, '"quantity":3');
@@ -136,7 +137,7 @@ async function verify(engine, browserType, profile) {
     await page.locator("#pk-wizard-account-setup-confirm-step").click();
     await page.getByRole("button", { name: "إنهاء" }).click();
     assert.equal(await page.locator(".fixture-finished").innerText(), "Journey completed");
-    const modeler = page.locator(".pk-form-modeler");
+    const modeler = page.locator(".pk-form-modeler:not(.pk-form-modeler-vue-fixture)");
     assert.equal(await modeler.getAttribute("data-pk-slot"), "form-modeler.root", `${label}: stable modeler root slot`);
     assert.equal(await modeler.locator('[data-pk-slot="form-modeler.toolbar"]').getAttribute("class"), "pk-form-modeler__toolbar fixture-themed-toolbar", `${label}: typed modeler slot class`);
     assert.equal(await modeler.evaluate(element => getComputedStyle(element).getPropertyValue("--pk-panel-radius").trim()), "13px", `${label}: scoped theme token override`);
@@ -181,6 +182,24 @@ async function verify(engine, browserType, profile) {
     await modeler.getByRole("tab", { name: "Graph" }).press("Enter");
     assert.equal(await modeler.getByRole("heading", { name: "Form nodes" }).count(), 1, `${label}: graph nodes visible`);
     assert.equal(await modeler.getByRole("table").getByText("binds", { exact: true }).count(), 2, `${label}: graph relationships visible`);
+    const vueModeler = page.locator(".pk-form-modeler-vue-fixture");
+    assert.equal(await vueModeler.getAttribute("data-pk-slot"), "form-modeler.root", `${label}: Vue modeler stable root slot`);
+    assert.match(await vueModeler.locator('[data-pk-slot="form-modeler.canvas"]').getAttribute("class") ?? "", /fixture-themed-vue-canvas/, `${label}: Vue modeler typed theme slot`);
+    await vueModeler.getByRole("button", { name: "Add text field" }).click();
+    assert.equal(await vueModeler.getByRole("button", { name: "Field 1", exact: true }).count(), 1, `${label}: Vue palette adds a field to the shared tree projection`);
+    assert.equal(await vueModeler.locator('[data-element-id="field-1-control-1"]').count(), 1, `${label}: Vue palette atomically adds the matching canvas control`);
+    assert.match(await vueModeler.getByText(/^Trusted Vue preview:/).innerText(), /Field 1/, `${label}: Vue application-owned preview receives the synchronized document`);
+    await vueModeler.getByRole("button", { name: "Name", exact: true }).click();
+    const vueInspector = vueModeler.getByRole("complementary", { name: "Properties" });
+    await vueInspector.getByRole("combobox", { name: "Component" }).selectOption("ProgramKit.SearchableSelect");
+    assert.match(await vueInspector.innerText(), /@orbyss\/program-kit-forms-lookups-react/, `${label}: Vue exposes installed component package metadata`);
+    assert.equal(await vueModeler.getByRole("button", { name: "Commit changes" }).isDisabled(), true, `${label}: Vue blocks commit for an incomplete component binding`);
+    await vueInspector.getByRole("textbox", { name: "Data source" }).fill("catalog.plans");
+    assert.equal(await vueModeler.getByRole("button", { name: "Commit changes" }).isEnabled(), true, `${label}: Vue permits commit after component options satisfy the shared catalog`);
+    await vueModeler.getByRole("tab", { name: "JSON" }).click();
+    assert.match(await vueModeler.getByLabel("Form JSON").inputValue(), /Field 1/, `${label}: Vue JSON view reflects design edits through the shared session`);
+    await vueModeler.getByRole("tab", { name: "Graph" }).click();
+    assert.equal(await vueModeler.getByRole("heading", { name: "Form nodes" }).count(), 1, `${label}: Vue graph view renders the shared projection`);
     const schemaModeler = page.locator(".pk-schema-modeler");
     assert.equal(await schemaModeler.getAttribute("data-pk-slot"), "schema-modeler.root", `${label}: stable schema modeler root slot`);
     assert.match(await schemaModeler.locator('[data-pk-slot="schema-modeler.canvas"]').getAttribute("class") ?? "", /fixture-themed-schema-canvas/, `${label}: schema modeler typed theme slot`);
@@ -260,7 +279,7 @@ async function verify(engine, browserType, profile) {
       await page.screenshot({ path: resolve(evidence, `${engine}-${profile.name}.png`) });
       assertNoErrors(label, "screenshot");
     }
-    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", schemaModeler: "passed", localizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
+    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", vueModeler: "passed", schemaModeler: "passed", localizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
   } finally {
     await context.close();
     await browser.close();

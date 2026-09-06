@@ -46,6 +46,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-angular",
         "@orbyss/program-kit-forms-modeler",
         "@orbyss/program-kit-forms-modeler-react",
+        "@orbyss/program-kit-forms-modeler-vue",
         "@orbyss/program-kit-forms-schema-modeler",
         "@orbyss/program-kit-forms-schema-modeler-react",
         "@orbyss/program-kit-forms-schema-modeler-vue",
@@ -125,6 +126,16 @@ def main() -> int:
     } or modeler_react.get("devDependencies") != {"@types/react": "19.2.18"}:
         raise AssertionError("The React modeler must compose only the governed modeler and default editor packages.")
 
+    modeler_vue = by_name["@orbyss/program-kit-forms-modeler-vue"]
+    if modeler_vue.get("dependencies") != {
+        "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or modeler_vue.get("peerDependencies") != {"vue": "3.5.42"} \
+            or modeler_vue.get("devDependencies") != {"vue": "3.5.42"}:
+        raise AssertionError("The Vue form modeler crossed its governed framework-neutral boundary.")
+
     schema_modeler = by_name["@orbyss/program-kit-forms-schema-modeler"]
     if schema_modeler.get("dependencies") or schema_modeler.get("peerDependencies") or schema_modeler.get("devDependencies"):
         raise AssertionError("The provider-neutral schema modeler must remain dependency-free.")
@@ -173,6 +184,7 @@ def main() -> int:
         raise AssertionError("The default theme must remain scoped and cascade-layered.")
     for stylesheet in (
         WORKSPACE / "packages/forms-modeler-react/styles.css",
+        WORKSPACE / "packages/forms-modeler-vue/styles.css",
         WORKSPACE / "packages/forms-schema-modeler-react/styles.css",
         WORKSPACE / "packages/forms-schema-modeler-vue/styles.css",
         WORKSPACE / "packages/localization-management-react/styles.css",
@@ -183,8 +195,12 @@ def main() -> int:
     if (WORKSPACE / "packages/forms-schema-modeler-react/styles.css").read_text(encoding="utf-8") != \
             (WORKSPACE / "packages/forms-schema-modeler-vue/styles.css").read_text(encoding="utf-8"):
         raise AssertionError("React and Vue schema modelers must expose the same portable visual contract.")
+    if (WORKSPACE / "packages/forms-modeler-react/styles.css").read_text(encoding="utf-8") != \
+            (WORKSPACE / "packages/forms-modeler-vue/styles.css").read_text(encoding="utf-8"):
+        raise AssertionError("React and Vue form modelers must expose the same portable visual contract.")
     for source in (
         WORKSPACE / "packages/forms-modeler-react/src/index.tsx",
+        WORKSPACE / "packages/forms-modeler-vue/src/index.ts",
         WORKSPACE / "packages/forms-schema-modeler-react/src/index.tsx",
         WORKSPACE / "packages/forms-schema-modeler-vue/src/index.ts",
         WORKSPACE / "packages/localization-management-react/src/index.tsx",
@@ -273,6 +289,9 @@ def main() -> int:
         raise AssertionError("The Angular binding crossed its governed framework or compiler boundary.")
 
     for manifest in manifests:
+        if manifest.get("exports", {}).get("./styles.css") == "./styles.css" \
+                and manifest.get("sideEffects") != ["./styles.css"]:
+            raise AssertionError(f"Explicit component CSS may be tree-shaken: {manifest['name']}")
         if manifest["name"] == "@orbyss/program-kit-forms-monaco":
             continue
         dependencies = {
@@ -327,7 +346,7 @@ def main() -> int:
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, React/Vue schema modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
+    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, React/Vue form and schema modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
     return 0
 
 

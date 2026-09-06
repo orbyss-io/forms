@@ -52,8 +52,8 @@ def main() -> int:
         for path in sorted((WORKSPACE / "packages").glob("*/package.json"))
     ]
     names = sorted(manifest["name"] for manifest in manifests)
-    if len(names) != 22 or len(set(names)) != len(names):
-        raise AssertionError("The clean frontend consumer requires exactly twenty-two unique packages.")
+    if len(names) != 23 or len(set(names)) != len(names):
+        raise AssertionError("The clean frontend consumer requires exactly twenty-three unique packages.")
 
     artifacts = ROOT / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)

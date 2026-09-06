@@ -12,8 +12,9 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ProgramKitJsonForms } from "@orbyss/program-kit-forms-react";
 import { FormLookupRegistry } from "@orbyss/program-kit-forms-lookups";
 import { programKitSearchableSelectRendererEntry } from "@orbyss/program-kit-forms-lookups-react";
-import { FormModelerActionCatalog, FormModelerComponentCatalog, FormModelerSession } from "@orbyss/program-kit-forms-modeler";
+import { FormModelerActionCatalog, FormModelerComponentCatalog, FormModelerSession, type FormModelerDocument } from "@orbyss/program-kit-forms-modeler";
 import { ProgramKitFormModeler } from "@orbyss/program-kit-forms-modeler-react";
+import { ProgramKitFormModelerVue } from "@orbyss/program-kit-forms-modeler-vue";
 import { SchemaModelerSession } from "@orbyss/program-kit-forms-schema-modeler";
 import { ProgramKitSchemaModeler } from "@orbyss/program-kit-forms-schema-modeler-react";
 import { LocalizationManagementSession } from "@orbyss/program-kit-localization-management";
@@ -21,6 +22,7 @@ import { ProgramKitLocalizationManagement } from "@orbyss/program-kit-localizati
 import type { FormActionRequirement, JsonValue, RuntimeValidationIssue } from "@orbyss/program-kit-forms-contracts";
 import { schema } from "./schema.mjs";
 import { validate as validateGenerated } from "program-kit:validator";
+import { createApp as createVueApp, h as vueH, markRaw as markVueRaw } from "vue";
 
 interface GeneratedError {
   readonly instancePath: string;
@@ -437,3 +439,22 @@ function App(): ReactNode {
 const root = document.getElementById("root");
 if (root === null) throw new Error("Fixture root is missing.");
 createRoot(root).render(<App />);
+
+const vueRoot = document.getElementById("vue-root");
+if (vueRoot === null) throw new Error("Vue fixture root is missing.");
+const vueModelerSession = markVueRaw(new FormModelerSession(modelerDocument));
+createVueApp({
+  render: () => vueH("section", { "aria-labelledby": "vue-modeler-heading", class: "fixture-modeler" }, [
+    vueH("h2", { id: "vue-modeler-heading" }, "Vue form modeler acceptance"),
+    vueH(ProgramKitFormModelerVue, {
+      session: vueModelerSession,
+      actionCatalog: modelerActionCatalog,
+      componentCatalog: modelerComponentCatalog,
+      className: "pk-form-modeler-vue-fixture",
+      classNames: { canvas: "fixture-themed-vue-canvas" },
+      editorMode: "strictCsp",
+      renderPreview: (document: FormModelerDocument) => vueH("p", `Trusted Vue preview: ${document.fields.map(field => field.label.defaultText).join(", ")}`),
+      onCommit: () => {}
+    })
+  ])
+}).mount(vueRoot);

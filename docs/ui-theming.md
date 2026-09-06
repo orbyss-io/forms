@@ -11,6 +11,8 @@ Import the theme once, followed by only the component styles that the applicatio
 ```ts
 import "@orbyss/program-kit-ui-theme/default.css";
 import "@orbyss/program-kit-forms-modeler-react/styles.css";
+// Vue consumers import the equivalent Vue package stylesheet instead:
+// import "@orbyss/program-kit-forms-modeler-vue/styles.css";
 import "@orbyss/program-kit-forms-schema-modeler-react/styles.css";
 // Vue consumers import the equivalent Vue package stylesheet instead:
 // import "@orbyss/program-kit-forms-schema-modeler-vue/styles.css";

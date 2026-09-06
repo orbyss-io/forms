@@ -30,6 +30,7 @@ import {
   FormModelerGraph,
   ProgramKitFormModeler
 } from "@orbyss/program-kit-forms-modeler-react";
+import { ProgramKitFormModelerVue } from "@orbyss/program-kit-forms-modeler-vue";
 import {
   SchemaModelerConcurrencyError,
   SchemaModelerSession,
@@ -617,6 +618,25 @@ test("React modeler renders governed tree, inspector, and graph views from one s
   assert.match(graph, /Relationship/);
   assert.match(graph, /element:name-control/);
   assert.match(graph, /field:name/);
+});
+
+test("Vue form modeler renders governed themeable authoring views from the same session", async () => {
+  const app = createSSRApp({
+    render: () => h(ProgramKitFormModelerVue, {
+      session: markRaw(new FormModelerSession(modelerDocument())),
+      editorMode: "strictCsp",
+      className: "consumer-form-modeler-vue",
+      classNames: { canvas: "consumer-form-canvas-vue" },
+      onCommit: () => {}
+    })
+  });
+  const markup = await renderToString(app);
+  assert.match(markup, /data-pk-slot="form-modeler.root"/);
+  assert.match(markup, /consumer-form-modeler-vue/);
+  assert.match(markup, /consumer-form-canvas-vue/);
+  assert.match(markup, /Form structure/);
+  assert.match(markup, /Layout canvas/);
+  assert.match(markup, /Live preview/);
 });
 
 test("modeler component catalog bounds renderer packages, value kinds, and typed options", () => {

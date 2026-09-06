@@ -2,7 +2,7 @@
   "name": "@orbyss/program-kit-forms-vue",
   "version": "0.9.9-preview.1",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": ["./styles.css"],
   "files": ["dist", "styles.css"],
   "exports": {
     ".": {
