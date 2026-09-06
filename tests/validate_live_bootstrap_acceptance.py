@@ -105,6 +105,15 @@ def main() -> int:
         or bridge[-3:] != ["workflow", "add", "program-kit-bootstrap"]
     ):
         raise AssertionError(f"Live setup does not use the installed Specify Python bridge: {bridge}")
+    loopback_bridge = specify_bridge_command(
+        root,
+        "workflow",
+        "add",
+        "program-kit-bootstrap",
+        loopback_http_only=True,
+    )
+    if "--loopback-http-only" not in loopback_bridge or loopback_bridge[-3:] != bridge[-3:]:
+        raise AssertionError(f"Live setup lost its loopback-only bridge mode: {loopback_bridge}")
     retry_results = iter(
         (
             subprocess.CompletedProcess(
@@ -545,9 +554,15 @@ def main() -> int:
         "server.shutdown()",
         "$speckit-program-kit-governance-bootstrap",
         "specify_bridge_command",
-        "install_local_candidate_bundle",
-        '"--offline"',
+        "loopback_http_only=os.name == \"nt\"",
         "validate_intake_skill_result",
+    )
+    require(
+        root / "scripts/invoke_specify.py",
+        "--loopback-http-only",
+        "LoopbackHTTPHandler",
+        "DisabledHTTPSHandler",
+        "rejected non-loopback HTTP",
     )
     print("Live bootstrap acceptance request, CI, fixture, and evidence contracts passed.")
     return 0

@@ -34,10 +34,10 @@ same bootstrap workflow runs. This keeps the acceptance target unambiguous while
 7. bootstrap-context handoffs;
 8. final readiness and deterministic governance validation.
 
-On Windows, the harness still registers the isolated loopback catalogs but installs the extracted
-candidate components locally before recording the real bundle in offline mode. This avoids the
-installed Python/OpenSSL runtime's local-download failure without contacting a public catalog or
-weakening bundle provenance. Other platforms exercise the loopback download path directly.
+On Windows, the installed Python runtime cannot construct its normal HTTPS handler on every host.
+For candidate setup only, the harness therefore invokes Specify with a process-scoped opener that
+disables HTTPS and rejects every non-loopback HTTP host. The real loopback catalog downloads and
+bundle contribution records remain exercised without opening a public-network path.
 
 The stronger intake mode additionally proves that the installed skill converts a raw description
 into the canonical project intent, architecture map, Structurizr projection, and confirmed intake;
