@@ -156,6 +156,14 @@ def main() -> int:
             project / ".specify/integration.json",
             '{"integration":"codex","default_integration":"codex"}\n',
         )
+        write(
+            project / "docs/architecture/project-intent.md",
+            "# Confirmed price-calculator intent\n",
+        )
+        write(
+            project / "docs/architecture/bootstrap-intake.json",
+            '{"schema_version":"1.0","status":"confirmed"}\n',
+        )
 
         for relative in (
             "docs/architecture/bootstrap-assessment.md",

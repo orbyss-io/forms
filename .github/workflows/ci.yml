@@ -45,6 +45,9 @@ jobs:
       - name: Validate bootstrap context generation
         run: python tests/validate_bootstrap_context.py
 
+      - name: Validate conversational bootstrap intake and architecture map
+        run: python tests/validate_bootstrap_intake.py
+
       - name: Validate live bootstrap acceptance contracts without running agents
         run: python tests/validate_live_bootstrap_acceptance.py
 

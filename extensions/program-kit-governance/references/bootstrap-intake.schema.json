@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orbyss.io/program-kit/bootstrap-intake.schema.json",
+  "title": "Program Kit confirmed conversational bootstrap intake",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "status", "project", "artifacts", "evidence", "facts", "scope",
+    "actors", "journeys", "quality_requirements", "integrations", "choices",
+    "capability_assessments", "open_items", "candidate_slice_signals", "routing"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "status": { "const": "confirmed" },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "summary"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_intent", "architecture_map", "c4_projection"],
+      "properties": {
+        "project_intent": { "$ref": "#/$defs/file" },
+        "architecture_map": { "$ref": "#/$defs/file" },
+        "c4_projection": { "$ref": "#/$defs/file" }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "locator", "summary"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "source": { "enum": ["project_intent", "architecture_map", "c4_projection"] },
+          "locator": { "type": "string", "minLength": 1, "maxLength": 260 },
+          "summary": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "facts": { "$ref": "#/$defs/evidence_items" },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["included", "excluded", "deferred"],
+      "properties": {
+        "included": { "$ref": "#/$defs/evidence_items" },
+        "excluded": { "$ref": "#/$defs/evidence_items" },
+        "deferred": { "$ref": "#/$defs/evidence_items" }
+      }
+    },
+    "actors": { "$ref": "#/$defs/evidence_items" },
+    "journeys": { "$ref": "#/$defs/evidence_items" },
+    "quality_requirements": { "$ref": "#/$defs/evidence_items" },
+    "integrations": { "$ref": "#/$defs/evidence_items" },
+    "choices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "decision", "source", "rationale", "evidence"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "decision": { "$ref": "#/$defs/text" },
+          "source": { "enum": ["explicit-intake", "program-kit-default", "derived-default", "override"] },
+          "rationale": { "$ref": "#/$defs/text" },
+          "evidence": { "$ref": "#/$defs/id_list" }
+        }
+      }
+    },
+    "capability_assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "need", "coverage", "program_kit_capability", "disposition", "evidence"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "need": { "$ref": "#/$defs/text" },
+          "coverage": { "enum": ["managed", "guided", "external", "conflict", "not-declared", "insufficient-evidence"] },
+          "program_kit_capability": { "type": "string", "maxLength": 120 },
+          "disposition": { "enum": ["explicit-user-decision", "program-kit-default", "derived-default", "human-answer-required", "research-required", "project-owned-design", "deferred", "excluded"] },
+          "evidence": { "$ref": "#/$defs/id_list" }
+        }
+      }
+    },
+    "open_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "classification", "disposition", "blocks", "trigger", "evidence"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "question": { "$ref": "#/$defs/text" },
+          "classification": { "enum": ["human-decision", "research", "project-owned-design", "deferred"] },
+          "disposition": { "$ref": "#/$defs/text" },
+          "blocks": { "type": "string", "maxLength": 240 },
+          "trigger": { "type": "string", "maxLength": 240 },
+          "evidence": { "$ref": "#/$defs/id_list" }
+        }
+      }
+    },
+    "candidate_slice_signals": { "$ref": "#/$defs/evidence_items" },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["languages", "frameworks", "interfaces", "included_surfaces", "excluded_surfaces", "capabilities"],
+      "properties": {
+        "languages": { "$ref": "#/$defs/string_list" },
+        "frameworks": { "$ref": "#/$defs/string_list" },
+        "interfaces": { "$ref": "#/$defs/string_list" },
+        "included_surfaces": { "$ref": "#/$defs/string_list" },
+        "excluded_surfaces": { "$ref": "#/$defs/string_list" },
+        "capabilities": { "$ref": "#/$defs/string_list" }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "path": { "type": "string", "minLength": 1, "maxLength": 260, "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "bytes"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "evidence_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "evidence"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "statement": { "$ref": "#/$defs/text" },
+          "evidence": { "$ref": "#/$defs/id_list" }
+        }
+      }
+    },
+    "id_list": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "string_list": { "type": "array", "maxItems": 64, "items": { "type": "string", "minLength": 1, "maxLength": 120 }, "uniqueItems": true }
+  }
+}

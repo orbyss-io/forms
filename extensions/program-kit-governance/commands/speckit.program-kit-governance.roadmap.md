@@ -6,8 +6,9 @@ scripts:
 
 ## Preconditions
 
-`$ARGUMENTS` identifies the initial design and the workflow-generated bootstrap context path.
-Read the compact bootstrap stage brief first. It contains normalized journeys, compact ratified
+`$ARGUMENTS` identifies the confirmed intake and the workflow-generated bootstrap context path.
+Read the compact bootstrap stage brief first. It contains confirmed journeys, candidate slice
+signals, the canonical architecture map, and compact ratified
 authority records, and a link to a separate hash-bound evidence index. Read the ratified
 constitution in full. Do not print or read the evidence index in full; query one artifact and
 heading range only when the brief lacks a fact required to define an entry. Do not bulk-read every

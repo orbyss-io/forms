@@ -9,6 +9,11 @@ param(
     [ValidateRange(60, 86400)]
     [int]$TimeoutSeconds = 7200,
 
+    [switch]$ExerciseIntakeSkill,
+
+    [ValidateRange(60, 86400)]
+    [int]$IntakeTimeoutSeconds = 3600,
+
     [switch]$ContinueFirstSlice,
 
     [ValidateRange(60, 86400)]
@@ -61,13 +66,23 @@ $arguments = @(
 if ($ContinueFirstSlice) {
     $arguments += @('--continue-first-slice', '--first-slice-timeout-seconds', $FirstSliceTimeoutSeconds)
 }
+if ($ExerciseIntakeSkill) {
+    if ($Integration -ne 'codex') {
+        throw 'INTAKE_SKILL_CODEX_REQUIRED: -ExerciseIntakeSkill currently requires -Integration codex.'
+    }
+    $arguments += @('--exercise-intake-skill', '--intake-timeout-seconds', $IntakeTimeoutSeconds)
+}
 
 & $python @arguments
 if ($LASTEXITCODE -ne 0) {
     throw "Live acceptance failed with exit code $LASTEXITCODE. Inspect artifacts/live-acceptance."
 }
 
-if ($ContinueFirstSlice) {
+if ($ExerciseIntakeSkill -and $ContinueFirstSlice) {
+    Write-Host 'Live conversational intake, bootstrap, and first-slice acceptance passed.'
+} elseif ($ExerciseIntakeSkill) {
+    Write-Host 'Live conversational intake and bootstrap acceptance passed.'
+} elseif ($ContinueFirstSlice) {
     Write-Host 'Live bootstrap and first-slice acceptance passed.'
 } else {
     Write-Host 'Live bootstrap acceptance passed.'

@@ -81,13 +81,12 @@ Use a normal terminal owned by the human account:
 
 Example outer command:
 
-```powershell
-specify workflow run program-kit-bootstrap `
-  --input initial_design=./path/to/your-design.md `
-  --input integration=codex
+```text
+specify workflow run program-kit-bootstrap --input "bootstrap_intake=docs/architecture/bootstrap-intake.json" --input "integration=auto"
 ```
 
-The design filename and location are user-chosen; pass the actual path through `initial_design`.
+Generate and confirm the fixed intake contract through the installed bootstrap skill first. The
+skill always emits this as one physical line that can be pasted into any normal terminal.
 Developers who review the complete result after the run can explicitly add
 `--input auto_approve_and_ratify=true`. This bypasses all three pauses but still writes and validates
 their review packets and marks the resulting governance evidence as automatic. The option defaults
@@ -133,7 +132,7 @@ recreate the working copy under the normal user account.
 Before changing anything:
 
 1. Close Codex tasks using the repository.
-2. Copy the user-selected initial-design file and any other uncommitted work to a safe location
+2. Copy the confirmed intake contract, its bound architecture artifacts, and any other uncommitted work to a safe location
    outside the affected tree.
 3. From a normal PowerShell terminal, record `git status`, `git log --oneline`, and
    `git remote -v`.

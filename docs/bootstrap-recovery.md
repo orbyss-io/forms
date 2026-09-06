@@ -12,15 +12,18 @@ views, validates them before review, regenerates the final review packet, requir
 approval, replaces `bootstrap-approval.json` with hashes for the newly approved content, reruns
 readiness, and only then completes bootstrap.
 
+The current workflow has no adapter from a legacy design input. If the repository does not already
+contain a validated `docs/architecture/bootstrap-intake.json`, open the installed integration and
+invoke the Program Kit bootstrap skill with the existing project intent and artifacts. Complete its
+adaptive questions, review the C4/domain map, and confirm the new intake before continuing. Do not
+infer or manufacture a confirmed intake from the failed run.
+
 From a normal user-owned PowerShell prompt in the affected repository, run:
 
 ```powershell
 Set-Location C:\path\to\PriceCalculator
 
-$failedRunId = 'bf551b86'
-$failedInputsPath = ".specify\workflows\runs\$failedRunId\inputs.json"
-$failedInputs = Get-Content -Raw -LiteralPath $failedInputsPath | ConvertFrom-Json
-$initialDesign = [string]$failedInputs.inputs.initial_design
+$bootstrapIntake = 'docs/architecture/bootstrap-intake.json'
 $integrationState = Get-Content -Raw -LiteralPath '.specify\integration.json' | ConvertFrom-Json
 $integration = [string]$integrationState.default_integration
 if ([string]::IsNullOrWhiteSpace($integration)) {
@@ -41,7 +44,7 @@ python .specify/extensions/program-kit-governance/scripts/governance_state.py va
 if ($LASTEXITCODE -ne 0) { throw 'Program Kit installation is not version-coherent.' }
 
 specify workflow run program-kit-bootstrap `
-  --input "initial_design=$initialDesign" `
+  --input "bootstrap_intake=$bootstrapIntake" `
   --input "integration=$integration"
 if ($LASTEXITCODE -ne 0) { throw 'Recovered bootstrap did not complete.' }
 

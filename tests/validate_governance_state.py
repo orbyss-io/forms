@@ -237,6 +237,11 @@ def decisions() -> dict:
 
 
 def write_assessment(module, project: Path) -> None:
+    intake_path = project / module.BOOTSTRAP_INTAKE
+    intake_path.parent.mkdir(parents=True, exist_ok=True)
+    intake_path.write_text('{"schema_version":"1.0","status":"confirmed"}\n', encoding="utf-8")
+    intent_path = project / module.PROJECT_INTENT
+    intent_path.write_text("# Confirmed project intent\n", encoding="utf-8")
     for relative in (module.ASSESSMENT, module.DECISION_BACKLOG, module.TOOLING_EVALUATION):
         path = project / relative
         path.parent.mkdir(parents=True, exist_ok=True)

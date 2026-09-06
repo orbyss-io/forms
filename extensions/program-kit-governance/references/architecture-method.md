@@ -3,8 +3,8 @@
 ## Artifact hierarchy
 
 1. Project constitution: highest ratified governance authority and amendment policy.
-2. Initial design: user intent and starting assumptions interpreted under the constitution.
-3. Architecture baseline: current coherent model, views, constraints, quality scenarios, and risks.
+2. Confirmed bootstrap intake: user intent, classified gaps, and starting assumptions interpreted under the constitution.
+3. Canonical architecture map and architecture baseline: the current coherent model, views, constraints, quality scenarios, risks, and ADR links.
 4. ADRs: history and authority for significant project-specific choices.
 5. Specification roadmap: governed portfolio of candidate feature specifications.
 6. Feature specifications: implementable vertical behavior slices constrained by the earlier authority.

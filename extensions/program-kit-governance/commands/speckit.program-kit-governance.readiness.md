@@ -8,7 +8,7 @@ scripts:
 
 `$ARGUMENTS` identifies the bootstrap scope and the workflow-generated bootstrap context path.
 
-Read the compact bootstrap stage brief first. It contains normalized journeys, compact approved
+Read the compact bootstrap stage brief first. It contains confirmed journeys, compact approved
 authority records, decision statuses, and a link to a separate hash-bound evidence index. Read the
 ratified constitution in full. Do not print or read the evidence index in full; query one artifact
 and heading range only when the brief lacks decisive evidence for a readiness condition. Do not
@@ -34,7 +34,7 @@ artifact while evaluating readiness.
 
 ## Readiness gate
 
-Inspect the ratified constitution, initial design, architecture baseline, decision backlog, ADRs,
+Inspect the ratified constitution, confirmed bootstrap intake, architecture baseline, decision backlog, ADRs,
 technology radar, tooling evaluation, quality system, specification roadmap, and traceability model.
 Report `READY`, `CONDITIONALLY READY`, or `NOT READY`.
 

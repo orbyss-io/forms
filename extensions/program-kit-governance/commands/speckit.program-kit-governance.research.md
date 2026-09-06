@@ -4,9 +4,9 @@ description: Research current architecture, delivery, and quality tooling for th
 
 ## Input
 
-`$ARGUMENTS` identifies the initial design and the workflow-generated bootstrap context path.
+`$ARGUMENTS` identifies the confirmed intake and the workflow-generated bootstrap context path.
 
-Read the compact bootstrap stage brief first. Its normalized routing signals and compact authority
+Read the compact bootstrap stage brief first. Its confirmed intake routing and compact authority
 records define the research scope. Do not print or read the linked evidence index in full. Query one
 indexed artifact and heading range only when the brief lacks a fact required for a current research
 claim. Do not bulk-read every unchanged bootstrap artifact or enumerate installed files. The source

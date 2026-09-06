@@ -79,7 +79,7 @@ try {
 
     if ($env:CODEX_SESSION_ID -or $env:CODEX_THREAD_ID -or $env:CODEX_INTERNAL_ORIGINATOR_OVERRIDE) {
         $preflightOutput = (& specify workflow run program-kit-bootstrap `
-            --input initial_design=./DOES-NOT-EXIST.md `
+            --input bootstrap_intake=docs/architecture/DOES-NOT-EXIST.json `
             --input integration=codex 2>&1 | Out-String)
         $preflightExitCode = $LASTEXITCODE
         $normalizedPreflightOutput = $preflightOutput -replace '\s+', ' '

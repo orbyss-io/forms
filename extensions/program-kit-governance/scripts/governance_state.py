@@ -16,6 +16,8 @@ ARCHITECTURE = Path("docs/architecture/architecture.md")
 TRACEABILITY = Path("docs/architecture/traceability.md")
 DECISIONS = Path("docs/architecture/decisions")
 ASSESSMENT = Path("docs/architecture/bootstrap-assessment.md")
+BOOTSTRAP_INTAKE = Path("docs/architecture/bootstrap-intake.json")
+PROJECT_INTENT = Path("docs/architecture/project-intent.md")
 DECISION_BACKLOG = Path("docs/architecture/decision-backlog.md")
 TOOLING_EVALUATION = Path("docs/architecture/tooling-evaluation.md")
 BOOTSTRAP_DECISIONS = Path("docs/architecture/bootstrap-decisions.json")
@@ -68,11 +70,16 @@ DECISION_SOURCES = {
 WEB_THREAT_MODEL = "program-kit-web-threat-model-v1"
 WEB_SECURITY_EVIDENCE = "program-kit-web-security-evidence-v1"
 APPROVAL_MODES = {"interactive", "automatic"}
-ASSESSMENT_ARTIFACTS = (
+ASSESSMENT_BASIS = (
+    BOOTSTRAP_INTAKE,
+    PROJECT_INTENT,
     ASSESSMENT,
     DECISION_BACKLOG,
     TOOLING_EVALUATION,
     BOOTSTRAP_DECISIONS,
+)
+ASSESSMENT_ARTIFACTS = (
+    *ASSESSMENT_BASIS,
     ASSESSMENT_REVIEW,
 )
 
@@ -936,7 +943,7 @@ def _list_items(items: object, field: str, empty: str, *, limit: int = 15) -> li
 def write_review(stage: str) -> None:
     decisions = validate_bootstrap_decisions()
     if stage == "assessment":
-        required = (ASSESSMENT, DECISION_BACKLOG, TOOLING_EVALUATION, BOOTSTRAP_DECISIONS)
+        required = ASSESSMENT_BASIS
         _require_files(required, "Assessment review")
         choices = decisions["choices"]
         explicit = [item for item in choices if item.get("source") == "explicit-intake"]
@@ -1114,7 +1121,7 @@ def write_review(stage: str) -> None:
 
 
 def validate_assessment() -> dict:
-    _require_files((ASSESSMENT, DECISION_BACKLOG, TOOLING_EVALUATION, BOOTSTRAP_DECISIONS), "Assessment")
+    _require_files(ASSESSMENT_BASIS, "Assessment")
     return validate_bootstrap_decisions()
 
 
@@ -1126,7 +1133,7 @@ def accept_assessment(verdict: str, approval_mode: str = "interactive") -> None:
     _require_files(ASSESSMENT_ARTIFACTS, "Assessment review")
     _require_review_basis(
         ASSESSMENT_REVIEW,
-        (ASSESSMENT, DECISION_BACKLOG, TOOLING_EVALUATION, BOOTSTRAP_DECISIONS),
+        ASSESSMENT_BASIS,
         "Assessment",
     )
     write_json(

@@ -17,19 +17,28 @@ preference and must not be inferred from an earlier run.
 
 ## Current scenario
 
-`clean-bootstrap` uses `tests/live/scenarios/clean-bootstrap/INITIAL_DESIGN.md`, an intentionally tiny
-Python standard-library greeting CLI with no web, identity, persistence, network, deployment, or
-third-party runtime concerns. This keeps the acceptance target unambiguous while still exercising:
+`clean-bootstrap` describes an intentionally tiny Python standard-library greeting CLI with no web,
+identity, persistence, network, deployment, or third-party runtime concerns. The ordinary mode uses
+a pre-confirmed intake fixture under `tests/live/scenarios/clean-bootstrap/docs/architecture/`.
+Passing `-ExerciseIntakeSkill` instead starts from `PROJECT_REQUEST.md`, adds one paid Codex session,
+and requires the installed bootstrap skill to create and validate the confirmed intake before the
+same bootstrap workflow runs. This keeps the acceptance target unambiguous while exercising:
 
 1. candidate release packaging;
 2. clean Spec Kit initialization and candidate installation through temporary loopback catalogs
    and the real bundle provenance machinery;
-3. design normalization, intake, and research;
+3. confirmed-intake validation, capability assessment, and research;
 4. the explicit automatic approval and ratification route across all three generated review packets;
 5. constitution drafting and ratification;
 6. architecture, quality-system, and roadmap generation;
 7. bootstrap-context handoffs;
 8. final readiness and deterministic governance validation.
+
+The stronger intake mode additionally proves that the installed skill converts a raw description
+into the canonical project intent, architecture map, Structurizr projection, and confirmed intake;
+that deterministic validation accepts those generated artifacts; and that the skill returns the
+exact portable one-line workflow command. The harness preserves all intake worker streams and stops
+before bootstrap if any part of that seam fails.
 
 The same clean consumer can optionally continue through its first complete feature lifecycle. Pass
 `-ContinueFirstSlice` to run `speckit.specify`, `speckit.plan`, `speckit.tasks`, and
@@ -43,6 +52,12 @@ Run it only after an explicit user request:
 
 ```powershell
 ./scripts/Test-LiveBootstrap.ps1 -Integration codex -Approved
+```
+
+To exercise the complete conversational front door through bootstrap:
+
+```powershell
+./scripts/Test-LiveBootstrap.ps1 -Integration codex -ExerciseIntakeSkill -Approved
 ```
 
 To include the optional first slice, which launches additional paid sessions and can consume a

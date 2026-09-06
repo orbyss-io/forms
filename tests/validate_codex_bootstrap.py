@@ -721,11 +721,13 @@ def main() -> int:
         "Bootstrap skill",
         skill,
         (
-            "This skill is guidance-only",
-            "normal user-owned PowerShell or WSL terminal",
-            "Stop. Do not call a shell tool",
-            "A Codex CLI agent is sandboxed too",
-            "rerunning `specify init` alone may not repair",
+            "This skill is the Program Kit front door",
+            "adaptive intake",
+            "architecture-map.json",
+            "Always emit exactly one physical",
+            "normal user-owned terminal",
+            "must never run",
+            "bootstrap_intake=docs/architecture/bootstrap-intake.json",
         ),
     )
     reject_workaround("Bootstrap skill", skill)
@@ -756,7 +758,7 @@ def main() -> int:
             "normal user-owned PowerShell or WSL shell",
             "SetNamedSecurityInfoW ... error 5",
             "Rerunning `specify init` is not an ownership repair",
-            "user-selected initial-design file",
+            "confirmed intake contract",
             "Preserve `.git`",
             "Initialize-ProgramKit.cmd",
             "Initialize-ProgramKit.sh",

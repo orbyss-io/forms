@@ -27,38 +27,120 @@ def write_json(path: Path, value: dict) -> None:
 
 def seed_project(project: Path, module, run_id: str) -> None:
     run = project / ".specify/workflows/runs" / run_id
-    write(project / "INITIAL_DESIGN.md", "# Tiny application\n\nA visitor sees a greeting.\n")
-    write_json(run / "inputs.json", {"inputs": {"initial_design": "./INITIAL_DESIGN.md"}})
-    write_json(
-        project / module.BRIEF_PATH,
-        {
-            "schema_version": "1.0",
-            "source": {
-                "path": "INITIAL_DESIGN.md",
-                "sha256": module.sha256_file(project / "INITIAL_DESIGN.md"),
+    write(project / "docs/architecture/project-intent.md", "# Tiny application\n\n[E-001] A visitor sees a greeting.\n")
+    architecture = {
+        "schema_version": "1.0",
+        "model_id": "tiny-application",
+        "title": "Tiny application",
+        "sources": [{
+            "id": "project-intent",
+            "path": "docs/architecture/project-intent.md",
+            "sha256": module.sha256_file(project / "docs/architecture/project-intent.md"),
+            "format": "program-kit-intent-markdown",
+            "importer": {"id": "program-kit-intake", "version": "1.0"},
+        }],
+        "decisions": [],
+        "documentation": [],
+        "constraints": [],
+        "elements": [
+            {
+                "id": "visitor", "type": "person", "name": "Visitor",
+                "description": "Person who requests the greeting.", "status": "explicit",
+                "ownership": "", "technology": "", "evidence": ["e-001"],
+                "decision_refs": [], "tags": [], "properties": {}, "perspectives": [],
+                "url": "", "group": "", "archetype": "",
             },
-            "project": {"name": "Tiny application", "summary": "A visitor sees a greeting."},
-            "facts": [
-                {"id": "greeting", "statement": "The application shows a greeting.", "evidence": "INITIAL_DESIGN.md:3"}
-            ],
-            "explicit_boundaries": [],
-            "actors": [
-                {"id": "visitor", "statement": "A visitor uses the application.", "evidence": "INITIAL_DESIGN.md:3"}
-            ],
-            "journeys": [
-                {"id": "see-greeting", "statement": "A visitor sees a greeting.", "evidence": "INITIAL_DESIGN.md:3"}
-            ],
-            "quality_requirements": [],
-            "ambiguities": [],
-            "routing": {
-                "languages": [],
-                "frameworks": [],
-                "interfaces": [],
-                "included_surfaces": ["greeting"],
-                "excluded_surfaces": [],
+            {
+                "id": "greeting-system", "type": "software-system", "name": "Greeting system",
+                "description": "Shows the greeting.", "status": "explicit",
+                "ownership": "Project", "technology": "", "evidence": ["e-001"],
+                "decision_refs": [], "tags": [], "properties": {}, "perspectives": [],
+                "url": "", "group": "", "archetype": "",
             },
-        },
+            {
+                "id": "greeting-context", "type": "bounded-context", "name": "Greeting",
+                "description": "Candidate greeting capability boundary.", "status": "proposed",
+                "ownership": "Project", "technology": "", "evidence": ["e-001"],
+                "decision_refs": [], "tags": [], "properties": {}, "perspectives": [],
+                "url": "", "group": "", "archetype": "",
+            },
+        ],
+        "relationships": [{
+            "id": "visitor-requests-greeting", "source": "visitor", "target": "greeting-system",
+            "description": "Requests a greeting", "technology": "", "status": "explicit",
+            "evidence": ["e-001"], "decision_refs": [], "tags": [], "properties": {},
+            "perspectives": [], "url": "",
+        }],
+        "views": [
+            {
+                "key": "system-context", "type": "system-context", "title": "System Context",
+                "description": "People and systems around the greeting system.", "scope": "greeting-system",
+                "elements": ["visitor", "greeting-system"], "relationships": ["visitor-requests-greeting"],
+                "decision_refs": [], "filters": [], "order": [], "layout": {"rankDirection": "lr"},
+                "animations": [], "properties": {},
+            },
+            {
+                "key": "domain-context", "type": "domain-context", "title": "Domain Context Map",
+                "description": "Candidate greeting domain boundary.", "scope": "",
+                "elements": ["greeting-system", "greeting-context"], "relationships": [],
+                "decision_refs": [], "filters": [], "order": [], "layout": {"rankDirection": "lr"},
+                "animations": [], "properties": {},
+            },
+        ],
+        "configuration": {"styles": [], "themes": [], "terminology": {}, "branding": {}, "properties": {}},
+        "extensions": [],
+    }
+    write_json(project / "docs/architecture/architecture-map.json", architecture)
+    architecture_module = module._load_intake_module()._load_architecture_module()
+    write(
+        project / "docs/architecture/workspace.dsl",
+        architecture_module.StructurizrDslExporter().export(architecture),
     )
+    artifact_paths = {
+        "project_intent": project / "docs/architecture/project-intent.md",
+        "architecture_map": project / "docs/architecture/architecture-map.json",
+        "c4_projection": project / "docs/architecture/workspace.dsl",
+    }
+    intake = {
+        "schema_version": "1.0",
+        "status": "confirmed",
+        "project": {"name": "Tiny application", "summary": "A visitor sees a greeting."},
+        "artifacts": {
+            key: {
+                "path": path.relative_to(project).as_posix(),
+                "sha256": module.sha256_file(path),
+                "bytes": path.stat().st_size,
+            }
+            for key, path in artifact_paths.items()
+        },
+        "evidence": [{
+            "id": "e-001", "source": "project_intent", "locator": "project-intent.md:3",
+            "summary": "A visitor sees a greeting.",
+        }],
+        "facts": [{"id": "fact-greeting", "statement": "The application shows a greeting.", "evidence": ["e-001"]}],
+        "scope": {"included": [], "excluded": [], "deferred": []},
+        "actors": [{"id": "actor-visitor", "statement": "A visitor uses the application.", "evidence": ["e-001"]}],
+        "journeys": [{"id": "journey-greeting", "statement": "A visitor sees a greeting.", "evidence": ["e-001"]}],
+        "quality_requirements": [],
+        "integrations": [],
+        "choices": [],
+        "capability_assessments": [{
+            "id": "coverage-vertical-slice", "need": "Deliver the greeting as an observable journey.",
+            "coverage": "guided", "program_kit_capability": "vertical-slicing",
+            "disposition": "program-kit-default", "evidence": ["e-001"],
+        }],
+        "open_items": [],
+        "candidate_slice_signals": [{
+            "id": "slice-greeting", "statement": "Visitor requests and observes the greeting.", "evidence": ["e-001"]
+        }],
+        "routing": {
+            "languages": [], "frameworks": [], "interfaces": ["command-line"],
+            "included_surfaces": ["greeting"], "excluded_surfaces": [],
+            "capabilities": ["vertical-slicing"],
+        },
+    }
+    write_json(project / module.INTAKE_PATH, intake)
+    write_json(run / "inputs.json", {"inputs": {"bootstrap_intake": module.INTAKE_PATH.as_posix()}})
     markdown = {
         ".specify/memory/constitution.md": "# Constitution\n\n**Status**: Ratified\n",
         "docs/architecture/bootstrap-assessment.md": "# Assessment\n\n## Actors\n\n- **Visitor** sees a greeting.\n",
@@ -95,14 +177,18 @@ def main() -> int:
         project = Path(directory)
         run_id = "context-test-1"
         seed_project(project, module, run_id)
-        module.validate_brief(project, run_id)
+        module.validate_intake(project, run_id)
 
         for stage in module.STAGE_ARTIFACTS:
             path, payload = module.build_context(project, run_id, stage)
             if not path.is_file() or payload["stage"] != stage:
                 raise AssertionError(f"{stage} context was not written")
-            if payload["initial_design"]["path"] != "INITIAL_DESIGN.md":
-                raise AssertionError("Initial-design provenance is not project-relative")
+            if payload["bootstrap_intake"]["path"] != "docs/architecture/bootstrap-intake.json":
+                raise AssertionError("Bootstrap-intake provenance is not canonical")
+            if payload["intake"]["status"] != "confirmed":
+                raise AssertionError("Stage context did not embed the confirmed intake")
+            if payload["architecture_map"]["model_id"] != "tiny-application":
+                raise AssertionError("Stage context did not embed the canonical architecture map")
             if payload["reading_policy"]["mode"] != "deny-by-default":
                 raise AssertionError(f"{stage} context does not enforce deny-by-default reading")
             if "artifacts" in payload:

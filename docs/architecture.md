@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This project owns the reusable method for turning a user-provided initial design into a governed Spec Kit repository. It does not own any consuming application's architecture.
+This project owns the reusable method for turning a user's initial description and adaptive intake answers into a governed Spec Kit repository. It does not own any consuming application's architecture.
 
 ## Components
 

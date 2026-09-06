@@ -4,9 +4,9 @@ description: Turn researched capabilities into a staged repository quality syste
 
 ## Input
 
-`$ARGUMENTS` identifies the initial design and the workflow-generated bootstrap context path.
+`$ARGUMENTS` identifies the confirmed intake and the workflow-generated bootstrap context path.
 
-Read the compact bootstrap stage brief first. It contains normalized routing signals, compact
+Read the compact bootstrap stage brief first. It contains confirmed intake routing, compact
 authority records, and a link to a separate hash-bound evidence index. Read the ratified
 constitution in full. Do not print or read the evidence index in full; query one artifact and
 heading range only when the brief lacks a fact required by a quality-system decision. Do not

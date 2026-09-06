@@ -6,10 +6,11 @@ scripts:
 
 ## Input
 
-`$ARGUMENTS` identifies the initial design and the workflow-generated bootstrap context path.
+`$ARGUMENTS` identifies the confirmed intake and the workflow-generated bootstrap context path.
 
-Read the compact bootstrap stage brief first. It contains the normalized design, compact approved
-decisions and ratification records, and a link to a separate hash-bound evidence index. Read the
+Read the compact bootstrap stage brief first. It contains the confirmed intake, canonical
+architecture map, compact approved decisions and ratification records, and a link to a separate
+hash-bound evidence index. Read the
 ratified constitution in full. Do not print or read the evidence index in full; query one artifact
 and heading range only when the brief lacks a fact required for an architecture decision. Do not
 bulk-read every unchanged assessment or research artifact or enumerate installed files.
@@ -72,7 +73,30 @@ Do not rewrite `bootstrap-assessment.md`, `decision-backlog.md`, `tooling-evalua
 the assessment review so the artifacts can be corrected, the packet regenerated, and the exact
 contents approved again.
 
-Use C4/Structurizr DSL and arc42-style sections when they fit the repository, but record their adoption as Proposed until accepted. Diagrams are views of the architecture model, not the source of truth by themselves.
+Treat `docs/architecture/architecture-map.json` as the canonical living architecture model and the
+confirmed intake map as its provisional starting state. Refine it with accepted assessment choices,
+the ratified constitution, and architecture evidence. Maintain its C4 System Context and Domain
+Context Map as the first review views; add container, component, dynamic, deployment, filtered,
+custom, or image views only when they clarify evidenced structure or behavior. Diagrams are views of
+the canonical model, never independent sources of truth.
+
+Maintain the model's first-class decision catalog. Every linked ADR records its repository-relative
+path, SHA-256, title, date, lifecycle status, scope, owner, and supersession links. Add typed
+`decision_refs` to governed elements, relationships, views, constraints, technology and ownership
+facts. Reject missing or stale ADRs, broken supersession chains, and accepted architecture governed
+only by non-Accepted decisions. Export attached ADR directories through Structurizr `!adrs` while
+retaining the provider-neutral canonical links.
+
+Preserve portable Structurizr semantics in the canonical fields and retain unknown statements as
+typed extensions. Never execute `!script`, `!plugin`, remote includes, or remote image/theme fetches
+during model import or export. Such features require a separate explicit policy decision and
+authorization. Generate the DSL projection only through:
+
+`python .specify/extensions/program-kit-governance/scripts/architecture_map.py export --map docs/architecture/architecture-map.json --format structurizr-dsl --output docs/architecture/workspace.dsl --force`
+
+Then validate the canonical model with source and ADR hashes:
+
+`python .specify/extensions/program-kit-governance/scripts/architecture_map.py validate --map docs/architecture/architecture-map.json --project-root . --verify-sources`
 
 The architecture baseline must also define:
 
@@ -111,7 +135,7 @@ enforcement location.
 
 Resolve the decision backlog through focused design tasks before implementation depends on those answers. A design task produces evidence, alternatives, consequences, a proposed ADR, updated views, and follow-on specification slices. It does not implement application behavior.
 
-Architecture documents must clearly distinguish facts found in the initial design, derived constraints, proposals, accepted decisions, and unresolved questions.
+Architecture documents must clearly distinguish facts confirmed by intake evidence, derived constraints, proposals, accepted decisions, and unresolved questions.
 
 When .NET is selected without the recorded opt-out, the architecture, technology radar, and
 bootstrap-baseline decision must adopt the application-neutral `ProgramKit.Host` and runnable-host release model as

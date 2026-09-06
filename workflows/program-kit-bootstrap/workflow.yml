@@ -5,16 +5,16 @@ workflow:
   name: "Architecture-Governed Repository Bootstrap"
   version: "0.9.9"
   author: "Orbyss"
-  description: "Orchestrates the Program Kit bundle's governance extension through ratification, architecture, quality, and the candidate specification portfolio."
+  description: "Consumes a confirmed conversational intake and orchestrates Program Kit assessment, ratification, architecture, quality, and the candidate specification portfolio."
 
 requires:
   speckit_version: ">=1.0.1,<2.0.0"
 
 inputs:
-  initial_design:
+  bootstrap_intake:
     type: string
     required: true
-    prompt: "Path to the user-provided initial design"
+    prompt: "Path to the confirmed Program Kit bootstrap intake"
   integration:
     type: string
     default: "auto"
@@ -78,24 +78,17 @@ steps:
     type: shell
     run: "python .specify/extensions/program-kit-governance/scripts/ensure_utf8.py --target ."
 
-  - id: normalize-design
-    type: command
-    command: "speckit.program-kit-governance.normalize-design"
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "{{ inputs.initial_design }}"
-
-  - id: validate-design-brief
+  - id: validate-bootstrap-intake
     type: shell
-    run: "python .specify/extensions/program-kit-governance/scripts/bootstrap_context.py validate-brief --run-id {{ context.run_id }} --json"
+    run: "python .specify/extensions/program-kit-governance/scripts/bootstrap_intake.py validate-run --run-id {{ context.run_id }} --json"
     output_format: json
 
-  - id: intake
+  - id: assessment
     type: command
-    command: "speckit.program-kit-governance.intake"
+    command: "speckit.program-kit-governance.assessment"
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.initial_design }}; normalized brief: {{ steps.validate-design-brief.output.data.path }}"
+      args: "{{ steps.validate-bootstrap-intake.output.data.path }}"
 
   - id: prepare-research-context
     type: shell
@@ -107,7 +100,7 @@ steps:
     command: "speckit.program-kit-governance.research"
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.initial_design }}; bootstrap context: {{ steps.prepare-research-context.output.data.path }}"
+      args: "{{ inputs.bootstrap_intake }}; bootstrap context: {{ steps.prepare-research-context.output.data.path }}"
 
   - id: validate-profile-pins
     type: shell
@@ -147,7 +140,7 @@ steps:
     command: "speckit.constitution"
     integration: "{{ inputs.integration }}"
     input:
-      args: "Draft or update the project constitution from {{ inputs.initial_design }}, docs/architecture/bootstrap-assessment.md, and the approved docs/architecture/bootstrap-decisions.json. Treat it as the highest project governance artifact, not a feature specification. Preserve applicable amendments. Explicit intake choices and reviewed Program Kit defaults are adopted baseline authority, not Proposed technologies. Use repository maintainers as the default governance owner unless intake names another owner. Produce an exact '**Status**: Draft' line, semantic version, last-amended date, amendment procedure, versioning policy, and compliance governance. For an initial constitution use the exact metadata value '**Ratified**: PENDING_RATIFICATION'; for an amendment preserve the original valid ratification date. When replacing the initial scaffold, use one whole-file edit and never submit multiple patch operations targeting constitution.md in the same tool call. Do not add TODOs or claim that the Draft is already human-ratified."
+      args: "Draft or update the project constitution from the confirmed {{ inputs.bootstrap_intake }}, docs/architecture/bootstrap-assessment.md, and the approved docs/architecture/bootstrap-decisions.json. Treat it as the highest project governance artifact, not a feature specification. Preserve applicable amendments. Explicit intake choices and reviewed Program Kit defaults are adopted baseline authority, not Proposed technologies. Use repository maintainers as the default governance owner unless intake names another owner. Produce an exact '**Status**: Draft' line, semantic version, last-amended date, amendment procedure, versioning policy, and compliance governance. For an initial constitution use the exact metadata value '**Ratified**: PENDING_RATIFICATION'; for an amendment preserve the original valid ratification date. When replacing the initial scaffold, use one whole-file edit and never submit multiple patch operations targeting constitution.md in the same tool call. Do not add TODOs or claim that the Draft is already human-ratified."
 
   - id: validate-constitution-draft
     type: shell
@@ -187,7 +180,7 @@ steps:
     command: "speckit.program-kit-governance.architecture"
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.initial_design }}; bootstrap context: {{ steps.prepare-architecture-context.output.data.path }}"
+      args: "{{ inputs.bootstrap_intake }}; bootstrap context: {{ steps.prepare-architecture-context.output.data.path }}"
 
   - id: prepare-tooling-context
     type: shell
@@ -199,7 +192,7 @@ steps:
     command: "speckit.program-kit-governance.tooling"
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.initial_design }}; bootstrap context: {{ steps.prepare-tooling-context.output.data.path }}"
+      args: "{{ inputs.bootstrap_intake }}; bootstrap context: {{ steps.prepare-tooling-context.output.data.path }}"
 
   - id: prepare-roadmap-context
     type: shell
@@ -211,7 +204,7 @@ steps:
     command: "speckit.program-kit-governance.roadmap"
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.initial_design }}; bootstrap context: {{ steps.prepare-roadmap-context.output.data.path }}"
+      args: "{{ inputs.bootstrap_intake }}; bootstrap context: {{ steps.prepare-roadmap-context.output.data.path }}"
 
   - id: synchronize-roadmap
     type: shell
@@ -259,7 +252,7 @@ steps:
     command: "speckit.program-kit-governance.readiness"
     integration: "{{ inputs.integration }}"
     input:
-      args: "{{ inputs.initial_design }}; bootstrap context: {{ steps.prepare-readiness-context.output.data.path }}"
+      args: "{{ inputs.bootstrap_intake }}; bootstrap context: {{ steps.prepare-readiness-context.output.data.path }}"
 
   - id: complete-bootstrap
     type: shell

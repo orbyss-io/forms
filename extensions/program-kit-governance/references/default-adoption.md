@@ -4,7 +4,7 @@
 
 Program Kit produces a complete, opinionated, usable baseline. Human attention is reserved for
 deviations, material acknowledgements, and consequential decisions that cannot be answered safely
-from the initial design or the selected Program Kit profile.
+from the confirmed bootstrap intake or the selected Program Kit profile.
 
 The absence of an explicit project choice is not a reason to leave an ordinary engineering choice
 open when an applicable Program Kit default exists. Defaults are authoritative for the baseline but
@@ -26,7 +26,7 @@ Classify every bootstrap choice by the first applicable source:
 6. **Deferred until triggered**: record decisions that are not yet material. They do not block
    unrelated specifications or implementation.
 
-Words expressing commitment in an initial design (`must`, `uses`, `is`, `will`, `initial shape`)
+Words expressing commitment in confirmed intake evidence (`must`, `uses`, `is`, `will`, `initial shape`)
 are explicit intent. Examples, alternatives, future directions, and phrases such as `evaluate`,
 `such as`, or `for example` remain candidates.
 
@@ -71,7 +71,7 @@ activation is not valid immediate verification evidence.
 When .NET is selected, the external application-neutral `ProgramKit.Host` and runnable-host release model are the
 automatic runtime default. Consumer repositories create packable feature projects and activation,
 configuration, package-closure, and release evidence—not a custom `.Host` project or application
-`Program.cs`. Adopt this model unless the initial design explicitly opts out. An opt-out records the alternate
+`Program.cs`. Adopt this model unless the confirmed bootstrap intake explicitly opts out. An opt-out records the alternate
 host, reason, consequences, and affected managed baseline.
 
 The standard runtime currently introduces pinned Program Kit, CShells, and Nuplane preview packages

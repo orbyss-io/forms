@@ -41,13 +41,12 @@ An interactive `codex` CLI agent is also sandboxed; it is not a substitute for a
    unrestricted execution.
 4. Start the outer workflow yourself:
 
-   ```powershell
-   specify workflow run program-kit-bootstrap `
-     --input initial_design=./path/to/your-design.md `
-     --input integration=codex
+   ```text
+   specify workflow run program-kit-bootstrap --input "bootstrap_intake=docs/architecture/bootstrap-intake.json" --input "integration=auto"
    ```
 
-   The design filename and location are user-chosen; pass the actual path through `initial_design`.
+   Generate and confirm that fixed intake path through the installed bootstrap skill first. The
+   command is one physical line and is portable across ordinary user-owned terminals.
 
    Codex workers require a Git work tree. For a directory initialized by an older Program Kit
    release without Git, run `git init` and `git status` from the repository root before starting a

@@ -1,19 +1,20 @@
 ---
-description: Inventory an initial design and create an evidence-based bootstrap assessment.
+description: Assess a confirmed Program Kit conversational intake and create the evidence-based bootstrap decision baseline.
 scripts:
   py: scripts/governance_state.py validate-installation
 ---
 
 ## Input
 
-`$ARGUMENTS` identifies the user-provided initial design and the deterministically validated
-`docs/architecture/bootstrap-brief.json`. Read the normalized brief first. If either path is absent,
-unreadable, or hash-inconsistent, stop and report the exact problem. Do not infer a different design
-file when multiple candidates exist.
+`$ARGUMENTS` identifies the deterministically validated
+`docs/architecture/bootstrap-intake.json`. Read that contract first, followed by its bound
+`project-intent.md` and canonical `architecture-map.json`. If any artifact is absent, unreadable,
+unconfirmed, stale, or hash-inconsistent, stop and report the exact problem. The intake contract is
+the sole front-door authority; do not search for or accept a legacy initial-design artifact.
 
 ## Installation preflight
 
-Before reading the initial design or writing any project artifact, run:
+Before reading the confirmed intake or writing any project artifact, run:
 
 ```text
 {SCRIPT}
@@ -23,22 +24,24 @@ If validation fails, stop immediately and report the exact repair commands. Run 
 
 ## Required reading
 
-Treat the normalized brief as the routing authority for this stage. Verify only cited initial-design
-lines when a fact is ambiguous or contradictory; do not reread or print the design by default. Read
-`references/default-adoption.md`, then use this fixed routing map rather than searching the
-references tree: languages and interfaces use `references/software-language.md`; module, ownership,
-and contract boundaries use `references/modularity-and-contracts.md`; normalized journeys use
+Treat the confirmed intake as the routing authority for this stage. Use its evidence IDs and bound
+artifacts when a fact is ambiguous or contradictory; do not print the complete intake or map. Read
+`references/default-adoption.md` and `references/capability-index.json`, then use this fixed routing map
+rather than searching the references tree: languages and interfaces use
+`references/software-language.md`; module, ownership, contract and domain-map boundaries use
+`references/modularity-and-contracts.md`; journeys and slice signals use
 `references/vertical-slicing.md`; explicit generic code-quality concerns use
 `references/programming-guardrails.md`. Do not read `architecture-method.md`, `tool-selection.md`,
-or `codex-desktop-windows.md` during intake. An explicitly excluded surface is out of scope. A
+or `codex-desktop-windows.md` during assessment. An explicitly excluded surface is out of scope. A
 language or framework name is not evidence that its technology extension is installed. Read a
-technology profile only when the normalized brief or installed skill guidance supplies its exact
+technology profile only when the intake routing or installed skill guidance supplies its exact
 path; otherwise treat it as absent and do not probe guessed paths, manifests, catalogs, or the
 installed-extension tree. Never enumerate or bulk-read either references or installed extensions.
 Read existing repository guidance and architecture artifacts only when they predate this bootstrap
-and could conflict with the normalized brief; do not overwrite user-authored work.
+and could conflict with the confirmed intake; do not overwrite user-authored work.
 
-Apply `references/default-adoption.md`. Distinguish explicit intent from examples and future options.
+Apply `references/default-adoption.md`. Preserve the intake's distinction between explicit intent,
+Program Kit defaults, derived conclusions, proposals, examples, and future options.
 Do not reopen an explicit intake selection or an applicable Program Kit default merely because its
 implementation details still need a specification. A valid question is not automatically a human
 decision or bootstrap blocker.
@@ -47,16 +50,16 @@ decision or bootstrap blocker.
 
 Create or update `docs/architecture/bootstrap-assessment.md` with:
 
-1. Purpose, actors, primary journeys, domain concepts, bounded-context candidates, module and feature candidates, external systems, data classes, trust boundaries, quality attributes, deployment assumptions, and operational constraints found in the design.
+1. Purpose, actors, primary journeys, domain concepts, bounded-context candidates, module and feature candidates, external systems, data classes, trust boundaries, quality attributes, deployment assumptions, and operational constraints found in the confirmed intake and architecture map.
 2. A technology inventory. Mark explicit intake choices and applicable Program Kit defaults as
    provisionally adopted by the assessment gate, with their source. Mark examples, suggestions,
    and project-specific choices outside that baseline `Proposed` unless an existing Accepted ADR
    already accepts them.
-3. Contradictions, ambiguities, missing evidence, and risky assumptions with exact design references.
+3. Contradictions, ambiguities, missing evidence, and risky assumptions with exact intake evidence IDs and architecture-map element or relationship IDs.
 4. A decision backlog grouped by architecture significance. Include security, tenancy, authorization, isolation, consistency, delivery semantics, versioning, reproducibility, supply chain, observability, operability, and recovery when applicable.
 5. Candidate vertical slices derived from actors, triggers, intents, commands, queries, messages, failure outcomes, and operational journeys. Mark them as discovery inputs rather than accepted decomposition.
 6. A preliminary contract and ownership inventory covering public APIs, events, schemas, consumer-owned ports, provider-owned capabilities, data ownership, and suspected cross-module dependencies.
-7. A traceability table from design statements to architecture concerns, candidate slices, and future decision tasks.
+7. A traceability table from intake evidence and architecture-map identities to architecture concerns, candidate slices, and future decision tasks.
 
 Create `docs/architecture/decision-backlog.md`. Each item must have a stable ID, question, why it matters, decision owner, dependencies, evidence needed, status, and the artifact that will close it.
 
@@ -142,9 +145,12 @@ project, set `browser_ui` to false and `secure_profile` to `none-v1`.
 
 Do not invent acceptance outside explicit intake, the versioned Program Kit defaults, safe derived
 defaults, or reviewed overrides. Record those sources as provisional baseline choices for the
-assessment gate. Do not initialize application code or modify the initial design during intake.
+assessment gate. Do not initialize application code or modify the confirmed intake, canonical
+architecture map, or C4 projection during assessment. If one is wrong, stop and direct the user to
+rerun the bootstrap front-door skill so the affected questions can be reopened and the artifacts
+reconfirmed.
 
-Keep the result proportional to the normalized design. Prefer compact tables over repeated prose,
+Keep the result proportional to the confirmed intake. Prefer compact tables over repeated prose,
 and do not document excluded capability categories one by one. After writing, report file paths,
 byte sizes, and decision counts only; do not print complete generated artifacts or repository-wide
 diffs.

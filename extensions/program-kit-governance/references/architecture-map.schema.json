@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://orbyss.io/program-kit/architecture-map.schema.json",
+  "title": "Program Kit canonical C4-aligned architecture map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "model_id", "title", "sources", "decisions", "documentation", "constraints", "elements", "relationships", "views", "configuration", "extensions"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "model_id": { "$ref": "#/$defs/id" },
+    "title": { "$ref": "#/$defs/text" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "sha256", "format", "importer"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "path": { "$ref": "#/$defs/path" },
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "format": { "$ref": "#/$defs/text" },
+          "importer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version"],
+            "properties": {
+              "id": { "$ref": "#/$defs/id" },
+              "version": { "$ref": "#/$defs/text" }
+            }
+          }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "sha256", "title", "date", "status", "scope", "owner", "supersedes"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "path": { "$ref": "#/$defs/path" },
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "title": { "$ref": "#/$defs/text" },
+          "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+          "status": { "enum": ["Proposed", "Accepted", "Rejected", "Deprecated", "Superseded"] },
+          "scope": { "$ref": "#/$defs/text" },
+          "owner": { "$ref": "#/$defs/text" },
+          "supersedes": { "$ref": "#/$defs/id_list" }
+        }
+      }
+    },
+    "documentation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "sha256", "scope"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "path": { "$ref": "#/$defs/path" },
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "scope": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "status", "applies_to", "evidence", "decision_refs"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "statement": { "$ref": "#/$defs/text" },
+          "status": { "$ref": "#/$defs/status" },
+          "applies_to": { "$ref": "#/$defs/id_list" },
+          "evidence": { "$ref": "#/$defs/id_list" },
+          "decision_refs": { "$ref": "#/$defs/id_list" }
+        }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "name", "description", "status", "ownership", "technology", "evidence", "decision_refs", "tags", "properties", "perspectives", "url", "group", "archetype"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "type": { "enum": ["person", "software-system", "external-system", "container", "component", "domain-capability", "bounded-context", "data-store", "deployment-node", "infrastructure-node", "software-system-instance", "container-instance"] },
+          "name": { "$ref": "#/$defs/text" },
+          "description": { "$ref": "#/$defs/text" },
+          "status": { "$ref": "#/$defs/status" },
+          "ownership": { "type": "string", "maxLength": 240 },
+          "technology": { "type": "string", "maxLength": 240 },
+          "parent": { "$ref": "#/$defs/id" },
+          "evidence": { "$ref": "#/$defs/id_list" },
+          "decision_refs": { "$ref": "#/$defs/id_list" },
+          "tags": { "$ref": "#/$defs/string_list" },
+          "properties": { "$ref": "#/$defs/properties" },
+          "perspectives": { "$ref": "#/$defs/perspectives" },
+          "url": { "type": "string", "maxLength": 1000 },
+          "group": { "type": "string", "maxLength": 240 },
+          "archetype": { "type": "string", "maxLength": 240 }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "target", "description", "technology", "status", "evidence", "decision_refs", "tags", "properties", "perspectives", "url"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "source": { "$ref": "#/$defs/id" },
+          "target": { "$ref": "#/$defs/id" },
+          "description": { "$ref": "#/$defs/text" },
+          "technology": { "type": "string", "maxLength": 240 },
+          "status": { "$ref": "#/$defs/status" },
+          "evidence": { "$ref": "#/$defs/id_list" },
+          "decision_refs": { "$ref": "#/$defs/id_list" },
+          "tags": { "$ref": "#/$defs/string_list" },
+          "properties": { "$ref": "#/$defs/properties" },
+          "perspectives": { "$ref": "#/$defs/perspectives" },
+          "url": { "type": "string", "maxLength": 1000 }
+        }
+      }
+    },
+    "views": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "type", "title", "description", "scope", "elements", "relationships", "decision_refs", "filters", "order", "layout", "animations", "properties"],
+        "properties": {
+          "key": { "$ref": "#/$defs/id" },
+          "type": { "enum": ["system-context", "system-landscape", "container", "component", "domain-context", "dynamic", "deployment", "filtered", "custom", "image"] },
+          "title": { "$ref": "#/$defs/text" },
+          "description": { "type": "string", "maxLength": 500 },
+          "scope": { "type": "string", "maxLength": 240 },
+          "elements": { "$ref": "#/$defs/id_list" },
+          "relationships": { "$ref": "#/$defs/id_list" },
+          "decision_refs": { "$ref": "#/$defs/id_list" },
+          "filters": { "$ref": "#/$defs/string_list" },
+          "order": { "$ref": "#/$defs/id_list" },
+          "layout": { "$ref": "#/$defs/properties" },
+          "animations": { "type": "array", "items": { "$ref": "#/$defs/id_list" } },
+          "properties": { "$ref": "#/$defs/properties" }
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["styles", "themes", "terminology", "branding", "properties"],
+      "properties": {
+        "styles": { "type": "array", "items": { "type": "object" } },
+        "themes": { "$ref": "#/$defs/string_list" },
+        "terminology": { "$ref": "#/$defs/properties" },
+        "branding": { "$ref": "#/$defs/properties" },
+        "properties": { "$ref": "#/$defs/properties" }
+      }
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "content", "policy", "source"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "kind": { "$ref": "#/$defs/text" },
+          "content": { "type": "string", "minLength": 1, "maxLength": 65536 },
+          "policy": { "enum": ["preserve", "blocked-executable", "approved-external"] },
+          "source": { "type": "string", "maxLength": 260 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "path": { "type": "string", "minLength": 1, "maxLength": 260, "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "status": { "enum": ["explicit", "derived", "proposed", "unresolved", "accepted"] },
+    "properties": { "type": "object", "propertyNames": { "type": "string", "minLength": 1, "maxLength": 120 }, "additionalProperties": { "type": "string", "maxLength": 2000 } },
+    "perspectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description", "value"],
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "description": { "type": "string", "maxLength": 500 },
+          "value": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "id_list": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "string_list": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 120 }, "uniqueItems": true }
+  }
+}

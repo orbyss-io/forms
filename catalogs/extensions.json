@@ -21,7 +21,7 @@
         "speckit_version": ">=1.0.1,<2.0.0"
       },
       "provides": {
-        "commands": 13,
+        "commands": 12,
         "hooks": 8
       },
       "tags": ["architecture", "adr", "governance", "quality", "bootstrap", "vertical-slicing", "modularity"],

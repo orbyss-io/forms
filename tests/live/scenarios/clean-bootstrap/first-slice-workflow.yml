@@ -38,7 +38,7 @@ steps:
     command: "speckit.tasks"
     integration: "{{ inputs.integration }}"
     input:
-      args: "Generate the complete task sequence for the current feature and its independently verifiable outcome. Include the exact mandatory Governance Completion Evidence heading, Roadmap transition field, and Path and ownership protection field. Do not add an ADR, CI, or runtime-install prerequisite for choices already accepted by INITIAL_DESIGN.md."
+      args: "Generate the complete task sequence for the current feature and its independently verifiable outcome. Include the exact mandatory Governance Completion Evidence heading, Roadmap transition field, and Path and ownership protection field. Do not add an ADR, CI, or runtime-install prerequisite for choices already accepted by the confirmed bootstrap intake."
 
   - id: implement-first-slice
     type: command

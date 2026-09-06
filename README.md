@@ -1,10 +1,11 @@
 # Program Kit
 
 Program Kit supplies reusable Spec Kit workflows and governance components for constitution-first,
-architecture-governed software delivery. Its first workflow turns an initial design into a ratified
-project constitution, modular architecture baseline, ADR system, quality system, and governed roadmap
-of vertical feature specifications. Program Kit is maintained independently from the application
-repositories that consume it.
+architecture-governed software delivery. Its conversational front door turns an initial user prompt
+into confirmed intent, a reviewable C4-aligned domain map, a ratified project constitution, a modular
+architecture baseline, an ADR system, a quality system, and a governed roadmap of vertical feature
+specifications. Program Kit is maintained independently from the application repositories that
+consume it.
 
 The executable behavior lives in Spec Kit extensions and a workflow. `program-kit` is only the
 versioned distribution layer: it installs the governance extension, the .NET extension, the
@@ -75,9 +76,11 @@ not a PowerShell script.
 The required argument is the Spec Kit integration ID. For example, use `claude` instead of `codex`
 for Claude Code. Both launchers initialize the selected integration with Spec Kit's Python runtime, register all
 four catalogs, apply the Spec Kit 1.0.1 workflow workaround, and install Program Kit. They do not
-require, create, locate, or assume a filename for the initial design. When starting the bootstrap,
-pass the user-chosen design path through `--input initial_design=...`. Do not bypass or lower
-execution policy, broadly unblock repository files, or grant unrestricted execution.
+require a prewritten design. After installation, describe the intended project naturally to the
+installed Program Kit bootstrap skill. It conducts adaptive intake, generates the canonical
+C4-aligned domain map and confirmed contract, and provides the final one-line workflow command. Do
+not bypass or lower execution policy, broadly unblock repository files, or grant unrestricted
+execution.
 
 Initialization resolves the advertised release through immutable tag catalogs, then switches all
 four registrations to the trusted `main` update channel. Catalog entries continue to pin component
@@ -180,22 +183,21 @@ commands. Besides depending on live catalog transport, Spec Kit can advance a bu
 existing component remains old. Program Kit therefore does not treat a successful bundle message as
 upgrade evidence.
 
-Run the architecture bootstrap with the path to your initial design:
+Open the installed integration in the repository and describe what you want to build. Program Kit
+will ask only consequential questions, show the C4 System Context and Domain Context Map, and bind
+the confirmed result in `docs/architecture/bootstrap-intake.json`. It always finishes with this
+single physical command line, which can be pasted into PowerShell, Command Prompt, Bash, or another
+normal user-owned terminal from the repository root:
 
-```powershell
-specify workflow run program-kit-bootstrap `
-  --input initial_design=./path/to/your-design.md `
-  --input integration=auto
+```text
+specify workflow run program-kit-bootstrap --input "bootstrap_intake=docs/architecture/bootstrap-intake.json" --input "integration=auto"
 ```
 
 For an uninterrupted development bootstrap, explicitly opt in to automatic approval and
 ratification:
 
-```powershell
-specify workflow run program-kit-bootstrap `
-  --input initial_design=./path/to/your-design.md `
-  --input integration=auto `
-  --input auto_approve_and_ratify=true
+```text
+specify workflow run program-kit-bootstrap --input "bootstrap_intake=docs/architecture/bootstrap-intake.json" --input "integration=auto" --input "auto_approve_and_ratify=true"
 ```
 
 This option applies to all three review decisions. The workflow still generates and validates each
@@ -255,7 +257,8 @@ orchestrating setup itself.
 
 ## What it installs
 
-- `program-kit-bootstrap` workflow: inventories the design, performs current research, drafts the
+- `program-kit-bootstrap` workflow: validates and assesses the confirmed conversational intake and
+  C4-aligned domain map, performs current research, drafts the
   project constitution with the core Spec Kit command, records human ratification as hash-bound
   evidence, creates the architecture baseline and decision backlog, evaluates tooling, creates the
   specification roadmap, and pauses at human review gates.
@@ -352,12 +355,19 @@ bootstrap acceptance run, use:
 ./scripts/Test-LiveBootstrap.ps1 -Integration codex -Approved
 ```
 
-The suite builds the candidate packages, executes a clean bootstrap against a minimal application
-design, preserves both workflow output streams and the disposable repository, reports advisory
+The suite builds the candidate packages, executes a clean bootstrap against a minimal confirmed
+intake, preserves both workflow output streams and the disposable repository, reports advisory
 performance metrics, and validates final readiness. On Windows, its disposable Codex guidance
 keeps `workspace-write` enabled and handles Git ownership with command-scoped
 `git -c safe.directory=...` calls—never a global Git change or sandbox bypass. See
 [`docs/live-bootstrap-acceptance.md`](docs/live-bootstrap-acceptance.md).
+
+To prove the conversational front door as well as bootstrap consumption, explicitly add the paid
+intake-skill phase:
+
+```powershell
+./scripts/Test-LiveBootstrap.ps1 -Integration codex -ExerciseIntakeSkill -Approved
+```
 
 To continue the same disposable consumer through the complete first Ready slice, explicitly add
 `-ContinueFirstSlice`. This optional mode requires Python 3.13 and exercises specification,

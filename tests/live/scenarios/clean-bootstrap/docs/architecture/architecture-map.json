@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0",
+  "model_id": "greeting-cli",
+  "title": "Greeting CLI",
+  "sources": [
+    {
+      "id": "project-intent",
+      "path": "docs/architecture/project-intent.md",
+      "sha256": "b95f7a9bb6a8c3cd752f1429b3e34c8ec53089283e394b9b172d5b416dd8b704",
+      "format": "program-kit-intent-markdown",
+      "importer": { "id": "program-kit-intake", "version": "1.0" }
+    }
+  ],
+  "decisions": [],
+  "documentation": [],
+  "constraints": [],
+  "elements": [
+    {
+      "id": "maintainer",
+      "type": "person",
+      "name": "Local maintainer",
+      "description": "Runs the greeting command locally.",
+      "status": "explicit",
+      "ownership": "",
+      "technology": "",
+      "evidence": ["e-actor"],
+      "decision_refs": [],
+      "tags": [],
+      "properties": {},
+      "perspectives": [],
+      "url": "",
+      "group": "",
+      "archetype": ""
+    },
+    {
+      "id": "greeting-cli",
+      "type": "software-system",
+      "name": "Greeting CLI",
+      "description": "Prints the exact Program Kit greeting and reports invalid arguments.",
+      "status": "explicit",
+      "ownership": "Local maintainer",
+      "technology": "Python 3.13 standard library",
+      "evidence": ["e-behavior"],
+      "decision_refs": [],
+      "tags": ["CommandLine"],
+      "properties": {},
+      "perspectives": [],
+      "url": "",
+      "group": "",
+      "archetype": ""
+    },
+    {
+      "id": "greeting-context",
+      "type": "bounded-context",
+      "name": "Greeting",
+      "description": "Candidate boundary for the complete greeting journey.",
+      "status": "proposed",
+      "ownership": "Local maintainer",
+      "technology": "",
+      "evidence": ["e-slice"],
+      "decision_refs": [],
+      "tags": ["Domain"],
+      "properties": {},
+      "perspectives": [],
+      "url": "",
+      "group": "",
+      "archetype": ""
+    }
+  ],
+  "relationships": [
+    {
+      "id": "maintainer-invokes-cli",
+      "source": "maintainer",
+      "target": "greeting-cli",
+      "description": "Invokes the greeting command",
+      "technology": "Local process",
+      "status": "explicit",
+      "evidence": ["e-behavior"],
+      "decision_refs": [],
+      "tags": [],
+      "properties": {},
+      "perspectives": [],
+      "url": ""
+    }
+  ],
+  "views": [
+    {
+      "key": "system-context",
+      "type": "system-context",
+      "title": "Greeting CLI System Context",
+      "description": "The single local actor and software system.",
+      "scope": "greeting-cli",
+      "elements": ["maintainer", "greeting-cli"],
+      "relationships": ["maintainer-invokes-cli"],
+      "decision_refs": [],
+      "filters": [],
+      "order": [],
+      "layout": { "rankDirection": "lr" },
+      "animations": [],
+      "properties": {}
+    },
+    {
+      "key": "domain-context",
+      "type": "domain-context",
+      "title": "Greeting CLI Domain Context Map",
+      "description": "The provisional single greeting context.",
+      "scope": "",
+      "elements": ["greeting-cli", "greeting-context"],
+      "relationships": [],
+      "decision_refs": [],
+      "filters": [],
+      "order": [],
+      "layout": { "rankDirection": "lr" },
+      "animations": [],
+      "properties": {}
+    }
+  ],
+  "configuration": {
+    "styles": [],
+    "themes": [],
+    "terminology": {},
+    "branding": {},
+    "properties": {}
+  },
+  "extensions": []
+}

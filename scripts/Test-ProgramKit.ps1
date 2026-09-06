@@ -55,6 +55,11 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Bootstrap-context validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_bootstrap_intake.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Conversational bootstrap-intake validation failed.'
+}
+
 & $python (Join-Path $projectRoot 'tests\validate_live_bootstrap_acceptance.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Live-bootstrap acceptance contract validation failed.'

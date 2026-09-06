@@ -287,9 +287,18 @@ def analyze_metrics(
     stdout_path = evidence / "workflow.stdout.log"
     stderr_text = stderr_path.read_text(encoding="utf-8", errors="replace") if stderr_path.is_file() else ""
     token_values = [int(value.replace(",", "")) for value in re.findall(r"tokens used\s*[\r\n]+\s*([0-9,]+)", stderr_text)]
+    intake_stderr_path = evidence / "intake.stderr.log"
+    intake_stderr = (
+        intake_stderr_path.read_text(encoding="utf-8", errors="replace")
+        if intake_stderr_path.is_file()
+        else ""
+    )
+    intake_token_values = [
+        int(value.replace(",", ""))
+        for value in re.findall(r"tokens used\s*[\r\n]+\s*([0-9,]+)", intake_stderr)
+    ]
     agent_stages = (
-        "normalize-design",
-        "intake",
+        "assessment",
         "research",
         "constitution-draft",
         "architecture",
@@ -305,6 +314,8 @@ def analyze_metrics(
     }
     observed_agent_stages = [stage for stage in agent_stages if stage in observed_steps]
     stage_tokens = dict(zip(observed_agent_stages, token_values))
+    if intake_token_values:
+        stage_tokens = {"intake-skill": sum(intake_token_values), **stage_tokens}
     unattributed_tokens = token_values[len(observed_agent_stages) :]
     stage_durations: dict[str, float] = {}
     for index, record in enumerate(monitor[:-1]):
@@ -337,8 +348,8 @@ def analyze_metrics(
             label = path.relative_to(evidence / "project").as_posix()
             artifacts[label] = {"bytes": path.stat().st_size, "sha256": sha256(path)}
     return {
-        "agent_session_count": len(token_values),
-        "agent_tokens_total": sum(token_values),
+        "agent_session_count": len(token_values) + len(intake_token_values),
+        "agent_tokens_total": sum(token_values) + sum(intake_token_values),
         "agent_tokens_by_stage": stage_tokens,
         "unattributed_agent_tokens": unattributed_tokens,
         "stage_duration_seconds": stage_durations,
@@ -392,32 +403,7 @@ def terminate_owned_process(process: subprocess.Popen[str]) -> None:
         process.wait(timeout=10)
 
 
-def run_workflow(
-    specify: str,
-    project: Path,
-    integration: str,
-    evidence: Path,
-    timeout_seconds: int,
-    *,
-    command: list[str] | None = None,
-    evidence_prefix: str = "",
-    progress_label: str = "Live bootstrap",
-    excluded_run_ids: set[str] | None = None,
-) -> tuple[int, float, str | None]:
-    if command is None:
-        command = [
-            specify,
-            "workflow",
-            "run",
-            "program-kit-bootstrap",
-            "--input",
-            "initial_design=./INITIAL_DESIGN.md",
-            "--input",
-            f"integration={integration}",
-            "--input",
-            "auto_approve_and_ratify=true",
-            "--json",
-        ]
+def worker_environment(project: Path, integration: str) -> tuple[dict[str, str], list[str], dict[str, object]]:
     environment = os.environ.copy()
     removed = [key for key in AGENT_ENVIRONMENT_KEYS if environment.pop(key, None)]
     environment["PROGRAM_KIT_LIVE_ACCEPTANCE"] = "clean-bootstrap"
@@ -447,6 +433,199 @@ def run_workflow(
             "git_excludes_file_process_scope": excludes_override,
             "global_git_configuration_modified": False,
         }
+    return environment, removed, worker_settings
+
+
+def run_intake_skill(
+    codex: str,
+    project: Path,
+    evidence: Path,
+    timeout_seconds: int,
+) -> tuple[int, float]:
+    final_message = project / ".program-kit-live/intake.final.txt"
+    final_message.parent.mkdir(parents=True, exist_ok=True)
+    prompt = (
+        "Use $speckit-program-kit-governance-bootstrap. Treat PROJECT_REQUEST.md as the user's "
+        "complete initial description and explicit confirmation. Conduct the skill exactly as installed, "
+        "create and validate all canonical intake artifacts, and finish with its required single-line "
+        "bootstrap command. Do not run the bootstrap workflow. This is a disposable live-acceptance "
+        "repository; preserve concise evidence in the repository and do not merely describe the files."
+    )
+    command = [
+        codex,
+        "exec",
+        "--sandbox",
+        "workspace-write",
+        "--cd",
+        str(project),
+        "--json",
+        "--output-last-message",
+        str(final_message),
+        prompt,
+    ]
+    environment, removed, worker_settings = worker_environment(project, "codex")
+    write_json(
+        evidence / "intake.invocation.json",
+        {
+            "command": command,
+            "cwd": str(project),
+            "integration": "codex",
+            "started_at": utc_now(),
+            "agent_environment_keys_removed_from_disposable_child": removed,
+            "worker_settings": worker_settings,
+        },
+    )
+    process = subprocess.Popen(
+        command,
+        cwd=project,
+        env=environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        bufsize=1,
+    )
+    if process.stdout is None or process.stderr is None:
+        terminate_owned_process(process)
+        raise AcceptanceError("Could not capture intake-skill output streams")
+    stdout_thread = threading.Thread(
+        target=stream_pipe,
+        args=(process.stdout, evidence / "intake.stdout.log"),
+        daemon=True,
+    )
+    stderr_thread = threading.Thread(
+        target=stream_pipe,
+        args=(process.stderr, evidence / "intake.stderr.log"),
+        daemon=True,
+    )
+    stdout_thread.start()
+    stderr_thread.start()
+    started = time.monotonic()
+    print("Conversational intake skill started")
+    try:
+        while process.poll() is None:
+            elapsed = time.monotonic() - started
+            if elapsed > timeout_seconds:
+                terminate_owned_process(process)
+                raise AcceptanceError(
+                    f"Conversational intake skill exceeded its {timeout_seconds}-second timeout"
+                )
+            time.sleep(2)
+        return_code = process.wait()
+    except BaseException:
+        terminate_owned_process(process)
+        raise
+    finally:
+        stdout_thread.join(timeout=10)
+        stderr_thread.join(timeout=10)
+        if final_message.is_file():
+            shutil.copy2(final_message, evidence / "intake.final.txt")
+    elapsed = time.monotonic() - started
+    print(f"Conversational intake skill completed: exit={return_code} elapsed={round(elapsed, 1)}s")
+    return return_code, elapsed
+
+
+def validate_intake_skill_result(
+    project: Path,
+    evidence: Path,
+    expectations: dict,
+) -> tuple[dict, list[str]]:
+    failures: list[str] = []
+    intake_expectations = expectations.get("intake_skill")
+    if not isinstance(intake_expectations, dict):
+        return {}, ["Scenario is missing intake-skill expectations"]
+    validator = project / ".specify/extensions/program-kit-governance/scripts/bootstrap_intake.py"
+    command = [
+        sys.executable,
+        str(validator),
+        "validate",
+        "--project-root",
+        str(project),
+        "--intake",
+        "docs/architecture/bootstrap-intake.json",
+        "--json",
+    ]
+    validation = subprocess.run(
+        command,
+        cwd=project,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    (evidence / "intake.validation.log").write_text(
+        (validation.stdout or "") + (validation.stderr or ""),
+        encoding="utf-8",
+        newline="\n",
+    )
+    if validation.returncode != 0:
+        failures.append(f"Generated intake failed deterministic validation ({validation.returncode})")
+    intake_path = project / "docs/architecture/bootstrap-intake.json"
+    intake: dict = {}
+    if intake_path.is_file():
+        try:
+            intake = load_json(intake_path)
+        except (OSError, json.JSONDecodeError, AcceptanceError) as exc:
+            failures.append(f"Generated intake is unreadable: {exc}")
+    else:
+        failures.append("Conversational skill did not create docs/architecture/bootstrap-intake.json")
+    intake_project = intake.get("project") if isinstance(intake.get("project"), dict) else {}
+    expected_name = intake_expectations.get("project_name")
+    if expected_name and intake_project.get("name") != expected_name:
+        failures.append(f"Generated intake project name is not {expected_name!r}")
+    final_message_path = evidence / "intake.final.txt"
+    final_message = (
+        final_message_path.read_text(encoding="utf-8", errors="replace")
+        if final_message_path.is_file()
+        else ""
+    )
+    expected_command = intake_expectations.get("final_command")
+    command_lines = [line.strip() for line in final_message.splitlines() if line.strip() == expected_command]
+    if not expected_command or len(command_lines) != 1:
+        failures.append("Conversational skill did not emit exactly one expected portable bootstrap command")
+    return {
+        "path": "docs/architecture/bootstrap-intake.json",
+        "status": intake.get("status"),
+        "project_name": intake_project.get("name"),
+        "capability_count": len(intake.get("capability_assessments", []))
+        if isinstance(intake.get("capability_assessments"), list)
+        else 0,
+        "open_item_count": len(intake.get("open_items", []))
+        if isinstance(intake.get("open_items"), list)
+        else 0,
+        "final_command_verified": bool(expected_command and len(command_lines) == 1),
+    }, failures
+
+
+def run_workflow(
+    specify: str,
+    project: Path,
+    integration: str,
+    evidence: Path,
+    timeout_seconds: int,
+    *,
+    command: list[str] | None = None,
+    evidence_prefix: str = "",
+    progress_label: str = "Live bootstrap",
+    excluded_run_ids: set[str] | None = None,
+) -> tuple[int, float, str | None]:
+    if command is None:
+        command = [
+            specify,
+            "workflow",
+            "run",
+            "program-kit-bootstrap",
+            "--input",
+            "bootstrap_intake=docs/architecture/bootstrap-intake.json",
+            "--input",
+            f"integration={integration}",
+            "--input",
+            "auto_approve_and_ratify=true",
+            "--json",
+        ]
+    environment, removed, worker_settings = worker_environment(project, integration)
     write_json(
         evidence / f"{evidence_prefix}invocation.json",
         {
@@ -1164,7 +1343,7 @@ def write_report(
 ) -> None:
     status = "passed" if workflow_exit_code == 0 and not failures else "failed"
     payload = {
-        "schema_version": "1.2",
+        "schema_version": "1.3",
         "scenario": scenario,
         "integration": integration,
         "status": status,
@@ -1207,6 +1386,22 @@ def write_report(
             ]
         )
     first_slice = result.get("first_slice")
+    intake_skill = result.get("intake_skill")
+    if isinstance(intake_skill, dict):
+        lines.extend(
+            [
+                "",
+                "## Conversational intake skill",
+                "",
+                f"- Status: `{intake_skill.get('status')}`",
+                f"- Exit code: `{intake_skill.get('workflow_exit_code')}`",
+                f"- Duration: `{intake_skill.get('duration_seconds')} seconds`",
+                f"- Project: `{intake_skill.get('project_name')}`",
+                f"- Capability assessments: `{intake_skill.get('capability_count')}`",
+                f"- Open items: `{intake_skill.get('open_item_count')}`",
+                f"- Portable command verified: `{intake_skill.get('final_command_verified')}`",
+            ]
+        )
     if isinstance(first_slice, dict):
         lines.extend(
             [
@@ -1235,6 +1430,13 @@ def write_report(
             "",
         ]
     )
+    if isinstance(intake_skill, dict):
+        lines[-1:-1] = [
+            "- `intake.invocation.json`: exact intake-worker command and sandbox settings.",
+            "- `intake.stdout.log` and `intake.stderr.log`: complete intake-worker streams.",
+            "- `intake.final.txt`: final skill response containing the portable handoff command.",
+            "- `intake.validation.log`: deterministic validation of the generated contract.",
+        ]
     if isinstance(first_slice, dict) and first_slice.get("workflow_exit_code") is not None:
         lines[-1:-1] = [
             "- `first-slice.workflow.stdout.log`: structured first-slice workflow result.",
@@ -1261,6 +1463,12 @@ def main() -> int:
     )
     parser.add_argument("--timeout-seconds", type=int, default=7200)
     parser.add_argument(
+        "--exercise-intake-skill",
+        action="store_true",
+        help="Run the installed conversational bootstrap skill from the raw scenario request before bootstrap.",
+    )
+    parser.add_argument("--intake-timeout-seconds", type=int, default=3600)
+    parser.add_argument(
         "--continue-first-slice",
         action="store_true",
         help="After bootstrap, run the first Ready slice through specify, plan, tasks, and implement.",
@@ -1286,6 +1494,15 @@ def main() -> int:
         return 3
     if args.timeout_seconds < 60:
         print("Live acceptance timeout must be at least 60 seconds.", file=sys.stderr)
+        return 3
+    if args.intake_timeout_seconds < 60:
+        print("Conversational intake timeout must be at least 60 seconds.", file=sys.stderr)
+        return 3
+    if args.exercise_intake_skill and args.integration != "codex":
+        print(
+            "INTAKE_SKILL_CODEX_REQUIRED: The live conversational-intake phase currently requires the Codex integration.",
+            file=sys.stderr,
+        )
         return 3
     if args.first_slice_timeout_seconds < 60:
         print("First-slice timeout must be at least 60 seconds.", file=sys.stderr)
@@ -1324,7 +1541,10 @@ def main() -> int:
     project = evidence / "project"
     packages = evidence / "packages"
     project.mkdir(parents=True, exist_ok=False)
-    shutil.copyfile(scenario_root / "INITIAL_DESIGN.md", project / "INITIAL_DESIGN.md")
+    if args.exercise_intake_skill:
+        shutil.copyfile(scenario_root / "PROJECT_REQUEST.md", project / "PROJECT_REQUEST.md")
+    else:
+        shutil.copytree(scenario_root / "docs", project / "docs")
     print(f"Live acceptance evidence: {evidence}")
 
     started = time.monotonic()
@@ -1333,6 +1553,7 @@ def main() -> int:
     run_id: str | None = None
     failures: list[str] = []
     result: dict = {}
+    intake_phase: dict | None = None
     try:
         install_candidate(
             root,
@@ -1342,6 +1563,31 @@ def main() -> int:
             evidence / "setup.log",
         )
         write_worker_guidance(project, args.integration)
+        if args.exercise_intake_skill:
+            intake_exit_code, intake_duration = run_intake_skill(
+                integration_cli,
+                project,
+                evidence,
+                args.intake_timeout_seconds,
+            )
+            intake_result, intake_failures = validate_intake_skill_result(
+                project,
+                evidence,
+                expectations,
+            )
+            intake_phase = {
+                **intake_result,
+                "workflow_exit_code": intake_exit_code,
+                "duration_seconds": round(intake_duration, 3),
+                "status": (
+                    "passed" if intake_exit_code == 0 and not intake_failures else "failed"
+                ),
+            }
+            failures.extend(intake_failures)
+            if intake_exit_code != 0:
+                failures.append(f"Conversational intake skill exited with {intake_exit_code}")
+            if failures:
+                raise AcceptanceError("Conversational intake did not produce a bootstrap-ready contract")
         workflow_exit_code, workflow_duration, run_id = run_workflow(
             specify,
             project,
@@ -1358,6 +1604,8 @@ def main() -> int:
             run_id,
             evidence / "validation.log",
         )
+        if intake_phase is not None:
+            result["intake_skill"] = intake_phase
         failures.extend(validation_failures)
         if args.continue_first_slice and not failures:
             managed_before = snapshot_managed_baseline(project)
@@ -1426,6 +1674,8 @@ def main() -> int:
             "state": state or {},
             "files": [],
         }
+    if intake_phase is not None and "intake_skill" not in result:
+        result["intake_skill"] = intake_phase
     if args.continue_first_slice and "first_slice" not in result:
         result["first_slice"] = {
             "status": "not-run",

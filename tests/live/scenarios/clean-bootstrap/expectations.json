@@ -6,7 +6,10 @@
     ".specify/memory/constitution-ratification.json",
     ".specify/governance/bootstrap-assessment-approval.json",
     ".specify/governance/bootstrap-approval.json",
-    "docs/architecture/bootstrap-brief.json",
+    "docs/architecture/project-intent.md",
+    "docs/architecture/architecture-map.json",
+    "docs/architecture/workspace.dsl",
+    "docs/architecture/bootstrap-intake.json",
     "docs/architecture/bootstrap-assessment.md",
     "docs/architecture/bootstrap-decisions.json",
     "docs/architecture/architecture.md",
@@ -23,8 +26,12 @@
   ],
   "readiness_first_line": "**Status**: READY",
   "approval_mode": "automatic",
+  "intake_skill": {
+    "project_name": "Greeting CLI",
+    "final_command": "specify workflow run program-kit-bootstrap --input \"bootstrap_intake=docs/architecture/bootstrap-intake.json\" --input \"integration=auto\""
+  },
   "first_slice": {
-    "feature_description": "Deliver the first Ready entry in docs/architecture/specification-roadmap.md as a complete vertical slice. Use INITIAL_DESIGN.md and the approved governance and architecture artifacts as authoritative context.",
+    "feature_description": "Deliver the first Ready entry in docs/architecture/specification-roadmap.md as a complete vertical slice. Use the confirmed bootstrap intake and approved governance and architecture artifacts as authoritative context.",
     "required_feature_files": [
       "spec.md",
       "plan.md",

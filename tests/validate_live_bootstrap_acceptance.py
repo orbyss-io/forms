@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import io
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,6 +19,7 @@ from live.run_bootstrap_acceptance import (
     performance_warnings,
     run_logged_with_catalog_retry,
     snapshot_managed_baseline,
+    validate_intake_skill_result,
     validate_first_slice,
     validate_result,
 )
@@ -51,7 +53,11 @@ def main() -> int:
     for path in (
         runner,
         wrapper,
-        scenario / "INITIAL_DESIGN.md",
+        scenario / "docs/architecture/project-intent.md",
+        scenario / "docs/architecture/architecture-map.json",
+        scenario / "docs/architecture/workspace.dsl",
+        scenario / "docs/architecture/bootstrap-intake.json",
+        scenario / "PROJECT_REQUEST.md",
         scenario / "expectations.json",
         scenario / "first-slice-workflow.yml",
         root / "docs/live-bootstrap-acceptance.md",
@@ -72,6 +78,11 @@ def main() -> int:
             raise AssertionError(
                 f"Live bootstrap still bypasses the public option with {legacy_input}"
             )
+
+    expectations = json.loads((scenario / "expectations.json").read_text(encoding="utf-8"))
+    intake_expectations = expectations.get("intake_skill", {})
+    if intake_expectations.get("project_name") != "Greeting CLI" or not intake_expectations.get("final_command"):
+        raise AssertionError("Clean-bootstrap scenario is missing conversational-intake assertions")
 
     original_run = subprocess.run
     expected_excludes = "" if os.name == "nt" else os.devnull
@@ -109,11 +120,48 @@ def main() -> int:
         subprocess.run = original_run
 
     with tempfile.TemporaryDirectory(prefix="program-kit-live-guard-") as directory:
-        denied = run_guard(runner, "--output-root", directory)
+        denied = run_guard(runner, "--exercise-intake-skill", "--output-root", directory)
         if denied.returncode != 3 or "LIVE_ACCEPTANCE_APPROVAL_REQUIRED" not in denied.stderr:
             raise AssertionError(f"Unapproved live run was not refused: {denied}")
         if any(Path(directory).iterdir()):
             raise AssertionError("Unapproved live run created output before refusing")
+
+    with tempfile.TemporaryDirectory(prefix="program-kit-live-intake-mode-") as directory:
+        denied = run_guard(
+            runner,
+            "--approved",
+            "--exercise-intake-skill",
+            "--integration",
+            "claude",
+            "--output-root",
+            directory,
+        )
+        if denied.returncode != 3 or "INTAKE_SKILL_CODEX_REQUIRED" not in denied.stderr:
+            raise AssertionError(f"Unsupported live intake integration was not refused: {denied}")
+        if any(Path(directory).iterdir()):
+            raise AssertionError("Unsupported intake mode created output before refusing")
+
+    with tempfile.TemporaryDirectory(prefix="program-kit-live-intake-validation-") as directory:
+        temp_root = Path(directory)
+        project = temp_root / "project"
+        evidence = temp_root / "evidence"
+        shutil.copytree(scenario / "docs", project / "docs")
+        scripts = project / ".specify/extensions/program-kit-governance/scripts"
+        scripts.mkdir(parents=True)
+        for name in ("bootstrap_intake.py", "architecture_map.py"):
+            shutil.copy2(root / "extensions/program-kit-governance/scripts" / name, scripts / name)
+        evidence.mkdir()
+        (evidence / "intake.final.txt").write_text(
+            intake_expectations["final_command"] + "\n",
+            encoding="utf-8",
+        )
+        intake_result, intake_failures = validate_intake_skill_result(
+            project,
+            evidence,
+            expectations,
+        )
+        if intake_failures or not intake_result.get("final_command_verified"):
+            raise AssertionError(f"Generated-intake seam validation is invalid: {intake_failures}")
 
     with tempfile.TemporaryDirectory(prefix="program-kit-live-metrics-") as directory:
         evidence = Path(directory)
@@ -121,20 +169,21 @@ def main() -> int:
             "tokens used\n1,200\ntokens used\n300\n", encoding="utf-8"
         )
         (evidence / "workflow.stdout.log").write_text("{}\n", encoding="utf-8")
+        (evidence / "intake.stderr.log").write_text("tokens used\n50\n", encoding="utf-8")
         monitor = [
-            {"status": "running", "current_step_id": "intake", "elapsed_seconds": 2.0},
+            {"status": "running", "current_step_id": "assessment", "elapsed_seconds": 2.0},
             {"status": "running", "current_step_id": "research", "elapsed_seconds": 7.0},
         ]
         (evidence / "monitor.jsonl").write_text(
             "".join(json.dumps(record) + "\n" for record in monitor), encoding="utf-8"
         )
         metrics = analyze_metrics(evidence, None, workflow_duration=10.0)
-        if metrics["agent_tokens_by_stage"] != {"intake": 1200, "research": 300}:
+        if metrics["agent_tokens_by_stage"] != {"intake-skill": 50, "assessment": 1200, "research": 300}:
             raise AssertionError(f"Agent token attribution is invalid: {metrics}")
-        if metrics["stage_duration_seconds"] != {"intake": 5.0, "research": 3.0}:
+        if metrics["stage_duration_seconds"] != {"assessment": 5.0, "research": 3.0}:
             raise AssertionError(f"Stage duration attribution is invalid: {metrics}")
         if performance_warnings(metrics, {"agent_tokens_total": 1000}) != [
-            "Agent token total 1500 exceeds advisory budget 1000"
+            "Agent token total 1550 exceeds advisory budget 1000"
         ]:
             raise AssertionError("Live advisory budgets are not reported predictably")
 
@@ -457,6 +506,8 @@ def main() -> int:
         "first complete feature lifecycle",
         "first-slice.validation.log",
         "first-slice-managed-baseline.json",
+        "-ExerciseIntakeSkill",
+        "exact portable one-line workflow command",
     )
     require(
         wrapper,
@@ -466,6 +517,7 @@ def main() -> int:
         "LIVE_ACCEPTANCE_CI_FORBIDDEN",
         "--approved",
         "--continue-first-slice",
+        "--exercise-intake-skill",
     )
     require(
         runner,
@@ -482,6 +534,8 @@ def main() -> int:
         "analyze_metrics",
         ".evidence.json",
         "server.shutdown()",
+        "$speckit-program-kit-governance-bootstrap",
+        "validate_intake_skill_result",
     )
     print("Live bootstrap acceptance request, CI, fixture, and evidence contracts passed.")
     return 0

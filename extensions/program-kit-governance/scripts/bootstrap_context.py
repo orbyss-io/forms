@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import sys
@@ -9,10 +10,14 @@ from pathlib import Path
 
 
 SCHEMA_VERSION = "2.0"
-BRIEF_SCHEMA_VERSION = "1.0"
-BRIEF_PATH = Path("docs/architecture/bootstrap-brief.json")
-BRIEF_MAX_BYTES = 16 * 1024
 CONTEXT_DIRECTORY = Path(".specify/workflows/runs")
+INTAKE_PATH = Path("docs/architecture/bootstrap-intake.json")
+INTAKE_ARTIFACTS = (
+    "docs/architecture/project-intent.md",
+    "docs/architecture/architecture-map.json",
+    "docs/architecture/workspace.dsl",
+    INTAKE_PATH.as_posix(),
+)
 
 STAGE_ARTIFACTS: dict[str, tuple[str, ...]] = {
     "research": (
@@ -84,9 +89,9 @@ STAGE_FULL_READS = {
 
 STAGE_FOCUS = {
     "research": "Verify only selected technologies and capabilities; excluded surfaces are out of scope.",
-    "architecture": "Define the smallest governed architecture that realizes the normalized journeys.",
+    "architecture": "Define the smallest governed architecture that realizes the confirmed intake journeys.",
     "tooling": "Adopt only controls required by selected capabilities and accepted boundaries.",
-    "roadmap": "Create outcome-oriented specification entries from normalized journeys and accepted decisions.",
+    "roadmap": "Create outcome-oriented specification entries from confirmed journeys and accepted decisions.",
     "readiness": "Prove the first Ready entry has accepted authority, owned risks, and sufficient evidence.",
 }
 
@@ -116,10 +121,14 @@ OUTPUT_CONTRACTS = {
             "docs/architecture/quality-attributes.md",
             "docs/architecture/technology-radar.md",
             "docs/architecture/traceability.md",
+            "docs/architecture/architecture-map.json",
+            "docs/architecture/workspace.dsl",
             "docs/architecture/decisions/README.md",
             "docs/architecture/decisions/bootstrap-baseline.md",
         ],
-        "contract_references": [],
+        "contract_references": [
+            ".specify/extensions/program-kit-governance/references/architecture-map.schema.json"
+        ],
         "validation_commands": [
             "python .specify/extensions/program-kit-governance/scripts/governance_state.py validate"
         ],
@@ -152,6 +161,8 @@ OUTPUT_CONTRACTS = {
 ARTIFACT_BYTE_BUDGETS = {
     "docs/architecture/tooling-evaluation.md": 8 * 1024,
     "docs/architecture/architecture.md": 12 * 1024,
+    "docs/architecture/architecture-map.json": 256 * 1024,
+    "docs/architecture/workspace.dsl": 256 * 1024,
     "docs/architecture/quality-system.md": 12 * 1024,
     "docs/architecture/readiness-report.md": 4 * 1024,
 }
@@ -184,10 +195,6 @@ SIGNAL = re.compile(
     r"\b(?:ADR|SPC|SPEC|QA|WEB-C|WEB-V)-?[A-Z0-9-]*\b)",
     re.IGNORECASE,
 )
-EVIDENCE = re.compile(r"^([^:\r\n]+):([1-9][0-9]*)(?:-([1-9][0-9]*))?$")
-ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
-
-
 class ContextError(RuntimeError):
     pass
 
@@ -315,7 +322,7 @@ def managed_profile_pin_authority(project_root: Path, decisions: dict) -> dict:
 
 
 def validate_profile_pin_decisions(project_root: Path, run_id: str) -> dict:
-    validate_brief(project_root, run_id)
+    validate_intake(project_root, run_id)
     decisions = load_json(project_root / "docs/architecture/bootstrap-decisions.json")
     authority = managed_profile_pin_authority(project_root, decisions)
     expected = authority["pins"]
@@ -391,107 +398,43 @@ def safe_run_directory(project_root: Path, run_id: str) -> Path:
     return run_directory
 
 
-def initial_design_record(project_root: Path, run_directory: Path) -> dict:
-    envelope = load_json(run_directory / "inputs.json")
-    inputs = envelope.get("inputs")
-    if not isinstance(inputs, dict):
-        raise ContextError("Workflow inputs.json does not contain the Spec Kit inputs object")
-    value = inputs.get("initial_design")
-    if not isinstance(value, str) or not value.strip():
-        raise ContextError("Workflow inputs do not contain a non-empty initial_design path")
-    candidate = Path(value)
-    resolved = (project_root / candidate).resolve() if not candidate.is_absolute() else candidate.resolve()
+def _load_intake_module():
+    path = Path(__file__).with_name("bootstrap_intake.py")
+    spec = importlib.util.spec_from_file_location("program_kit_bootstrap_intake", path)
+    if spec is None or spec.loader is None:
+        raise ContextError(f"Cannot load bootstrap intake support from {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def validate_intake(
+    project_root: Path,
+    run_id: str,
+    allow_architecture_evolution: bool = False,
+) -> dict:
     try:
-        relative = resolved.relative_to(project_root)
-    except ValueError as exc:
-        raise ContextError("The live bootstrap initial design must stay inside the project") from exc
-    if not resolved.is_file():
-        raise ContextError(f"Initial design is missing: {relative.as_posix()}")
+        module = _load_intake_module()
+        _, intake = module.intake_from_run(
+            project_root,
+            run_id,
+            allow_architecture_evolution=allow_architecture_evolution,
+        )
+    except Exception as exc:
+        if exc.__class__.__name__ != "IntakeError":
+            raise
+        raise ContextError(str(exc)) from exc
+    return intake
+
+
+def intake_record(project_root: Path, run_id: str) -> dict:
+    path = project_root / INTAKE_PATH
     return {
-        "path": relative.as_posix(),
-        "sha256": sha256_file(resolved),
-        "bytes": resolved.stat().st_size,
+        "path": INTAKE_PATH.as_posix(),
+        "sha256": sha256_file(path),
+        "bytes": path.stat().st_size,
     }
-
-
-def _require_string(value: object, label: str, maximum: int) -> str:
-    if not isinstance(value, str) or not value.strip() or len(value) > maximum:
-        raise ContextError(f"Bootstrap brief {label} must be a non-empty string of at most {maximum} characters")
-    return value.strip()
-
-
-def validate_brief(project_root: Path, run_id: str) -> dict:
-    run_directory = safe_run_directory(project_root, run_id)
-    design = initial_design_record(project_root, run_directory)
-    path = project_root / BRIEF_PATH
-    if not path.is_file():
-        raise ContextError(f"Normalized bootstrap brief is missing: {BRIEF_PATH.as_posix()}")
-    if path.stat().st_size > BRIEF_MAX_BYTES:
-        raise ContextError(f"Normalized bootstrap brief exceeds {BRIEF_MAX_BYTES} bytes")
-    brief = load_json(path)
-    required = {
-        "schema_version", "source", "project", "facts", "explicit_boundaries",
-        "actors", "journeys", "quality_requirements", "ambiguities", "routing",
-    }
-    if set(brief) != required or brief.get("schema_version") != BRIEF_SCHEMA_VERSION:
-        raise ContextError("Normalized bootstrap brief has an invalid top-level shape or schema version")
-    source = brief.get("source")
-    if not isinstance(source, dict) or set(source) != {"path", "sha256"}:
-        raise ContextError("Bootstrap brief source must contain only path and sha256")
-    if source != {"path": design["path"], "sha256": design["sha256"]}:
-        raise ContextError("Bootstrap brief source does not match the workflow initial design")
-    project = brief.get("project")
-    if not isinstance(project, dict) or set(project) != {"name", "summary"}:
-        raise ContextError("Bootstrap brief project must contain only name and summary")
-    _require_string(project.get("name"), "project.name", 120)
-    _require_string(project.get("summary"), "project.summary", 500)
-
-    design_lines = (project_root / design["path"]).read_text(encoding="utf-8").splitlines()
-    seen_ids: set[str] = set()
-    for collection_name, text_field, maximum_items in (
-        ("facts", "statement", 64),
-        ("explicit_boundaries", "statement", 64),
-        ("actors", "statement", 64),
-        ("journeys", "statement", 64),
-        ("quality_requirements", "statement", 64),
-        ("ambiguities", "question", 32),
-    ):
-        collection = brief.get(collection_name)
-        if not isinstance(collection, list) or len(collection) > maximum_items:
-            raise ContextError(
-                f"Bootstrap brief {collection_name} must be a list of at most {maximum_items} items"
-            )
-        for index, item in enumerate(collection, 1):
-            if not isinstance(item, dict) or set(item) != {"id", text_field, "evidence"}:
-                raise ContextError(f"Bootstrap brief {collection_name} item {index} has an invalid shape")
-            item_id = _require_string(item.get("id"), f"{collection_name}[{index}].id", 64)
-            if not ID.fullmatch(item_id) or item_id in seen_ids:
-                raise ContextError(f"Bootstrap brief ID is invalid or duplicated: {item_id}")
-            seen_ids.add(item_id)
-            _require_string(item.get(text_field), f"{collection_name}[{index}].{text_field}", 500)
-            evidence = _require_string(item.get("evidence"), f"{collection_name}[{index}].evidence", 260)
-            match = EVIDENCE.fullmatch(evidence)
-            if not match or Path(match.group(1)).as_posix() != design["path"]:
-                raise ContextError(f"Bootstrap brief evidence must cite the initial design: {evidence}")
-            start = int(match.group(2))
-            end = int(match.group(3) or start)
-            if end < start or end > len(design_lines):
-                raise ContextError(f"Bootstrap brief evidence line range is invalid: {evidence}")
-
-    routing = brief.get("routing")
-    routing_keys = {"languages", "frameworks", "interfaces", "included_surfaces", "excluded_surfaces"}
-    if not isinstance(routing, dict) or set(routing) != routing_keys:
-        raise ContextError("Bootstrap brief routing has an invalid shape")
-    for key in routing_keys:
-        values = routing[key]
-        if (
-            not isinstance(values, list)
-            or len(values) > 32
-            or any(not isinstance(value, str) or not value.strip() or len(value) > 120 for value in values)
-            or len({value.casefold() for value in values}) != len(values)
-        ):
-            raise ContextError(f"Bootstrap brief routing.{key} must contain unique concise strings")
-    return brief
 
 
 def markdown_index(text: str) -> tuple[list[dict], list[dict]]:
@@ -645,10 +588,15 @@ def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path,
     run_directory = safe_run_directory(project_root, run_id)
     if not (run_directory / "inputs.json").is_file():
         raise ContextError(f"Spec Kit workflow inputs are missing for run {run_id}")
-    brief = validate_brief(project_root, run_id)
+    intake = validate_intake(
+        project_root,
+        run_id,
+        allow_architecture_evolution=stage in {"tooling", "roadmap", "readiness"},
+    )
+    architecture_map = load_json(project_root / "docs/architecture/architecture-map.json")
     governance = governance_contract(project_root)
     governance_paths = governance["paths"]
-    stage_artifacts = tuple(
+    stage_artifacts = INTAKE_ARTIFACTS + tuple(
         replace_governance_path(path, governance_paths) for path in STAGE_ARTIFACTS[stage]
     )
     artifacts: list[dict] = []
@@ -675,8 +623,9 @@ def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path,
         "run_id": run_id,
         "stage": stage,
         "stage_focus": STAGE_FOCUS[stage],
-        "initial_design": initial_design_record(project_root, run_directory),
-        "normalized_brief": brief,
+        "bootstrap_intake": intake_record(project_root, run_id),
+        "intake": intake,
+        "architecture_map": architecture_map,
         "authorities": authorities,
         "managed_profile_pins": managed_profile_pin_authority(
             project_root, authorities.get("assessment_decisions", {})
@@ -699,7 +648,7 @@ def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path,
                 "Read this stage brief in full.",
                 "Do not print or read the evidence index in full; query one artifact and heading range at a time.",
                 "Do not open an allowed source unless this brief lacks a fact required for the current output.",
-                "Excluded routing surfaces are out of scope unless contradictory evidence is cited.",
+                "Excluded intake routing surfaces are out of scope unless contradictory evidence is cited.",
                 "Report counts and paths after writes; do not print complete generated artifacts or repository-wide diffs.",
             ],
             "provenance": "The evidence index binds optional source sections to paths and SHA-256 values.",
@@ -746,7 +695,7 @@ def main() -> int:
             stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     parser = argparse.ArgumentParser(description="Build compact Program Kit bootstrap stage handoffs.")
     parser.add_argument(
-        "command", choices=("build", "validate", "validate-brief", "validate-profile-pins")
+        "command", choices=("build", "validate", "validate-intake", "validate-profile-pins")
     )
     parser.add_argument("--stage", choices=tuple(STAGE_ARTIFACTS))
     parser.add_argument("--run-id", required=True)
@@ -755,14 +704,15 @@ def main() -> int:
     args = parser.parse_args()
     project_root = Path(args.project_root).resolve()
     try:
-        if args.command == "validate-brief":
-            payload = validate_brief(project_root, args.run_id)
+        if args.command == "validate-intake":
+            payload = validate_intake(project_root, args.run_id)
             result = {
-                "path": BRIEF_PATH.as_posix(),
-                "bytes": (project_root / BRIEF_PATH).stat().st_size,
+                "path": INTAKE_PATH.as_posix(),
+                "bytes": (project_root / INTAKE_PATH).stat().st_size,
                 "fact_count": len(payload["facts"]),
-                "boundary_count": len(payload["explicit_boundaries"]),
-                "ambiguity_count": len(payload["ambiguities"]),
+                "journey_count": len(payload["journeys"]),
+                "capability_count": len(payload["capability_assessments"]),
+                "open_item_count": len(payload["open_items"]),
             }
         elif args.command == "validate-profile-pins":
             authority = validate_profile_pin_decisions(project_root, args.run_id)
@@ -784,8 +734,8 @@ def main() -> int:
         return 2
     if args.json:
         print(json.dumps(result))
-    elif args.command == "validate-brief":
-        print(f"Program Kit normalized bootstrap brief is valid: {result['path']}")
+    elif args.command == "validate-intake":
+        print(f"Program Kit confirmed bootstrap intake is valid: {result['path']}")
     elif args.command == "validate-profile-pins":
         print(
             "Program Kit selected-profile pins are valid: "

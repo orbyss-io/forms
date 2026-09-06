@@ -16,9 +16,8 @@ EXPECTED_STEPS = [
     "codex-execution-preflight",
     "codex-execution-boundary",
     "prepare-utf8-runtime",
-    "normalize-design",
-    "validate-design-brief",
-    "intake",
+    "validate-bootstrap-intake",
+    "assessment",
     "prepare-research-context",
     "research",
     "validate-profile-pins",
@@ -79,8 +78,8 @@ def main() -> int:
     command_names = {
         command["name"] for command in extension["provides"]["commands"]
     }
-    if len(command_names) != 13:
-        raise AssertionError(f"Extension exposes {len(command_names)} commands, expected 13")
+    if len(command_names) != 12:
+        raise AssertionError(f"Extension exposes {len(command_names)} commands, expected 12")
     extension_catalog = yaml.safe_load(
         (root / "catalogs/extensions.json").read_text(encoding="utf-8")
     )
@@ -138,19 +137,20 @@ def main() -> int:
     utf8_step = next(step for step in steps if step["id"] == "prepare-utf8-runtime")
     if "ensure_utf8.py --target ." not in utf8_step.get("run", ""):
         raise AssertionError("Bootstrap must harden installed Python entry points before agent commands")
-    normalize = next(step for step in steps if step["id"] == "normalize-design")
-    brief_validation = next(step for step in steps if step["id"] == "validate-design-brief")
-    intake = next(step for step in steps if step["id"] == "intake")
-    if normalize.get("command") != "speckit.program-kit-governance.normalize-design":
-        raise AssertionError("The workflow must normalize the design before governance intake")
+    intake_validation = next(step for step in steps if step["id"] == "validate-bootstrap-intake")
+    assessment = next(step for step in steps if step["id"] == "assessment")
     if (
-        brief_validation.get("type") != "shell"
-        or "bootstrap_context.py validate-brief" not in brief_validation.get("run", "")
-        or brief_validation.get("output_format") != "json"
+        intake_validation.get("type") != "shell"
+        or "bootstrap_intake.py validate-run" not in intake_validation.get("run", "")
+        or intake_validation.get("output_format") != "json"
     ):
-        raise AssertionError("The normalized design brief must be deterministically validated")
-    if "steps.validate-design-brief.output.data.path" not in intake.get("input", {}).get("args", ""):
-        raise AssertionError("Governance intake must consume the validated normalized brief")
+        raise AssertionError("The confirmed conversational intake must be deterministically validated")
+    if assessment.get("command") != "speckit.program-kit-governance.assessment":
+        raise AssertionError("The workflow must assess the validated conversational intake")
+    if "steps.validate-bootstrap-intake.output.data.path" not in assessment.get("input", {}).get("args", ""):
+        raise AssertionError("Governance assessment must consume the validated intake")
+    if "initial_design" in workflow_path.read_text(encoding="utf-8"):
+        raise AssertionError("The workflow must not retain the legacy initial_design route")
     context_stages = ("research", "architecture", "tooling", "roadmap", "readiness")
     for stage in context_stages:
         context_id = f"prepare-{stage}-context"
@@ -361,9 +361,9 @@ def main() -> int:
     if "NativeEndpoints" in dotnet_profile.read_text(encoding="utf-8"):
         raise AssertionError("The .NET profile must use Minimal APIs, not NativeEndpoints")
     require_text(
-        extension_root / "commands/speckit.program-kit-governance.intake.md",
+        extension_root / "commands/speckit.program-kit-governance.assessment.md",
         "governance_state.py validate-installation",
-        "Before reading the initial design or writing any project artifact",
+        "Before reading the confirmed intake or writing any project artifact",
         "Run those commands in the displayed order",
         "bootstrap-decisions.json",
         "program-kit-preview-dependencies",
@@ -404,7 +404,7 @@ def main() -> int:
         "Never create a separate ADR",
     )
     require_text(
-        extension_root / "commands/speckit.program-kit-governance.intake.md",
+        extension_root / "commands/speckit.program-kit-governance.assessment.md",
         "fixed routing map",
         "not evidence that its technology extension is installed",
         "do not probe guessed paths",
@@ -494,16 +494,26 @@ def main() -> int:
         "implementation preflight lifecycle and artifact ownership are coherent",
     )
     context_script = extension_root / "scripts/bootstrap_context.py"
+    intake_script = extension_root / "scripts/bootstrap_intake.py"
+    architecture_map_script = extension_root / "scripts/architecture_map.py"
     context_schema = extension_root / "references/bootstrap-context.schema.json"
-    brief_schema = extension_root / "references/bootstrap-brief.schema.json"
+    intake_schema = extension_root / "references/bootstrap-intake.schema.json"
+    architecture_map_schema = extension_root / "references/architecture-map.schema.json"
     decisions_schema = extension_root / "references/bootstrap-decisions.schema.json"
-    normalize_command = extension_root / "commands/speckit.program-kit-governance.normalize-design.md"
     if not all(
         path.is_file()
-        for path in (context_script, context_schema, brief_schema, decisions_schema, normalize_command)
+        for path in (
+            context_script,
+            intake_script,
+            architecture_map_script,
+            context_schema,
+            intake_schema,
+            architecture_map_schema,
+            decisions_schema,
+        )
     ):
-        raise AssertionError("Bootstrap brief/context generator, command, or schema is missing")
-    for schema_path in (context_schema, brief_schema, decisions_schema):
+        raise AssertionError("Bootstrap intake/context/model generator or schema is missing")
+    for schema_path in (context_schema, intake_schema, architecture_map_schema, decisions_schema):
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
             raise AssertionError(f"Bootstrap schema has the wrong dialect: {schema_path}")
@@ -518,7 +528,7 @@ def main() -> int:
         context_script,
         "STAGE_ARTIFACTS",
         "safe_run_directory",
-        "validate_brief",
+        "validate_intake",
         "evidence_index",
         "deny-by-default",
         "reading_policy",
@@ -529,16 +539,24 @@ def main() -> int:
         "validate_profile_pin_decisions",
     )
     require_text(
-        extension_root / "commands/speckit.program-kit-governance.intake.md",
+        extension_root / "commands/speckit.program-kit-governance.assessment.md",
         "bootstrap-decisions.schema.json",
         "Do not inspect `governance_state.py`",
     )
     require_text(
-        normalize_command,
-        "bootstrap-brief.json",
-        "does not apply Program Kit defaults",
-        "under 16 KiB",
-        "do not print the full JSON",
+        extension_root / "commands/speckit.program-kit-governance.bootstrap.md",
+        "adaptive Q&A",
+        "architecture-map.json",
+        "workspace.dsl",
+        "exactly one physical",
+        "bootstrap_intake=docs/architecture/bootstrap-intake.json",
+    )
+    require_text(
+        architecture_map_script,
+        "ArchitectureMapImporter",
+        "StructurizrDslImporter",
+        "decision_refs",
+        "blocked-executable",
     )
 
     roadmap_step = next(step for step in steps if step["id"] == "specification-roadmap")
