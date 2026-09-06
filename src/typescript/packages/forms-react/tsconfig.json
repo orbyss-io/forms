@@ -11,6 +11,7 @@
   "references": [
     { "path": "../forms-actions" },
     { "path": "../forms-contracts" },
+    { "path": "../forms-jsonforms-runtime" },
     { "path": "../forms-wizard" }
   ]
 }

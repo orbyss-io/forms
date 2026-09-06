@@ -5,7 +5,12 @@ import test from "node:test";
 import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss/program-kit-forms-ajv-build";
 import { mountJsonEditor } from "@orbyss/program-kit-forms-codemirror";
 import { defaultRuntimeLimits } from "@orbyss/program-kit-forms-contracts";
-import { createJsonFormsTranslator, prepareJsonFormsRuntime } from "@orbyss/program-kit-forms-jsonforms-runtime";
+import {
+  createJsonFormsTranslator,
+  createPrecompiledJsonFormsAjvFacade,
+  jsonFormsValidationErrorsToIssues,
+  prepareJsonFormsRuntime
+} from "@orbyss/program-kit-forms-jsonforms-runtime";
 import { FormLookupController, FormLookupRegistry } from "@orbyss/program-kit-forms-lookups";
 import { programKitSearchableSelectRendererEntry, programKitSearchableSelectTester } from "@orbyss/program-kit-forms-lookups-react";
 import {
@@ -37,6 +42,12 @@ import {
 import { rankWith, uiTypeIs } from "@jsonforms/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createSSRApp, defineComponent, h, markRaw } from "vue";
+import { renderToString } from "vue/server-renderer";
+import {
+  ProgramKitJsonFormsVue,
+  programKitVueFormsAdapterVersion
+} from "@orbyss/program-kit-forms-vue";
 import {
   LocalizationConcurrencyError,
   LocalizationManagementSession,
@@ -199,6 +210,60 @@ test("runtime verifies artifacts, renderer requirements, translations, and typed
   const result = await runtime.dispatchAction("finish", { name: "Ada" }, { signal: new AbortController().signal });
   assert.deepEqual(result, { payload: { name: "Ada" }, formId: "registration", releaseId: "registration-v1" });
   await assert.rejects(() => runtime.dispatchAction("undeclared", {}, { signal: new AbortController().signal }), /not declared/);
+});
+
+test("framework adapters share a precompiled JSON Forms validation facade", () => {
+  const validate = compileBuildTimeValidator(schema);
+  const facade = createPrecompiledJsonFormsAjvFacade(schema, validate);
+  const root = facade.compile(schema);
+  assert.equal(root({ name: "Ada" }), true);
+  assert.equal(root({}), false);
+  assert.equal(root.errors?.[0]?.keyword, "required");
+  assert.equal(root.errors?.[0]?.params.missingProperty, "name");
+
+  const condition = { properties: { enabled: { const: true } }, required: ["enabled"] };
+  assert.equal(facade.validate(condition, { enabled: true }), true);
+  assert.equal(facade.validate(condition, { enabled: false }), false);
+  const compiledCondition = facade.compile(condition);
+  assert.equal(compiledCondition({ enabled: false }), false);
+  assert.equal(compiledCondition.errors?.[0]?.keyword, "condition");
+  assert.throws(() => facade.validate({ pattern: "^unsafe-to-compile$" }, "value"), /requires a precompiled validator/);
+
+  assert.deepEqual(jsonFormsValidationErrorsToIssues([{
+    instancePath: "",
+    keyword: "required",
+    message: "must have required property 'name'",
+    params: { missingProperty: "name" }
+  }]), [{
+    path: "",
+    keyword: "required",
+    message: "must have required property 'name'",
+    property: "name"
+  }]);
+});
+
+test("Vue binding renders a governed runtime through consumer-supplied renderers", async () => {
+  const RootRenderer = defineComponent({
+    name: "ProgramKitVueTestRenderer",
+    setup: () => () => h("output", { "data-vue-runtime": "ready" }, "Vue runtime ready")
+  });
+  const runtime = {
+    schema,
+    uiSchema,
+    validate: compileBuildTimeValidator(schema),
+    translate: (_key, fallback) => fallback
+  };
+  const application = createSSRApp({
+    render: () => h(ProgramKitJsonFormsVue, {
+      runtime,
+      data: { name: "Ada" },
+      renderers: [{ tester: () => 1000, renderer: markRaw(RootRenderer) }]
+    })
+  });
+  const markup = await renderToString(application);
+  assert.equal(programKitVueFormsAdapterVersion, "1.0.0");
+  assert.match(markup, /data-vue-runtime="ready"/);
+  assert.match(markup, /Vue runtime ready/);
 });
 
 test("TypeScript runtime consumes the exact release fixture emitted by the .NET compiler", async () => {

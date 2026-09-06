@@ -80,6 +80,133 @@ export function createJsonFormsTranslator(
   return (key, fallback) => snapshot[key] ?? fallback;
 }
 
+export interface JsonFormsCompatibleValidationError {
+  readonly instancePath: string;
+  readonly keyword: string;
+  readonly message?: string;
+  readonly params: Readonly<Record<string, string>>;
+}
+
+export interface PrecompiledJsonFormsValidator {
+  (data: unknown): boolean;
+  errors: readonly JsonFormsCompatibleValidationError[] | null;
+}
+
+export interface PrecompiledJsonFormsAjvFacade {
+  readonly compile: (schema: unknown) => PrecompiledJsonFormsValidator;
+  readonly validate: (schema: unknown, data: unknown) => boolean;
+}
+
+/**
+ * Shared JSON Forms validation facade for every framework adapter. Root validation delegates to
+ * build-time output; rule conditions use a deliberately small interpreter and never compile code
+ * in the browser.
+ */
+export function createPrecompiledJsonFormsAjvFacade(
+  rootSchema: JsonObject,
+  validateRoot: ProgramKitValidator
+): PrecompiledJsonFormsAjvFacade {
+  const rootValidator = createCompatibleValidator(data => validateRoot(data as JsonValue));
+  return Object.freeze({
+    compile(schema: unknown) {
+      if (schema === rootSchema) return rootValidator;
+      return createCompatibleValidator(data => evaluatePortableConditionSchema(schema, data)
+        ? []
+        : [{ path: "", keyword: "condition", message: "The portable condition was not satisfied." }]);
+    },
+    validate(schema: unknown, data: unknown) {
+      return evaluatePortableConditionSchema(schema, data);
+    }
+  });
+}
+
+export function jsonFormsValidationErrorsToIssues(
+  errors: readonly { readonly instancePath: string; readonly keyword: string; readonly message?: string; readonly params: unknown }[]
+): readonly RuntimeValidationIssue[] {
+  return Object.freeze(errors.map(error => {
+    const property = isRecord(error.params)
+      ? typeof error.params.missingProperty === "string"
+        ? error.params.missingProperty
+        : typeof error.params.additionalProperty === "string"
+          ? error.params.additionalProperty
+          : undefined
+      : undefined;
+    return Object.freeze({
+      path: error.instancePath,
+      keyword: error.keyword,
+      message: error.message ?? error.keyword,
+      ...(property === undefined ? {} : { property })
+    });
+  }));
+}
+
+function createCompatibleValidator(
+  validate: (data: unknown) => readonly RuntimeValidationIssue[]
+): PrecompiledJsonFormsValidator {
+  const compatible = ((data: unknown) => {
+    const issues = validate(data);
+    compatible.errors = issues.length === 0 ? null : issues.map(issue => Object.freeze({
+      instancePath: issue.path,
+      keyword: issue.keyword,
+      message: issue.message,
+      params: Object.freeze(issue.property === undefined
+        ? {}
+        : issue.keyword === "additionalProperties"
+          ? { additionalProperty: issue.property }
+          : { missingProperty: issue.property })
+    }));
+    return compatible.errors === null;
+  }) as PrecompiledJsonFormsValidator;
+  compatible.errors = null;
+  return compatible;
+}
+
+function evaluatePortableConditionSchema(schema: unknown, data: unknown): boolean {
+  if (!isRecord(schema)) throw new Error("A JSON Forms condition schema must be an object.");
+  const supported = new Set(["const", "enum", "type", "not", "allOf", "anyOf", "oneOf", "required", "properties"]);
+  const annotations = new Set(["$id", "$schema", "title", "description"]);
+  for (const key of Object.keys(schema)) {
+    if (!supported.has(key) && !annotations.has(key)) throw new Error(`Condition keyword '${key}' requires a precompiled validator.`);
+  }
+  if ("const" in schema && !jsonEqual(data, schema.const)) return false;
+  if (Array.isArray(schema.enum) && !schema.enum.some(candidate => jsonEqual(data, candidate))) return false;
+  if (typeof schema.type === "string" && !matchesJsonType(data, schema.type)) return false;
+  if (schema.not !== undefined && evaluatePortableConditionSchema(schema.not, data)) return false;
+  if (Array.isArray(schema.allOf) && !schema.allOf.every(candidate => evaluatePortableConditionSchema(candidate, data))) return false;
+  if (Array.isArray(schema.anyOf) && !schema.anyOf.some(candidate => evaluatePortableConditionSchema(candidate, data))) return false;
+  if (Array.isArray(schema.oneOf) && schema.oneOf.filter(candidate => evaluatePortableConditionSchema(candidate, data)).length !== 1) return false;
+  if (Array.isArray(schema.required) && (!isRecord(data) || !schema.required.every(value => typeof value === "string" && value in data))) return false;
+  if (isRecord(schema.properties)) {
+    if (!isRecord(data)) return false;
+    for (const [property, propertySchema] of Object.entries(schema.properties)) {
+      if (property in data && !evaluatePortableConditionSchema(propertySchema, data[property])) return false;
+    }
+  }
+  return true;
+}
+
+function matchesJsonType(value: unknown, type: string): boolean {
+  return type === "null" ? value === null
+    : type === "array" ? Array.isArray(value)
+      : type === "object" ? isRecord(value)
+        : type === "integer" ? typeof value === "number" && Number.isInteger(value)
+          : type === "number" ? typeof value === "number" && Number.isFinite(value)
+            : type === "string" ? typeof value === "string"
+              : type === "boolean" ? typeof value === "boolean"
+                : false;
+}
+
+function jsonEqual(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true;
+  if (Array.isArray(left) && Array.isArray(right)) return left.length === right.length && left.every((value, index) => jsonEqual(value, right[index]));
+  if (isRecord(left) && isRecord(right)) {
+    const leftKeys = Object.keys(left).sort();
+    const rightKeys = Object.keys(right).sort();
+    return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index] && jsonEqual(left[key], right[key]));
+  }
+  return false;
+}
+
 function parseBoundedObject(content: string, limits: RuntimeLimits, label: string): JsonObject {
   if (new TextEncoder().encode(content).byteLength > limits.maximumArtifactBytes) {
     throw new Error(`The ${label} exceeds the configured byte limit.`);
@@ -166,6 +293,10 @@ function walk(
 }
 
 function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 

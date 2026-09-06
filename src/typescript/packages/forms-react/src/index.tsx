@@ -56,18 +56,16 @@ import {
   type WizardStepStatus,
   type WizardValidationIssue
 } from "@orbyss/program-kit-forms-wizard";
+import {
+  createPrecompiledJsonFormsAjvFacade,
+  jsonFormsValidationErrorsToIssues,
+  type JsonFormsCompatibleValidationError
+} from "@orbyss/program-kit-forms-jsonforms-runtime";
 
 export const programKitReactFormsAdapterVersion = "1.0.0";
 
 const coreRendererRank = 5;
 const specializedCoreRendererRank = 10;
-
-interface JsonFormsValidationError {
-  readonly instancePath: string;
-  readonly keyword: string;
-  readonly message?: string;
-  readonly params: unknown;
-}
 
 type JsonFormsAjv = NonNullable<ComponentProps<typeof JsonForms>["ajv"]>;
 
@@ -103,7 +101,7 @@ export function useProgramKitFormsRuntime(): ProgramKitJsonFormsRuntime | null {
 
 /**
  * Hosts JSON Forms with a precompiled validator. The supplied facade never turns schema text into
- * executable code in the browser; rule conditions use only the bounded portable subset below.
+ * executable code in the browser; rule conditions use the framework-neutral bounded portable subset.
  */
 export function ProgramKitJsonForms({
   runtime,
@@ -115,7 +113,7 @@ export function ProgramKitJsonForms({
   onChange
 }: ProgramKitJsonFormsProps): ReactNode {
   const ajv = useMemo(
-    () => createPrecompiledValidatorFacade(runtime.schema, runtime.validate),
+    () => createPrecompiledJsonFormsAjvFacade(runtime.schema, runtime.validate) as unknown as JsonFormsAjv,
     [runtime.schema, runtime.validate]
   );
   const rendererEntries = useMemo(
@@ -137,7 +135,9 @@ export function ProgramKitJsonForms({
         {...(onChange === undefined ? {} : {
           onChange: state => onChange(
             state.data as JsonValue,
-            validationErrorsToIssues((state.errors ?? []) as readonly JsonFormsValidationError[])
+            jsonFormsValidationErrorsToIssues(
+              (state.errors ?? []) as readonly JsonFormsCompatibleValidationError[]
+            )
           )
         })}
       />
@@ -560,7 +560,7 @@ function ProgramKitWizardRendererComponent(props: LayoutProps): ReactNode {
     visibleStepIds,
     validateStep: async stepId => validationIssuesForStep(
       definition.steps.find(step => step.id === stepId),
-      (contextRef.current.core?.errors ?? []) as readonly JsonFormsValidationError[]
+      (contextRef.current.core?.errors ?? []) as readonly JsonFormsCompatibleValidationError[]
     ),
     onChange: () => rerender()
   }), [definition, configuration.initialStepId]);
@@ -690,7 +690,7 @@ function stepIsVisible(step: WizardStepDefinition, context: ReturnType<typeof us
 
 function validationIssuesForStep(
   step: WizardStepDefinition | undefined,
-  errors: readonly JsonFormsValidationError[]
+  errors: readonly JsonFormsCompatibleValidationError[]
 ): readonly WizardValidationIssue[] {
   if (step === undefined) return [];
   const scopes = collectScopes(step.uiSchema);
@@ -731,7 +731,7 @@ function schemaScopeToInstancePath(scope: string): string {
   return "/" + values.join("/");
 }
 
-function effectiveErrorPath(error: JsonFormsValidationError): string {
+function effectiveErrorPath(error: JsonFormsCompatibleValidationError): string {
   if (error.keyword !== "required" || !isRecord(error.params) || typeof error.params.missingProperty !== "string") {
     return error.instancePath;
   }
@@ -741,118 +741,6 @@ function effectiveErrorPath(error: JsonFormsValidationError): string {
 
 function pathContains(scope: string, errorPath: string): boolean {
   return errorPath === scope || errorPath.startsWith(`${scope}/`) || scope.startsWith(`${errorPath}/`);
-}
-
-function createPrecompiledValidatorFacade(
-  rootSchema: JsonObject,
-  validateRoot: ProgramKitValidator
-): JsonFormsAjv {
-  const rootValidator = createCompatibleValidator(data => validateRoot(data as JsonValue));
-  const facade = {
-    compile(schema: unknown) {
-      if (schema === rootSchema) return rootValidator;
-      return createCompatibleValidator(data => evaluatePortableConditionSchema(schema, data)
-        ? []
-        : [{ path: "", keyword: "condition", message: "The portable condition was not satisfied." }]);
-    },
-    validate(schema: unknown, data: unknown) {
-      return evaluatePortableConditionSchema(schema, data);
-    }
-  };
-  return facade as unknown as JsonFormsAjv;
-}
-
-function createCompatibleValidator(
-  validate: (data: unknown) => readonly RuntimeValidationIssue[]
-): ((data: unknown) => boolean) & { errors: readonly JsonFormsValidationError[] | null } {
-  const compatible = ((data: unknown) => {
-    const issues = validate(data);
-    compatible.errors = issues.length === 0 ? null : issues.map(issue => ({
-      instancePath: issue.path,
-      keyword: issue.keyword,
-      message: issue.message,
-      params: issue.property === undefined
-        ? {}
-        : issue.keyword === "additionalProperties"
-          ? { additionalProperty: issue.property }
-          : { missingProperty: issue.property }
-    }));
-    return compatible.errors === null;
-  }) as ((data: unknown) => boolean) & { errors: readonly JsonFormsValidationError[] | null };
-  compatible.errors = null;
-  return compatible;
-}
-
-function evaluatePortableConditionSchema(schema: unknown, data: unknown): boolean {
-  if (!isRecord(schema)) throw new Error("A JSON Forms condition schema must be an object.");
-  const supported = new Set(["const", "enum", "type", "not", "allOf", "anyOf", "oneOf", "required", "properties"]);
-  const annotations = new Set(["$id", "$schema", "title", "description"]);
-  for (const key of Object.keys(schema)) {
-    if (!supported.has(key) && !annotations.has(key)) {
-      throw new Error(`Condition keyword '${key}' requires a precompiled validator.`);
-    }
-  }
-  if ("const" in schema && !jsonEqual(data, schema.const)) return false;
-  if (Array.isArray(schema.enum) && !schema.enum.some(candidate => jsonEqual(data, candidate))) return false;
-  if (typeof schema.type === "string" && !matchesJsonType(data, schema.type)) return false;
-  if (schema.not !== undefined && evaluatePortableConditionSchema(schema.not, data)) return false;
-  if (Array.isArray(schema.allOf) && !schema.allOf.every(candidate => evaluatePortableConditionSchema(candidate, data))) return false;
-  if (Array.isArray(schema.anyOf) && !schema.anyOf.some(candidate => evaluatePortableConditionSchema(candidate, data))) return false;
-  if (Array.isArray(schema.oneOf)
-    && schema.oneOf.filter(candidate => evaluatePortableConditionSchema(candidate, data)).length !== 1) return false;
-  if (Array.isArray(schema.required)) {
-    if (!isRecord(data) || !schema.required.every(value => typeof value === "string" && value in data)) return false;
-  }
-  if (isRecord(schema.properties)) {
-    if (!isRecord(data)) return false;
-    for (const [property, propertySchema] of Object.entries(schema.properties)) {
-      if (property in data && !evaluatePortableConditionSchema(propertySchema, data[property])) return false;
-    }
-  }
-  return true;
-}
-
-function matchesJsonType(value: unknown, type: string): boolean {
-  return type === "null" ? value === null
-    : type === "array" ? Array.isArray(value)
-      : type === "object" ? isRecord(value)
-        : type === "integer" ? typeof value === "number" && Number.isInteger(value)
-          : type === "number" ? typeof value === "number" && Number.isFinite(value)
-            : type === "string" ? typeof value === "string"
-              : type === "boolean" ? typeof value === "boolean"
-                : false;
-}
-
-function jsonEqual(left: unknown, right: unknown): boolean {
-  if (Object.is(left, right)) return true;
-  if (Array.isArray(left) && Array.isArray(right)) {
-    return left.length === right.length && left.every((value, index) => jsonEqual(value, right[index]));
-  }
-  if (isRecord(left) && isRecord(right)) {
-    const leftKeys = Object.keys(left).sort();
-    const rightKeys = Object.keys(right).sort();
-    return leftKeys.length === rightKeys.length
-      && leftKeys.every((key, index) => key === rightKeys[index] && jsonEqual(left[key], right[key]));
-  }
-  return false;
-}
-
-function validationErrorsToIssues(errors: readonly JsonFormsValidationError[]): readonly RuntimeValidationIssue[] {
-  return errors.map(error => {
-    const property = isRecord(error.params)
-      ? typeof error.params.missingProperty === "string"
-        ? error.params.missingProperty
-        : typeof error.params.additionalProperty === "string"
-          ? error.params.additionalProperty
-          : undefined
-      : undefined;
-    return {
-      path: error.instancePath,
-      keyword: error.keyword,
-      message: error.message ?? error.keyword,
-      ...(property === undefined ? {} : { property })
-    };
-  });
 }
 
 function escapePointer(value: string): string {

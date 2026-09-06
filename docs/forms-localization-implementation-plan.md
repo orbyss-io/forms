@@ -99,8 +99,9 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
   shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all fourteen packages with their exact framework peers. The
-  tagged GitHub Packages publication step, Vue/Angular bindings, physical-device/manual assistive
+  consumer that installs and imports all fifteen packages with their exact framework peers. The
+  first Vue runtime binding shares the CSP-safe precompiled validation seam. The tagged GitHub
+  Packages publication step, deeper Vue controls/management parity, Angular bindings, physical-device/manual assistive
   evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
   to `ProgramKit.Host`. Production EF Core, SQLite, migration, and object-storage choices are
   deliberately deferred to consumers rather than becoming Program Kit defaults.

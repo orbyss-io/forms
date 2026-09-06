@@ -44,6 +44,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-lookups",
         "@orbyss/program-kit-forms-lookups-react",
         "@orbyss/program-kit-forms-react",
+        "@orbyss/program-kit-forms-vue",
         "@orbyss/program-kit-localization-management",
         "@orbyss/program-kit-localization-management-react",
     }
@@ -117,7 +118,7 @@ def main() -> int:
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
     if base_config["compilerOptions"].get("skipLibCheck") is not False:
         raise AssertionError("Library declaration checking must remain enabled for the frontend workspace.")
-    quarantined = {"forms-react", "forms-lookups-react"}
+    quarantined = {"forms-react", "forms-lookups-react", "forms-vue"}
     for config_path in (WORKSPACE / "packages").glob("*/tsconfig.json"):
         config = json.loads(config_path.read_text(encoding="utf-8"))
         skipped = config.get("compilerOptions", {}).get("skipLibCheck", False)
@@ -128,6 +129,7 @@ def main() -> int:
     if react_manifest.get("dependencies") != {
         "@orbyss/program-kit-forms-actions": "0.9.9-preview.1",
         "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
         "@orbyss/program-kit-forms-wizard": "0.9.9-preview.1",
     }:
         raise AssertionError("The React binding must compose only the governed framework-neutral form packages.")
@@ -145,6 +147,17 @@ def main() -> int:
         raise AssertionError("The React binding must compile against the governed React type pin.")
     if react_manifest.get("files") != ["dist", "styles.css"] or react_manifest.get("exports", {}).get("./styles.css") != "./styles.css":
         raise AssertionError("The semantic React control baseline must remain an explicit optional CSS export.")
+
+    vue_manifest = by_name["@orbyss/program-kit-forms-vue"]
+    if vue_manifest.get("dependencies") != {
+        "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
+    } or vue_manifest.get("peerDependencies") != {
+        "@jsonforms/core": "3.8.0",
+        "@jsonforms/vue": "3.8.0",
+        "vue": "3.5.42",
+    } or vue_manifest.get("devDependencies") != {"vue": "3.5.42"}:
+        raise AssertionError("The Vue binding crossed its governed framework-neutral runtime boundary.")
 
     all_dependency_names = {
         dependency

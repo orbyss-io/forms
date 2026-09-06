@@ -14,6 +14,7 @@
     { "path": "packages/localization-management-react" },
     { "path": "packages/forms-lookups" },
     { "path": "packages/forms-lookups-react" },
-    { "path": "packages/forms-react" }
+    { "path": "packages/forms-react" },
+    { "path": "packages/forms-vue" }
   ]
 }

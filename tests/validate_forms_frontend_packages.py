@@ -52,8 +52,8 @@ def main() -> int:
         for path in sorted((WORKSPACE / "packages").glob("*/package.json"))
     ]
     names = sorted(manifest["name"] for manifest in manifests)
-    if len(names) != 14 or len(set(names)) != len(names):
-        raise AssertionError("The clean frontend consumer requires exactly fourteen unique packages.")
+    if len(names) != 15 or len(set(names)) != len(names):
+        raise AssertionError("The clean frontend consumer requires exactly fifteen unique packages.")
 
     artifacts = ROOT / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
@@ -106,8 +106,10 @@ def main() -> int:
             "--package-lock=false",
             "@jsonforms/core@3.8.0",
             "@jsonforms/react@3.8.0",
+            "@jsonforms/vue@3.8.0",
             "react@19.2.8",
             "react-dom@19.2.8",
+            "vue@3.5.42",
             *(str(archive) for archive in archives),
         ]
         run(npm + install_arguments, consumer, environment)
@@ -118,7 +120,7 @@ def main() -> int:
             "console.log(`Imported ${names.length} Program Kit frontend packages.`);"
         )
         imported = run([str(node), "--input-type=module", "--eval", module_probe], consumer, environment)
-        if "Imported 14 Program Kit frontend packages." not in imported.stdout:
+        if f"Imported {len(names)} Program Kit frontend packages." not in imported.stdout:
             raise AssertionError("The clean frontend consumer did not import the complete package set.")
 
     print(f"Forms frontend clean pack/install/import isolation passed ({trust} toolchain).")
