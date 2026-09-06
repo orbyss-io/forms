@@ -44,9 +44,10 @@
   .pk-localization .pk-localization__toolbar button, .pk-localization .pk-localization__paging button, .pk-localization .pk-localization__filters label { inline-size: 100%; }
   .pk-localization .pk-localization__table-wrap { overflow: visible; border: 0; box-shadow: none; }
   .pk-localization table, .pk-localization tbody, .pk-localization tr, .pk-localization td { display: block; inline-size: 100%; }
-  .pk-localization caption { display: block; inline-size: 100%; }
+  .pk-localization table { table-layout: fixed; max-inline-size: 100%; }
+  .pk-localization caption { display: block; inline-size: 100%; max-inline-size: 100%; overflow-wrap: anywhere; }
   .pk-localization thead { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-  .pk-localization thead tr, .pk-localization thead th { display: block; inline-size: 1px; max-inline-size: 1px; margin: 0; padding: 0; border: 0; overflow: hidden; }
+  .pk-localization thead tr, .pk-localization thead th { display: block; inline-size: 1px; min-inline-size: 0; max-inline-size: 1px; margin: 0; padding: 0; border: 0; overflow: hidden; white-space: normal; overflow-wrap: anywhere; word-break: break-all; font-size: 1px; line-height: 1px; }
   .pk-localization tr { margin-block-end: var(--pk-space-lg, 1rem); padding: var(--pk-space-sm, .5rem); border: var(--pk-border-width, 1px) solid var(--pk-color-border, currentColor); border-radius: var(--pk-panel-radius, .75rem); }
   .pk-localization td { display: grid; grid-template-columns: minmax(6rem, .4fr) minmax(0, 1fr); gap: var(--pk-space-sm, .5rem); border: 0; }
   .pk-localization td::before { content: attr(data-label); font-weight: var(--pk-font-weight-strong, 700); }

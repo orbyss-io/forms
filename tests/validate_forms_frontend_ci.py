@@ -43,7 +43,7 @@ def main() -> int:
     path_filters = (
         '      - ".github/workflows/frontend-ci.yml"',
         '      - "src/typescript/**"',
-        '      - "tests/forms-browser/**"',
+        '      - "src/typescript/tests/forms-browser/**"',
         '      - "tests/validate_forms_frontend_ci.py"',
     )
     for required in path_filters:
