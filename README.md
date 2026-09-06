@@ -439,7 +439,9 @@ validated reorder/reparent operation through pointer, touch and keyboard interac
 surfaces are independently selected CShells feature packages; neither adds middleware or behavior
 to `ProgramKit.Host`. See the
 [implementation plan](docs/forms-localization-implementation-plan.md) and
-[deterministic evidence](docs/forms-localization-evidence.md). Frontend packages will eventually be
+[deterministic evidence](docs/forms-localization-evidence.md). Management components share a
+[CSS-first theming contract](docs/ui-theming.md) with semantic tokens, stable slots, typed class
+maps and an unstyled integration mode. Frontend packages will eventually be
 published under `@orbyss` through the tagged GitHub Packages release path described in the
 [publication decision](docs/frontend-package-publication.md); publishing remains disabled while the
 package set is under construction.

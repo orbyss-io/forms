@@ -331,7 +331,7 @@ function App(): ReactNode {
     ? { navigation: "خطوات النموذج", progress: "اكتمال النموذج", back: "السابق", next: "التالي", skip: "تخطي", finish: "إنهاء" }
     : undefined;
   return (
-    <main>
+    <main data-pk-theme="light">
       <header className="fixture-header">
         <div>
           <p className="fixture-eyebrow">Program Kit</p>
@@ -374,6 +374,7 @@ function App(): ReactNode {
         <ProgramKitFormModeler
           actionCatalog={modelerActionCatalog}
           componentCatalog={modelerComponentCatalog}
+          classNames={{ toolbar: "fixture-themed-toolbar", canvas: "fixture-themed-canvas" }}
           editorMode="strictCsp"
           onChange={snapshot => setModelerSequence(snapshot.sequence)}
           onCommit={() => {}}
@@ -386,6 +387,7 @@ function App(): ReactNode {
         <ProgramKitLocalizationManagement
           actor={{ id: "fixture-editor", kind: "human", displayName: "Fixture editor" }}
           capabilities={{ edit: true, add: true, import: true, export: true, review: true, approve: true, publish: true }}
+          classNames={{ table: "fixture-themed-table", importReview: "fixture-themed-import" }}
           forms={[{ id: "registration", name: "Registration" }]}
           importPreview={{ previewId: "preview-1", contentSha256: "abc", basedOnRevision: 3, mergePolicy: "preserveExisting", changes: [{ key: "fields.email", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "E-mail" }], diagnostics: [] }}
           onAddRequested={() => setLocalizationAction("add-requested")}

@@ -11,7 +11,8 @@
   "scripts": { "build": "tsc -p tsconfig.json" },
   "dependencies": {
     "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
-    "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1"
+    "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1",
+    "@orbyss/program-kit-ui-theme": "0.9.9-preview.1"
   },
   "peerDependencies": { "react": "19.2.8" },
   "devDependencies": { "@types/react": "19.2.18" }

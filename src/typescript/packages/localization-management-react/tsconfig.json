@@ -7,5 +7,8 @@
     "jsx": "react-jsx"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "references": [{ "path": "../localization-management" }]
+  "references": [
+    { "path": "../localization-management" },
+    { "path": "../ui-theme" }
+  ]
 }

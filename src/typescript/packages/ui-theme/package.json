@@ -1,0 +1,17 @@
+{
+  "name": "@orbyss/program-kit-ui-theme",
+  "version": "0.9.9-preview.1",
+  "type": "module",
+  "sideEffects": ["./default.css"],
+  "files": ["dist", "default.css"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./default.css": "./default.css"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  }
+}

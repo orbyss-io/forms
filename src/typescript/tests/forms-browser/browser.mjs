@@ -122,6 +122,9 @@ async function verify(engine, browserType, profile) {
     await page.getByRole("button", { name: "إنهاء" }).click();
     assert.equal(await page.locator(".fixture-finished").innerText(), "Journey completed");
     const modeler = page.locator(".pk-form-modeler");
+    assert.equal(await modeler.getAttribute("data-pk-slot"), "form-modeler.root", `${label}: stable modeler root slot`);
+    assert.equal(await modeler.locator('[data-pk-slot="form-modeler.toolbar"]').getAttribute("class"), "pk-form-modeler__toolbar fixture-themed-toolbar", `${label}: typed modeler slot class`);
+    assert.equal(await modeler.evaluate(element => getComputedStyle(element).getPropertyValue("--pk-panel-radius").trim()), "13px", `${label}: scoped theme token override`);
     await modeler.getByRole("button", { name: "Add text field" }).click();
     assert.equal(await modeler.getByRole("button", { name: "Field 1", exact: true }).count(), 1, `${label}: palette adds field to tree`);
     assert.equal(await modeler.locator('[data-element-id="field-1-control-1"] > .pk-form-modeler__canvas-heading > button:first-child').count(), 1, `${label}: palette atomically adds matching control to canvas`);
@@ -164,6 +167,8 @@ async function verify(engine, browserType, profile) {
     assert.equal(await modeler.getByRole("heading", { name: "Form nodes" }).count(), 1, `${label}: graph nodes visible`);
     assert.equal(await modeler.getByRole("table").getByText("binds", { exact: true }).count(), 2, `${label}: graph relationships visible`);
     const localization = page.locator(".pk-localization");
+    assert.equal(await localization.getAttribute("data-pk-slot"), "localization-management.root", `${label}: stable localization root slot`);
+    assert.match(await localization.locator('[data-pk-slot="localization-management.table"]').getAttribute("class") ?? "", /fixture-themed-table/, `${label}: typed localization slot class`);
     assert.match(await localization.getByRole("caption").innerText(), /4 rows/, `${label}: localization row projection`);
     await localization.getByRole("button", { name: "Add message" }).click();
     const addMessage = localization.getByRole("dialog", { name: "Add localization message" });
@@ -221,7 +226,7 @@ async function verify(engine, browserType, profile) {
       await page.screenshot({ path: resolve(evidence, `${engine}-${profile.name}.png`) });
       assertNoErrors(label, "screenshot");
     }
-    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", localizationManagement: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
+    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", localizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
   } finally {
     await context.close();
     await browser.close();

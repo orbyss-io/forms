@@ -50,6 +50,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-vue",
         "@orbyss/program-kit-localization-management",
         "@orbyss/program-kit-localization-management-react",
+        "@orbyss/program-kit-ui-theme",
     }
     manifests = [json.loads(path.read_text(encoding="utf-8")) for path in package_files]
     names = {manifest["name"] for manifest in manifests}
@@ -86,6 +87,7 @@ def main() -> int:
     if modeler_react.get("dependencies") != {
         "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
         "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
     } or modeler_react.get("peerDependencies") != {
         "react": "19.2.8",
     } or modeler_react.get("devDependencies") != {"@types/react": "19.2.18"}:
@@ -98,10 +100,36 @@ def main() -> int:
     localization_react = by_name["@orbyss/program-kit-localization-management-react"]
     if localization_react.get("dependencies") != {
         "@orbyss/program-kit-localization-management": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
     } or localization_react.get("peerDependencies") != {
         "react": "19.2.8",
     } or localization_react.get("devDependencies") != {"@types/react": "19.2.18"}:
         raise AssertionError("The React localization plane crossed its governed framework-neutral boundary.")
+
+    theme = by_name["@orbyss/program-kit-ui-theme"]
+    if theme.get("dependencies") or theme.get("peerDependencies") or theme.get("devDependencies"):
+        raise AssertionError("The framework-neutral theme contract must remain dependency-free.")
+    if theme.get("files") != ["dist", "default.css"] or theme.get("exports", {}).get("./default.css") != "./default.css":
+        raise AssertionError("The default theme must remain an explicit optional CSS export.")
+    if theme.get("sideEffects") != ["./default.css"]:
+        raise AssertionError("Only the explicitly imported default theme may be marked as a side effect.")
+    theme_css = (WORKSPACE / "packages/ui-theme/default.css").read_text(encoding="utf-8")
+    if "@layer program-kit.theme" not in theme_css or "[data-pk-theme" not in theme_css:
+        raise AssertionError("The default theme must remain scoped and cascade-layered.")
+    for stylesheet in (
+        WORKSPACE / "packages/forms-modeler-react/styles.css",
+        WORKSPACE / "packages/localization-management-react/styles.css",
+    ):
+        content = stylesheet.read_text(encoding="utf-8")
+        if "@layer program-kit.components" not in content or "var(--pk-" not in content:
+            raise AssertionError(f"Management stylesheet is outside the semantic theme contract: {stylesheet}")
+    for source in (
+        WORKSPACE / "packages/forms-modeler-react/src/index.tsx",
+        WORKSPACE / "packages/localization-management-react/src/index.tsx",
+    ):
+        content = source.read_text(encoding="utf-8")
+        if "data-pk-slot" not in content or "unstyled" not in content or "ProgramKitClassNames" not in content:
+            raise AssertionError(f"Management binding does not expose slots, typed classes, and unstyled mode: {source}")
 
     lookup_dependencies = by_name["@orbyss/program-kit-forms-lookups"]["dependencies"]
     if lookup_dependencies != {"@orbyss/program-kit-forms-contracts": "0.9.9-preview.1"}:
@@ -234,7 +262,7 @@ def main() -> int:
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, and CodeMirror default passed.")
+    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, and CodeMirror default passed.")
     return 0
 
 

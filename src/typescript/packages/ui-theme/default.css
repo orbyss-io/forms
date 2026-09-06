@@ -1,0 +1,94 @@
+@layer program-kit.theme {
+  :where(.pk-theme, [data-pk-theme="light"], [data-pk-theme="auto"]) {
+    color-scheme: light;
+    --pk-color-canvas: Canvas;
+    --pk-color-surface: Canvas;
+    --pk-color-surface-muted: color-mix(in srgb, CanvasText 5%, Canvas);
+    --pk-color-text: CanvasText;
+    --pk-color-text-muted: color-mix(in srgb, CanvasText 72%, Canvas);
+    --pk-color-border: color-mix(in srgb, CanvasText 38%, Canvas);
+    --pk-color-primary: #2856a8;
+    --pk-color-primary-contrast: #fff;
+    --pk-color-danger: #a11919;
+    --pk-color-focus: #1f6feb;
+    --pk-color-backdrop: rgb(0 0 0 / 55%);
+    --pk-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --pk-font-family-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+    --pk-font-size-body: 1rem;
+    --pk-line-height-body: 1.5;
+    --pk-font-weight-strong: 700;
+    --pk-space-xs: .25rem;
+    --pk-space-sm: .5rem;
+    --pk-space-md: .75rem;
+    --pk-space-lg: 1rem;
+    --pk-space-xl: 1.5rem;
+    --pk-control-min-size: 44px;
+    --pk-control-radius: .5rem;
+    --pk-panel-radius: .75rem;
+    --pk-border-width: 1px;
+    --pk-focus-width: 3px;
+    --pk-shadow-panel: 0 .25rem 1rem rgb(0 0 0 / 10%);
+    --pk-shadow-dialog: 0 1rem 3rem rgb(0 0 0 / 24%);
+    --pk-motion-duration: 160ms;
+    --pk-motion-easing: cubic-bezier(.2, 0, 0, 1);
+  }
+
+  :where([data-pk-theme="dark"]) {
+    color-scheme: dark;
+    --pk-color-canvas: #11151c;
+    --pk-color-surface: #181e28;
+    --pk-color-surface-muted: #202938;
+    --pk-color-text: #f4f7fb;
+    --pk-color-text-muted: #bdc7d6;
+    --pk-color-border: #536176;
+    --pk-color-primary: #8bb4ff;
+    --pk-color-primary-contrast: #081426;
+    --pk-color-danger: #ff9b95;
+    --pk-color-focus: #9fc1ff;
+    --pk-color-backdrop: rgb(0 0 0 / 72%);
+    --pk-shadow-panel: 0 .25rem 1rem rgb(0 0 0 / 32%);
+    --pk-shadow-dialog: 0 1rem 3rem rgb(0 0 0 / 55%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :where([data-pk-theme="auto"]) {
+      color-scheme: dark;
+      --pk-color-canvas: #11151c;
+      --pk-color-surface: #181e28;
+      --pk-color-surface-muted: #202938;
+      --pk-color-text: #f4f7fb;
+      --pk-color-text-muted: #bdc7d6;
+      --pk-color-border: #536176;
+      --pk-color-primary: #8bb4ff;
+      --pk-color-primary-contrast: #081426;
+      --pk-color-danger: #ff9b95;
+      --pk-color-focus: #9fc1ff;
+      --pk-color-backdrop: rgb(0 0 0 / 72%);
+      --pk-shadow-panel: 0 .25rem 1rem rgb(0 0 0 / 32%);
+      --pk-shadow-dialog: 0 1rem 3rem rgb(0 0 0 / 55%);
+    }
+  }
+
+  @media (forced-colors: active) {
+    :where(.pk-theme, [data-pk-theme]) {
+      --pk-color-canvas: Canvas;
+      --pk-color-surface: Canvas;
+      --pk-color-surface-muted: Canvas;
+      --pk-color-text: CanvasText;
+      --pk-color-text-muted: CanvasText;
+      --pk-color-border: CanvasText;
+      --pk-color-primary: LinkText;
+      --pk-color-primary-contrast: Canvas;
+      --pk-color-danger: Mark;
+      --pk-color-focus: Highlight;
+      --pk-shadow-panel: none;
+      --pk-shadow-dialog: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where(.pk-theme, [data-pk-theme]) {
+      --pk-motion-duration: 0s;
+    }
+  }
+}

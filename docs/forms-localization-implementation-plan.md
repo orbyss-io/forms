@@ -99,7 +99,7 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
   shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all sixteen packages with their exact framework peers. The
+  consumer that installs and imports all seventeen packages with their exact framework peers. The
   first Vue runtime binding shares the CSP-safe precompiled validation seam. The tagged GitHub
   Packages publication step, deeper Vue/Angular management parity, physical-device/manual assistive
   evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
@@ -110,6 +110,10 @@ As of 2026-09-06:
 
 - Program Kit owns framework-neutral form, localization, action, release and compatibility
   contracts. JSON Forms, AJV, CodeMirror and Monaco are adapters, never public domain contracts.
+- Management theming is CSS-first and cross-framework: semantic custom properties define branding,
+  spacing, typography, density, focus, shape, shadow and motion; stable `data-pk-slot` attributes
+  and typed class maps allow targeted composition; optional component styles live in a low-priority
+  cascade layer; and an unstyled mode preserves accessible markup without Program Kit classes.
 - CodeMirror 6 is the unconditional rich JSON editor default. Monaco is a separately installed,
   lazy-loaded desktop enhancement and must never become a transitive dependency of the default
   authoring experience. Because CodeMirror uses dynamic layout style attributes, deployments that

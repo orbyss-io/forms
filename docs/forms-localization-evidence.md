@@ -64,7 +64,7 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains sixteen independently packable packages:
+It currently contains seventeen independently packable packages:
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -75,6 +75,9 @@ It currently contains sixteen independently packable packages:
   generation for the build pipeline; and
 - `@orbyss/program-kit-forms-codemirror`: the accessible CodeMirror 6 JSON editor adapter with JSON
   and external diagnostics; and
+- `@orbyss/program-kit-ui-theme`: the dependency-free cross-framework visual contract with typed
+  semantic token names, deterministic class composition, stable `data-pk-slot` conventions and an
+  optional cascade-layered light/dark/automatic default theme; and
 - `@orbyss/program-kit-forms-wizard`: the shared parser and state machine for validation-gated,
   conditional, optional, icon-bearing Program Kit wizard steps; and
 - `@orbyss/program-kit-forms-actions`: the framework-neutral manifest-backed action-bar parser and
@@ -87,7 +90,8 @@ It currently contains sixteen independently packable packages:
 - `@orbyss/program-kit-forms-modeler-react`: the optional responsive administration binding with a
   synchronized structure tree, property inspector, CodeMirror JSON source, strict-CSP native source
   fallback, field/layout palette, pointer drag targets, touch/keyboard reorder and reparent controls,
-  block canvas, application-owned live preview and relationship graph; and
+  block canvas, application-owned live preview and relationship graph. Its root and significant
+  visual regions support consumer classes, stable slots and a per-instance unstyled mode; and
 - `@orbyss/program-kit-forms-lookups`: trusted searchable source contracts and a framework-neutral
   controller for bounded search, cursor paging, declared dependent filters, cancellation, selected
   label rehydration and public-safe provider failures; and
@@ -114,7 +118,9 @@ It currently contains sixteen independently packable packages:
 - `@orbyss/program-kit-localization-management-react`: the optional responsive inline-edit grid,
   locale/scope/form/state/missing/text filters, lifecycle permission gates and hash-bound import
   preview surface, plus a validated add-message dialog for structured scope and typed ICU arguments
-  and a bounded file/mapping dialog for CSV, XLSX, JSON, XLIFF 2.1 and PO preview submissions.
+  and a bounded file/mapping dialog for CSV, XLSX, JSON, XLIFF 2.1 and PO preview submissions. Its
+  table, filters, toolbar, dialogs, rows and import review expose the same theme slots and unstyled
+  integration mode.
 
 JSON Forms Core 3.8.0 is an exact peer dependency of the runtime boundary. The framework-neutral
 package intentionally exposes JSON values rather than upstream framework types; React, Vue and
@@ -271,7 +277,7 @@ Verified commands and results:
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
   behavior, rendered React binding tests, and fourteen workspace package
   dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: sixteen real npm archives contained their
+- `python tests/validate_forms_frontend_packages.py`: seventeen real npm archives contained their
   declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
   the archives with exact JSON Forms/React/Vue/Angular peers and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and

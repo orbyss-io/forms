@@ -52,8 +52,8 @@ def main() -> int:
         for path in sorted((WORKSPACE / "packages").glob("*/package.json"))
     ]
     names = sorted(manifest["name"] for manifest in manifests)
-    if len(names) != 16 or len(set(names)) != len(names):
-        raise AssertionError("The clean frontend consumer requires exactly sixteen unique packages.")
+    if len(names) != 17 or len(set(names)) != len(names):
+        raise AssertionError("The clean frontend consumer requires exactly seventeen unique packages.")
 
     artifacts = ROOT / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
@@ -86,8 +86,11 @@ def main() -> int:
                 packed_names.add(packed["name"])
                 if packed["version"] != root_manifest["version"]:
                     raise AssertionError(f"Frontend archive {archive.name} has a divergent version.")
-                if "./styles.css" in packed.get("exports", {}) and "package/styles.css" not in members:
-                    raise AssertionError(f"Frontend archive {archive.name} omits its exported stylesheet.")
+                for export_target in packed.get("exports", {}).values():
+                    if isinstance(export_target, str) and export_target.endswith(".css"):
+                        member = "package/" + export_target.removeprefix("./")
+                        if member not in members:
+                            raise AssertionError(f"Frontend archive {archive.name} omits exported stylesheet {export_target}.")
         if packed_names != set(names):
             raise AssertionError("Packed frontend identities do not match the workspace package set.")
 

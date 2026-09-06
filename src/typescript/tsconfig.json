@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "packages/forms-contracts" },
+    { "path": "packages/ui-theme" },
     { "path": "packages/forms-renderer-registry" },
     { "path": "packages/forms-ajv-build" },
     { "path": "packages/forms-jsonforms-runtime" },

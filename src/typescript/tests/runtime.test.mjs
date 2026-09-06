@@ -57,6 +57,11 @@ import {
   validateLocalizationDocument
 } from "@orbyss/program-kit-localization-management";
 import { ProgramKitLocalizationManagement } from "@orbyss/program-kit-localization-management-react";
+import {
+  joinProgramKitClassNames,
+  programKitClassName,
+  programKitThemeTokenNames
+} from "@orbyss/program-kit-ui-theme";
 
 const schema = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -548,6 +553,8 @@ test("React modeler renders governed tree, inspector, and graph views from one s
   const markup = renderToStaticMarkup(createElement(ProgramKitFormModeler, {
     session,
     actionCatalog: catalog,
+    className: "consumer-modeler",
+    classNames: { toolbar: "consumer-toolbar", canvas: "consumer-canvas" },
     onCommit: () => {}
   }));
   assert.match(markup, /role="toolbar"/);
@@ -560,6 +567,13 @@ test("React modeler renders governed tree, inspector, and graph views from one s
   assert.match(markup, /aria-label="Properties"/);
   assert.match(markup, /@orbyss\/program-kit-registration-actions/);
   assert.match(markup, /Commit changes/);
+  assert.match(markup, /class="pk-form-modeler consumer-modeler"/);
+  assert.match(markup, /data-pk-slot="form-modeler.toolbar"/);
+  assert.match(markup, /consumer-toolbar/);
+
+  const unstyled = renderToStaticMarkup(createElement(ProgramKitFormModeler, { session, unstyled: true }));
+  assert.doesNotMatch(unstyled, /class="pk-form-modeler"/);
+  assert.match(unstyled, /data-pk-slot="form-modeler.root"/);
 
   const labels = {
     undo: "Undo", redo: "Redo", commit: "Commit changes", applyJson: "Apply JSON",
@@ -681,6 +695,8 @@ test("React localization plane renders filters, windowed rows, workflow gates, a
     actor: { id: "editor-1", kind: "human" },
     capabilities: { edit: true, add: true, import: true, export: true, review: true, approve: true, publish: true },
     forms: [{ id: "registration", name: "Registration" }],
+    className: "consumer-localization",
+    classNames: { table: "consumer-table", importReview: "consumer-import" },
     pageSize: 2,
     onAddRequested: () => {},
     onImportRequested: () => {},
@@ -700,6 +716,18 @@ test("React localization plane renders filters, windowed rows, workflow gates, a
   assert.match(markup, /Import preview/);
   assert.match(markup, /Apply import/);
   assert.match(markup, /Submit for review/);
+  assert.match(markup, /class="pk-localization consumer-localization"/);
+  assert.match(markup, /data-pk-slot="localization-management.table"/);
+  assert.match(markup, /consumer-table/);
+});
+
+test("theme contract exposes bounded semantic tokens and deterministic class composition", () => {
+  assert.equal(programKitThemeTokenNames.includes("--pk-color-primary"), true);
+  assert.equal(programKitThemeTokenNames.includes("--pk-shadow-dialog"), true);
+  assert.equal(new Set(programKitThemeTokenNames).size, programKitThemeTokenNames.length);
+  assert.equal(joinProgramKitClassNames("base repeated", "repeated consumer"), "base repeated consumer");
+  assert.equal(programKitClassName("pk-default", "consumer", false), "pk-default consumer");
+  assert.equal(programKitClassName("pk-default", "consumer", true), "consumer");
 });
 
 test("searchable lookups enforce provider contracts, paging, filters, and label rehydration", async () => {

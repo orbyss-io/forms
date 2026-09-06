@@ -57,7 +57,7 @@ h1 { font-size: clamp(1.75rem, 5vw, 3rem); margin-block: .25rem 1rem; }
 .pk-form-wizard__actions button { border: 1px solid var(--pk-border); border-radius: 999px; padding-inline: 1.25rem; background: var(--pk-surface); color: inherit; }
 .pk-form-wizard__next, .pk-form-wizard__finish { background: var(--pk-accent) !important; color: white !important; }
 .fixture-action-result, .fixture-finished { min-block-size: 1.5rem; font-weight: 750; }
-.fixture-modeler { margin-block-start: 3rem; padding: clamp(1rem, 3vw, 2rem); background: var(--pk-surface); border: 1px solid var(--pk-border); border-radius: 1.25rem; box-shadow: 0 1rem 3rem rgb(35 25 80 / 12%); }
+.fixture-modeler { --pk-panel-radius: 13px; margin-block-start: 3rem; padding: clamp(1rem, 3vw, 2rem); background: var(--pk-surface); border: 1px solid var(--pk-border); border-radius: 1.25rem; box-shadow: 0 1rem 3rem rgb(35 25 80 / 12%); }
 .fixture-modeler h2 { overflow-wrap: anywhere; }
 .pk-form-modeler__toolbar button, .pk-form-modeler__tabs button, .pk-form-modeler__tree button, .pk-form-modeler__panel > button { border: 1px solid var(--pk-border); border-radius: .65rem; padding-inline: .8rem; background: var(--pk-surface); color: inherit; }
 .pk-form-modeler__tabs button[aria-selected="true"], .pk-form-modeler__tree button[aria-current="true"], .pk-form-modeler__graph-node[aria-pressed="true"] { background: var(--pk-accent); color: white; }

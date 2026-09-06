@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { mountJsonEditor, type JsonEditorDiagnostic, type JsonEditorHandle } from "@orbyss/program-kit-forms-codemirror";
 import {
   FormModelerSession,
@@ -16,9 +16,17 @@ import {
   type FormModelerOperation,
   type FormModelerSnapshot
 } from "@orbyss/program-kit-forms-modeler";
+import {
+  programKitClassName,
+  type ProgramKitClassNames
+} from "@orbyss/program-kit-ui-theme";
 
 export type FormModelerView = "design" | "json" | "graph";
 export type FormModelerEditorMode = "codemirror" | "strictCsp";
+export type FormModelerThemeSlot =
+  | "root" | "toolbar" | "diagnostics" | "tabs" | "workspace" | "design"
+  | "palette" | "tree" | "canvas" | "preview" | "inspector" | "panel"
+  | "editor" | "graph" | "graphNode" | "canvasBlock";
 export type FormModelerPaletteItem =
   | { readonly id: string; readonly label: string; readonly category: string; readonly type: "field"; readonly valueKind: FormModelerField["valueKind"] }
   | { readonly id: string; readonly label: string; readonly category: string; readonly type: "element"; readonly elementKind: "group" | "horizontalLayout" | "verticalLayout" | "text" };
@@ -64,6 +72,12 @@ export interface ProgramKitFormModelerProps {
   readonly actionCatalog?: FormModelerActionCatalog;
   readonly componentCatalog?: FormModelerComponentCatalog;
   readonly paletteItems?: readonly FormModelerPaletteItem[];
+  /** Additional classes for stable visual slots; behavior never depends on these values. */
+  readonly classNames?: ProgramKitClassNames<FormModelerThemeSlot>;
+  /** Additional class for the root management surface. */
+  readonly className?: string;
+  /** Omits all Program Kit baseline classes while preserving semantic data-pk-slot hooks. */
+  readonly unstyled?: boolean;
   /** Trusted application renderer; preview code never comes from the form document. */
   readonly renderPreview?: (document: FormModelerDocument) => ReactNode;
   /** CodeMirror is the default. Use strictCsp when style attributes are prohibited by policy. */
@@ -74,6 +88,29 @@ export interface ProgramKitFormModelerProps {
   readonly onCommit?: (document: FormModelerDocument, sequence: number) => void | Promise<void>;
 }
 
+interface FormModelerAppearance {
+  readonly classNames: ProgramKitClassNames<FormModelerThemeSlot>;
+  readonly unstyled: boolean;
+}
+
+const FormModelerAppearanceContext = createContext<FormModelerAppearance>({ classNames: {}, unstyled: false });
+
+function modelerSlot(
+  appearance: FormModelerAppearance,
+  slot: FormModelerThemeSlot,
+  defaultClassName: string,
+  extraClassName?: string
+): { readonly className: string | undefined; readonly "data-pk-slot": string } {
+  return {
+    className: programKitClassName(defaultClassName, [appearance.classNames[slot], extraClassName].filter(Boolean).join(" ") || undefined, appearance.unstyled),
+    "data-pk-slot": `form-modeler.${slot}`
+  };
+}
+
+function useFormModelerAppearance(): FormModelerAppearance {
+  return useContext(FormModelerAppearanceContext);
+}
+
 const defaults: ProgramKitFormModelerLabels = Object.freeze({
   undo: "Undo", redo: "Redo", commit: "Commit changes", applyJson: "Apply JSON",
   design: "Design", json: "JSON", graph: "Graph", structure: "Form structure",
@@ -82,7 +119,7 @@ const defaults: ProgramKitFormModelerLabels = Object.freeze({
   moveEarlier: "Move earlier", moveLater: "Move later", moveTo: "Parent", position: "Position", move: "Move element"
 });
 
-export function ProgramKitFormModeler({ session, initialView = "design", labels: overrides, actionCatalog, componentCatalog, paletteItems = defaultFormModelerPalette, renderPreview, editorMode = "codemirror", cspNonce, onChange, onCommit }: ProgramKitFormModelerProps): ReactNode {
+export function ProgramKitFormModeler({ session, initialView = "design", labels: overrides, actionCatalog, componentCatalog, paletteItems = defaultFormModelerPalette, classNames = {}, className, unstyled = false, renderPreview, editorMode = "codemirror", cspNonce, onChange, onCommit }: ProgramKitFormModelerProps): ReactNode {
   const instanceId = useId();
   const labels = { ...defaults, ...overrides };
   const [view, setView] = useState<FormModelerView>(initialView);
@@ -119,16 +156,18 @@ export function ProgramKitFormModeler({ session, initialView = "design", labels:
       setSourceError(error instanceof Error ? error.message : "The JSON document is invalid.");
     }
   };
+  const appearance = useMemo<FormModelerAppearance>(() => ({ classNames, unstyled }), [classNames, unstyled]);
 
   return (
-    <section className="pk-form-modeler" data-view={view}>
-      <div aria-label="Modeler actions" className="pk-form-modeler__toolbar" role="toolbar">
+    <FormModelerAppearanceContext.Provider value={appearance}>
+    <section {...modelerSlot(appearance, "root", "pk-form-modeler", className)} data-pk-unstyled={unstyled || undefined} data-view={view}>
+      <div aria-label="Modeler actions" {...modelerSlot(appearance, "toolbar", "pk-form-modeler__toolbar")} role="toolbar">
         <button disabled={!snapshot.canUndo} onClick={() => refresh(session.undo())} type="button">{labels.undo}</button>
         <button disabled={!snapshot.canRedo} onClick={() => refresh(session.redo())} type="button">{labels.redo}</button>
         {onCommit !== undefined && <button disabled={bindingDiagnostics.length > 0} onClick={() => { void onCommit(snapshot.document, snapshot.sequence); }} type="button">{labels.commit}</button>}
       </div>
-      {bindingDiagnostics.length > 0 && <div aria-label={labels.diagnostics} className="pk-form-modeler__diagnostics" role="alert"><ul>{bindingDiagnostics.map(diagnostic => <li key={`${diagnostic.code}-${diagnostic.path}`}>{diagnostic.message}</li>)}</ul></div>}
-      <div aria-label="Modeler views" className="pk-form-modeler__tabs" role="tablist">
+      {bindingDiagnostics.length > 0 && <div aria-label={labels.diagnostics} {...modelerSlot(appearance, "diagnostics", "pk-form-modeler__diagnostics")} role="alert"><ul>{bindingDiagnostics.map(diagnostic => <li key={`${diagnostic.code}-${diagnostic.path}`}>{diagnostic.message}</li>)}</ul></div>}
+      <div aria-label="Modeler views" {...modelerSlot(appearance, "tabs", "pk-form-modeler__tabs")} role="tablist">
         {(["design", "json", "graph"] as const).map(candidate => (
           <button aria-controls={`${instanceId}-${candidate}-panel`} aria-selected={view === candidate} id={`${instanceId}-${candidate}-tab`} key={candidate} onClick={() => setView(candidate)} role="tab" type="button">
             {labels[candidate]}
@@ -136,18 +175,18 @@ export function ProgramKitFormModeler({ session, initialView = "design", labels:
         ))}
       </div>
       {view === "design" && (
-        <div aria-labelledby={`${instanceId}-design-tab`} className="pk-form-modeler__workspace" id={`${instanceId}-design-panel`} role="tabpanel">
+        <div aria-labelledby={`${instanceId}-design-tab`} {...modelerSlot(appearance, "workspace", "pk-form-modeler__workspace")} id={`${instanceId}-design-panel`} role="tabpanel">
           <FormModelerPalette items={paletteItems} label={labels.palette} onAdd={addPaletteItem} />
-          <div className="pk-form-modeler__design">
+          <div {...modelerSlot(appearance, "design", "pk-form-modeler__design")}>
             <FormModelerTree document={snapshot.document} label={labels.structure} onSelect={select} selectedId={snapshot.selectedId} />
             <FormModelerCanvas document={snapshot.document} labels={labels} onMove={(elementId, parentId, index) => apply([{ type: "moveElement", elementId, parentId, index }])} onSelect={select} selectedId={snapshot.selectedId} />
-            <section aria-label={labels.preview} className="pk-form-modeler__preview"><h2>{labels.preview}</h2>{renderPreview?.(snapshot.document) ?? <p>{snapshot.document.fields.length} fields · {countElements(snapshot.document.layout)} layout blocks</p>}</section>
+            <section aria-label={labels.preview} {...modelerSlot(appearance, "preview", "pk-form-modeler__preview")}><h2>{labels.preview}</h2>{renderPreview?.(snapshot.document) ?? <p>{snapshot.document.fields.length} fields · {countElements(snapshot.document.layout)} layout blocks</p>}</section>
           </div>
           <FormModelerInspector actionCatalog={actionCatalog} componentCatalog={componentCatalog} document={snapshot.document} label={labels.inspector} labels={labels} onApply={apply} selectedId={snapshot.selectedId} />
         </div>
       )}
       {view === "json" && (
-        <div aria-labelledby={`${instanceId}-json-tab`} className="pk-form-modeler__panel" id={`${instanceId}-json-panel`} role="tabpanel">
+        <div aria-labelledby={`${instanceId}-json-tab`} {...modelerSlot(appearance, "panel", "pk-form-modeler__panel")} id={`${instanceId}-json-panel`} role="tabpanel">
           <FormModelerJsonEditor accessibleLabel={labels.editor} {...(cspNonce === undefined ? {} : { cspNonce })} mode={editorMode} onChange={setSource} source={source} />
           <button onClick={applySource} type="button">{labels.applyJson}</button>
           {sourceError.length > 0 && <pre className="pk-form-modeler__error" role="alert">{sourceError}</pre>}
@@ -155,12 +194,14 @@ export function ProgramKitFormModeler({ session, initialView = "design", labels:
       )}
       {view === "graph" && <FormModelerGraph document={snapshot.document} labelledBy={`${instanceId}-graph-tab`} labels={labels} onSelect={select} panelId={`${instanceId}-graph-panel`} selectedId={snapshot.selectedId} />}
     </section>
+    </FormModelerAppearanceContext.Provider>
   );
 }
 
 export function FormModelerPalette({ items, label, onAdd }: { readonly items: readonly FormModelerPaletteItem[]; readonly label: string; readonly onAdd: (item: FormModelerPaletteItem) => void }): ReactNode {
+  const appearance = useFormModelerAppearance();
   const categories = [...new Set(items.map(item => item.category))];
-  return <aside aria-label={label} className="pk-form-modeler__palette"><h2>{label}</h2>{categories.map(category => <section key={category}><h3>{category}</h3><div>{items.filter(item => item.category === category).map(item => <button key={item.id} onClick={() => onAdd(item)} type="button">{item.label}</button>)}</div></section>)}</aside>;
+  return <aside aria-label={label} {...modelerSlot(appearance, "palette", "pk-form-modeler__palette")}><h2>{label}</h2>{categories.map(category => <section key={category}><h3>{category}</h3><div>{items.filter(item => item.category === category).map(item => <button key={item.id} onClick={() => onAdd(item)} type="button">{item.label}</button>)}</div></section>)}</aside>;
 }
 
 export interface FormModelerCanvasProps {
@@ -172,6 +213,7 @@ export interface FormModelerCanvasProps {
 }
 
 export function FormModelerCanvas({ document, labels, selectedId, onSelect, onMove }: FormModelerCanvasProps): ReactNode {
+  const appearance = useFormModelerAppearance();
   const fields = new Map(document.fields.map(field => [field.id, field]));
   const [draggingId, setDraggingId] = useState<string>();
   const move = (elementId: string, parentId: string, index: number): void => {
@@ -179,7 +221,7 @@ export function FormModelerCanvas({ document, labels, selectedId, onSelect, onMo
     if (target === undefined || index < 0 || index > target.maximumIndex) return;
     onMove(elementId, parentId, index);
   };
-  return <section aria-label={labels.canvas} className="pk-form-modeler__canvas"><h2>{labels.canvas}</h2><CanvasElement draggingId={draggingId} element={document.layout} fields={fields} index={0} labels={labels} onDragEnd={() => setDraggingId(undefined)} onDragStart={setDraggingId} onMove={move} onSelect={onSelect} selectedId={selectedId} siblingCount={1} /></section>;
+  return <section aria-label={labels.canvas} {...modelerSlot(appearance, "canvas", "pk-form-modeler__canvas")}><h2>{labels.canvas}</h2><CanvasElement draggingId={draggingId} element={document.layout} fields={fields} index={0} labels={labels} onDragEnd={() => setDraggingId(undefined)} onDragStart={setDraggingId} onMove={move} onSelect={onSelect} selectedId={selectedId} siblingCount={1} /></section>;
 }
 
 interface CanvasElementProps {
@@ -198,6 +240,7 @@ interface CanvasElementProps {
 }
 
 function CanvasElement({ element, fields, selectedId, index, siblingCount, parentId, draggingId, labels, onSelect, onMove, onDragStart, onDragEnd }: CanvasElementProps): ReactNode {
+  const appearance = useFormModelerAppearance();
   const field = element.fieldId === undefined || element.fieldId === null ? undefined : fields.get(element.fieldId);
   const title = field?.label.defaultText ?? element.text?.defaultText ?? element.id;
   const movable = parentId !== undefined;
@@ -216,7 +259,7 @@ function CanvasElement({ element, fields, selectedId, index, siblingCount, paren
     onDragEnd();
   };
   return <div
-    className="pk-form-modeler__canvas-block"
+    {...modelerSlot(appearance, "canvasBlock", "pk-form-modeler__canvas-block")}
     data-dragging={draggingId === element.id || undefined}
     data-element-id={element.id}
     data-kind={element.kind}
@@ -251,7 +294,8 @@ function CanvasElement({ element, fields, selectedId, index, siblingCount, paren
 
 export interface FormModelerTreeProps { readonly document: FormModelerDocument; readonly label: string; readonly selectedId: string | undefined; readonly onSelect: (id: string) => void; }
 export function FormModelerTree({ document, label, selectedId, onSelect }: FormModelerTreeProps): ReactNode {
-  return <nav aria-label={label} className="pk-form-modeler__tree"><ul>
+  const appearance = useFormModelerAppearance();
+  return <nav aria-label={label} {...modelerSlot(appearance, "tree", "pk-form-modeler__tree")}><ul>
     <TreeButton id={document.id} label={document.name} selectedId={selectedId} onSelect={onSelect} />
     <li><span>Fields</span><ul>{document.fields.map(field => <TreeButton id={field.id} key={field.id} label={field.label.defaultText} selectedId={selectedId} onSelect={onSelect} />)}</ul></li>
     <li><span>Layout</span><ElementTree element={document.layout} selectedId={selectedId} onSelect={onSelect} /></li>
@@ -268,17 +312,19 @@ function TreeButton({ id, label, selectedId, onSelect }: { readonly id: string; 
 
 interface InspectorProps { readonly document: FormModelerDocument; readonly selectedId: string | undefined; readonly label: string; readonly labels: Pick<ProgramKitFormModelerLabels, "moveTo" | "position" | "move">; readonly actionCatalog: FormModelerActionCatalog | undefined; readonly componentCatalog: FormModelerComponentCatalog | undefined; readonly onApply: (operations: readonly FormModelerOperation[]) => void; }
 export function FormModelerInspector({ document, selectedId, label, labels, actionCatalog, componentCatalog, onApply }: InspectorProps): ReactNode {
+  const appearance = useFormModelerAppearance();
   const entity = findEntity(document, selectedId ?? document.id);
   if (entity.kind === "field") return <FieldInspector componentCatalog={componentCatalog} field={entity.value} label={label} onApply={onApply} />;
   if (entity.kind === "action") {
     const contract = actionCatalog?.resolve(entity.value.handlerId);
-    return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{entity.value.label.defaultText}</h2><dl><dt>Handler</dt><dd>{entity.value.handlerId}</dd><dt>Execution</dt><dd>{contract?.execution ?? "Unregistered"}</dd><dt>Package</dt><dd>{contract?.providerPackage ?? "Application-owned"}</dd></dl></aside>;
+    return <aside aria-label={label} {...modelerSlot(appearance, "inspector", "pk-form-modeler__inspector")}><h2>{entity.value.label.defaultText}</h2><dl><dt>Handler</dt><dd>{entity.value.handlerId}</dd><dt>Execution</dt><dd>{contract?.execution ?? "Unregistered"}</dd><dt>Package</dt><dd>{contract?.providerPackage ?? "Application-owned"}</dd></dl></aside>;
   }
   if (entity.kind === "element") return <ElementInspector document={document} element={entity.value} label={label} labels={labels} onApply={onApply} />;
-  return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{document.name}</h2><dl><dt>ID</dt><dd>{document.id}</dd><dt>Revision</dt><dd>{document.revision}</dd><dt>Source locale</dt><dd>{document.sourceLocale}</dd></dl></aside>;
+  return <aside aria-label={label} {...modelerSlot(appearance, "inspector", "pk-form-modeler__inspector")}><h2>{document.name}</h2><dl><dt>ID</dt><dd>{document.id}</dd><dt>Revision</dt><dd>{document.revision}</dd><dt>Source locale</dt><dd>{document.sourceLocale}</dd></dl></aside>;
 }
 
 function ElementInspector({ document, element, label, labels, onApply }: { readonly document: FormModelerDocument; readonly element: FormModelerElement; readonly label: string; readonly labels: Pick<ProgramKitFormModelerLabels, "moveTo" | "position" | "move">; readonly onApply: (operations: readonly FormModelerOperation[]) => void }): ReactNode {
+  const appearance = useFormModelerAppearance();
   const placement = getFormModelerElementPlacement(document, element.id);
   const targets = listFormModelerMoveTargets(document, element.id);
   const [parentId, setParentId] = useState(placement.parentId ?? "");
@@ -291,7 +337,7 @@ function ElementInspector({ document, element, label, labels, onApply }: { reado
   useEffect(() => {
     if (selectedTarget !== undefined && position > selectedTarget.maximumIndex) setPosition(selectedTarget.maximumIndex);
   }, [position, selectedTarget]);
-  return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{element.id}</h2>
+  return <aside aria-label={label} {...modelerSlot(appearance, "inspector", "pk-form-modeler__inspector")}><h2>{element.id}</h2>
     <dl><dt>Kind</dt><dd>{element.kind}</dd><dt>Children</dt><dd>{element.elements.length}</dd></dl>
     {placement.parentId !== undefined && <fieldset className="pk-form-modeler__move"><legend>{labels.move}</legend>
       <label className="pk-form-modeler__field">{labels.moveTo}<select onChange={event => { const nextParent = event.currentTarget.value; setParentId(nextParent); const target = targets.find(candidate => candidate.parentId === nextParent); setPosition(Math.min(placement.index, target?.maximumIndex ?? 0)); }} value={parentId}>{targets.map(target => <option key={target.parentId} value={target.parentId}>{target.label}</option>)}</select></label>
@@ -302,6 +348,7 @@ function ElementInspector({ document, element, label, labels, onApply }: { reado
 }
 
 function FieldInspector({ field, label, componentCatalog, onApply }: { readonly field: FormModelerField; readonly label: string; readonly componentCatalog: FormModelerComponentCatalog | undefined; readonly onApply: (operations: readonly FormModelerOperation[]) => void }): ReactNode {
+  const appearance = useFormModelerAppearance();
   const [text, setText] = useState(field.label.defaultText);
   useEffect(() => setText(field.label.defaultText), [field]);
   const update = (changes: Partial<FormModelerField>) => onApply([{ type: "upsertField", field: { ...field, ...changes } }]);
@@ -311,7 +358,7 @@ function FieldInspector({ field, label, componentCatalog, onApply }: { readonly 
     if (field.component === undefined || field.component === null) return;
     update({ component: { ...field.component, options: { ...field.component.options, [key]: value } } });
   };
-  return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{field.id}</h2>
+  return <aside aria-label={label} {...modelerSlot(appearance, "inspector", "pk-form-modeler__inspector")}><h2>{field.id}</h2>
     <label className="pk-form-modeler__field">Label<input onChange={event => setText(event.currentTarget.value)} onBlur={() => { if (text !== field.label.defaultText) update({ label: { ...field.label, defaultText: text } }); }} value={text} /></label>
     <label><input checked={field.required} onChange={event => update({ required: event.currentTarget.checked })} type="checkbox" /> Required</label>
     {componentCatalog !== undefined && <label className="pk-form-modeler__field">Component<select onChange={event => update({ component: event.currentTarget.value.length === 0 ? null : componentCatalog.createReference(event.currentTarget.value) })} value={field.component?.componentId ?? ""}><option value="">Default renderer</option>{availableComponents.map(contract => <option key={contract.componentId} value={contract.componentId}>{contract.displayName}</option>)}</select></label>}
@@ -321,6 +368,7 @@ function FieldInspector({ field, label, componentCatalog, onApply }: { readonly 
 }
 
 export function FormModelerJsonEditor({ source, accessibleLabel, cspNonce, mode, onChange }: { readonly source: string; readonly accessibleLabel: string; readonly cspNonce?: string; readonly mode: FormModelerEditorMode; readonly onChange: (source: string) => void }): ReactNode {
+  const appearance = useFormModelerAppearance();
   const parent = useRef<HTMLDivElement>(null);
   const handle = useRef<JsonEditorHandle | null>(null);
   useEffect(() => {
@@ -331,16 +379,17 @@ export function FormModelerJsonEditor({ source, accessibleLabel, cspNonce, mode,
   }, [accessibleLabel, cspNonce, mode, onChange]);
   useEffect(() => handle.current?.setDocument(source), [source]);
   if (mode === "strictCsp") {
-    return <textarea aria-label={accessibleLabel} className="pk-form-modeler__editor pk-form-modeler__editor--strict-csp" onChange={event => onChange(event.currentTarget.value)} spellCheck={false} value={source} />;
+    return <textarea aria-label={accessibleLabel} {...modelerSlot(appearance, "editor", "pk-form-modeler__editor pk-form-modeler__editor--strict-csp")} onChange={event => onChange(event.currentTarget.value)} spellCheck={false} value={source} />;
   }
-  return <div className="pk-form-modeler__editor" ref={parent} />;
+  return <div {...modelerSlot(appearance, "editor", "pk-form-modeler__editor")} ref={parent} />;
 }
 
 export function FormModelerGraph({ document, labels, labelledBy, panelId, selectedId, onSelect }: { readonly document: FormModelerDocument; readonly labels: ProgramKitFormModelerLabels; readonly labelledBy?: string; readonly panelId?: string; readonly selectedId: string | undefined; readonly onSelect: (id: string) => void }): ReactNode {
+  const appearance = useFormModelerAppearance();
   const graph = useMemo(() => projectFormModelerGraph(document), [document]);
-  return <section aria-labelledby={labelledBy} className="pk-form-modeler__panel" id={panelId} role="tabpanel"><h2>{labels.nodes}</h2><div className="pk-form-modeler__graph-nodes">{graph.nodes.map(node => {
+  return <section aria-labelledby={labelledBy} {...modelerSlot(appearance, "graph", "pk-form-modeler__panel")} id={panelId} role="tabpanel"><h2>{labels.nodes}</h2><div className="pk-form-modeler__graph-nodes">{graph.nodes.map(node => {
     const rawId = node.id.slice(node.id.indexOf(":") + 1);
-    return <button aria-pressed={selectedId === rawId} className="pk-form-modeler__graph-node" key={node.id} onClick={() => onSelect(rawId)} type="button"><strong>{node.label}</strong><small>{node.kind}</small></button>;
+    return <button aria-pressed={selectedId === rawId} {...modelerSlot(appearance, "graphNode", "pk-form-modeler__graph-node")} key={node.id} onClick={() => onSelect(rawId)} type="button"><strong>{node.label}</strong><small>{node.kind}</small></button>;
   })}</div><h2>{labels.relationships}</h2><table className="pk-form-modeler__graph-edges"><thead><tr><th>From</th><th>Relationship</th><th>To</th></tr></thead><tbody>{graph.edges.map((edge, index) => <tr key={`${edge.from}-${edge.to}-${index}`}><td>{edge.from}</td><td>{edge.kind}</td><td>{edge.to}</td></tr>)}</tbody></table></section>;
 }
 
