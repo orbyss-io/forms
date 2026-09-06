@@ -12,7 +12,8 @@ import {
 import type {
   JsonFormsCellRendererRegistryEntry,
   JsonFormsRendererRegistryEntry,
-  UISchemaElement
+  UISchemaElement,
+  ValidationMode
 } from "@jsonforms/core";
 import type {
   JsonObject,
@@ -255,6 +256,10 @@ export const ProgramKitJsonFormsVue = defineComponent({
     config: {
       type: Object as PropType<Readonly<Record<string, unknown>>>,
       default: undefined
+    },
+    validationMode: {
+      type: String as PropType<ValidationMode>,
+      default: "ValidateAndHide"
     }
   },
   emits: {
@@ -273,6 +278,7 @@ export const ProgramKitJsonFormsVue = defineComponent({
       schema: props.runtime.schema,
       uischema: props.runtime.uiSchema as unknown as UISchemaElement,
       readonly: props.readonly,
+      validationMode: props.validationMode,
       i18n: {
         translate: translator.value
       },

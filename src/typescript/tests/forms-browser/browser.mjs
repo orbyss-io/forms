@@ -74,10 +74,12 @@ async function verify(engine, browserType, profile) {
     }
     assertNoErrors(label, "startup");
     assert.equal(await page.locator(".pk-form-wizard__step").count(), 2, `${label}: conditional step starts hidden`);
+    const requiredName = page.getByRole("textbox", { name: /^Name/ });
+    assert.equal(await requiredName.getAttribute("aria-invalid"), null, `${label}: required field starts neutral before validation`);
+    assert.equal(await page.locator('[data-control-path="name"] .pk-form-control__error').count(), 0, `${label}: required field starts without an inline error`);
     await page.getByRole("button", { name: "Submit now" }).click();
     assert.equal(await page.locator('[data-action-id="submit"][role="alert"]').innerText(), "Resolve the form validation errors before continuing.", `${label}: action validation gate`);
     assert.equal(await page.locator(".fixture-action-result").innerText(), "submit:validation", `${label}: blocked result callback`);
-    const requiredName = page.getByRole("textbox", { name: /^Name/ });
     assert.equal(await requiredName.getAttribute("aria-invalid"), "true", `${label}: required field exposes its invalid state`);
     assert.match(await page.locator('[data-control-path="name"] .pk-form-control__error').innerText(), /required/i, `${label}: required field renders an inline error`);
     assert.deepEqual(await requiredName.evaluate(element => {

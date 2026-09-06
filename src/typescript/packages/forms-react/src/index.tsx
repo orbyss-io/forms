@@ -9,7 +9,8 @@ import {
   type JsonFormsRendererRegistryEntry,
   type LayoutProps,
   type RankedTester,
-  type UISchemaElement
+  type UISchemaElement,
+  type ValidationMode
 } from "@jsonforms/core";
 import {
   JsonFormsDispatch,
@@ -25,6 +26,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
   type ComponentProps,
   type KeyboardEvent,
   type ReactNode
@@ -90,10 +92,17 @@ export interface ProgramKitJsonFormsProps {
   readonly cells?: Readonly<NonNullable<ComponentProps<typeof JsonForms>["cells"]>>;
   readonly readonly?: boolean;
   readonly config?: unknown;
+  /**
+   * Controls JSON Forms error presentation. When omitted, errors are calculated but hidden until
+   * a Program Kit action or wizard transition performs validation.
+   */
+  readonly validationMode?: ValidationMode;
+  readonly onValidationModeChange?: (mode: ValidationMode) => void;
   readonly onChange?: (data: JsonValue, issues: readonly RuntimeValidationIssue[]) => void;
 }
 
 const ProgramKitFormsRuntimeContext = createContext<ProgramKitJsonFormsRuntime | null>(null);
+const ProgramKitValidationPresentationContext = createContext<() => void>(() => undefined);
 
 /** Gives custom Program Kit renderers reactive access to translation and validation ports. */
 export function useProgramKitFormsRuntime(): ProgramKitJsonFormsRuntime | null {
@@ -111,8 +120,16 @@ export function ProgramKitJsonForms({
   cells,
   readonly,
   config,
+  validationMode: controlledValidationMode,
+  onValidationModeChange,
   onChange
 }: ProgramKitJsonFormsProps): ReactNode {
+  const [validationMode, setValidationMode] = useState<ValidationMode>("ValidateAndHide");
+  useEffect(() => setValidationMode("ValidateAndHide"), [runtime.schema, runtime.uiSchema]);
+  const revealValidation = () => {
+    setValidationMode("ValidateAndShow");
+    onValidationModeChange?.("ValidateAndShow");
+  };
   const ajv = useMemo(
     () => createPrecompiledJsonFormsAjvFacade(runtime.schema, runtime.validate) as unknown as JsonFormsAjv,
     [runtime.schema, runtime.validate]
@@ -124,25 +141,28 @@ export function ProgramKitJsonForms({
   const translator = useMemo(() => createJsonFormsTranslatorAdapter(runtime.translate), [runtime.translate]);
   return (
     <ProgramKitFormsRuntimeContext.Provider value={runtime}>
-      <JsonForms
-        ajv={ajv}
-        data={data}
-        i18n={{ translate: translator }}
-        renderers={rendererEntries}
-        schema={runtime.schema}
-        uischema={runtime.uiSchema as unknown as UISchemaElement}
-        {...(cells === undefined ? {} : { cells: [...cells] })}
-        {...(config === undefined ? {} : { config })}
-        {...(readonly === undefined ? {} : { readonly })}
-        {...(onChange === undefined ? {} : {
-          onChange: state => onChange(
-            state.data as JsonValue,
-            jsonFormsValidationErrorsToIssues(
-              (state.errors ?? []) as readonly JsonFormsCompatibleValidationError[]
+      <ProgramKitValidationPresentationContext.Provider value={revealValidation}>
+        <JsonForms
+          ajv={ajv}
+          data={data}
+          i18n={{ translate: translator }}
+          renderers={rendererEntries}
+          schema={runtime.schema}
+          uischema={runtime.uiSchema as unknown as UISchemaElement}
+          validationMode={controlledValidationMode ?? validationMode}
+          {...(cells === undefined ? {} : { cells: [...cells] })}
+          {...(config === undefined ? {} : { config })}
+          {...(readonly === undefined ? {} : { readonly })}
+          {...(onChange === undefined ? {} : {
+            onChange: state => onChange(
+              state.data as JsonValue,
+              jsonFormsValidationErrorsToIssues(
+                (state.errors ?? []) as readonly JsonFormsCompatibleValidationError[]
+              )
             )
-          )
-        })}
-      />
+          })}
+        />
+      </ProgramKitValidationPresentationContext.Provider>
     </ProgramKitFormsRuntimeContext.Provider>
   );
 }
@@ -365,6 +385,7 @@ export interface ProgramKitActionReactConfig {
 function ProgramKitActionBarRendererComponent(props: LayoutProps): ReactNode {
   const context = useJsonForms();
   const runtime = useProgramKitFormsRuntime();
+  const revealValidation = useContext(ProgramKitValidationPresentationContext);
   const contextRef = useRef(context);
   contextRef.current = context;
   const configuration = trustedActionConfiguration(props.config);
@@ -388,6 +409,7 @@ function ProgramKitActionBarRendererComponent(props: LayoutProps): ReactNode {
   const snapshot = controller.snapshot();
   const running = snapshot.runningActionId !== undefined;
   const invoke = async (action: ProgramKitActionSnapshot) => {
+    if (action.requiresValidForm) revealValidation();
     const data = (contextRef.current.core?.data ?? null) as JsonValue;
     const result = await controller.invoke(action.actionId, data, { data });
     configuration.onResult?.(action, result);
@@ -545,6 +567,7 @@ export function ProgramKitWizardNavigation({
 function ProgramKitWizardRendererComponent(props: LayoutProps): ReactNode {
   const context = useJsonForms();
   const programKitRuntime = useProgramKitFormsRuntime();
+  const revealValidation = useContext(ProgramKitValidationPresentationContext);
   const contextRef = useRef(context);
   contextRef.current = context;
   const configuration = trustedWizardConfiguration(props.config);
@@ -577,10 +600,12 @@ function ProgramKitWizardRendererComponent(props: LayoutProps): ReactNode {
   const labels = mergeLabels(configuration.labels);
   const move = async (operation: () => ReturnType<ProgramKitWizardController["select"]>) => {
     const result = await operation();
+    if (result.reason === "validation") revealValidation();
     if (result.moved) configuration.onStepChange?.(result.snapshot.currentStepId, result.snapshot);
   };
   const finish = async () => {
     const result = await controller.finish();
+    if (result.reason === "validation") revealValidation();
     if (result.moved) await configuration.onFinish?.(contextRef.current.core?.data, result.snapshot);
   };
 

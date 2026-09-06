@@ -202,6 +202,27 @@ def main() -> int:
     }:
         raise AssertionError("The Angular binding crossed its governed framework or compiler boundary.")
 
+    validation_presentation = {
+        "packages/forms-react/src/index.tsx": (
+            'useState<ValidationMode>("ValidateAndHide")',
+            'if (action.requiresValidForm) revealValidation()',
+            'result.reason === "validation"',
+        ),
+        "packages/forms-vue/src/index.ts": (
+            'default: "ValidateAndHide"',
+            "validationMode: props.validationMode",
+        ),
+        "packages/forms-angular/src/index.ts": (
+            '@Input() validationMode: ValidationMode = "ValidateAndHide"',
+            '[validationMode]="validationMode"',
+        ),
+    }
+    for relative, required_markers in validation_presentation.items():
+        source = (WORKSPACE / relative).read_text(encoding="utf-8")
+        for marker in required_markers:
+            if marker not in source:
+                raise AssertionError(f"{relative} lost governed delayed validation presentation: {marker}")
+
     for manifest in manifests:
         if manifest.get("exports", {}).get("./styles.css") == "./styles.css" \
                 and manifest.get("sideEffects") != ["./styles.css"]:

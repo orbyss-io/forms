@@ -10,7 +10,8 @@ import {
 import { JsonFormsModule } from "@jsonforms/angular";
 import type {
   JsonFormsRendererRegistryEntry,
-  UISchemaElement
+  UISchemaElement,
+  ValidationMode
 } from "@jsonforms/core";
 import type {
   JsonObject,
@@ -66,6 +67,7 @@ interface JsonFormsAngularChangeEvent {
       [renderers]="renderers"
       [schema]="runtime.schema"
       [uischema]="uiSchema"
+      [validationMode]="validationMode"
       (dataChange)="handleChange($event)"
     ></jsonforms>
   `
@@ -76,6 +78,7 @@ export class ProgramKitJsonFormsAngularComponent implements OnChanges {
   @Input() renderers: JsonFormsRendererRegistryEntry[] = [];
   @Input() readonly = false;
   @Input() config: Readonly<Record<string, unknown>> = Object.freeze({});
+  @Input() validationMode: ValidationMode = "ValidateAndHide";
   @Output() readonly change = new EventEmitter<ProgramKitJsonFormsAngularChange>();
 
   ajv!: PrecompiledJsonFormsAjvFacade;
