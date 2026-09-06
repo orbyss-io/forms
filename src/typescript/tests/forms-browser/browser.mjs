@@ -87,7 +87,18 @@ async function verify(engine, browserType, profile) {
     await page.getByRole("button", { name: /^Next$/ }).click();
     assert.equal(await page.locator('[data-status="error"]').count(), 1, `${label}: invalid advance is blocked`);
     assert.equal(await page.locator('[aria-current="step"]').getAttribute("id"), "pk-wizard-account-setup-profile-step");
-    await page.getByLabel("Name").fill("Ada");
+    try {
+      await page.getByRole("textbox", { name: /^Name/ }).waitFor({ timeout: 5000 });
+      await page.getByRole("textbox", { name: /^Name/ }).fill("Ada");
+    } catch (error) {
+      throw new Error(`${label}: core control labels were ${JSON.stringify(await page.locator("label").allTextContents())}: ${error.message}`);
+    }
+    await page.getByRole("textbox", { name: "Notes" }).fill("Needs a governed renderer suite.");
+    await page.getByRole("spinbutton", { name: "Quantity" }).fill("3");
+    await page.getByRole("checkbox", { name: "Product updates" }).check();
+    await page.getByRole("combobox", { name: "Role" }).selectOption({ label: "Writer" });
+    await page.getByRole("listbox", { name: "Channels" }).selectOption([{ label: "Email" }, { label: "Push" }]);
+    assert.deepEqual(await page.getByRole("listbox", { name: "Channels" }).evaluate(element => [...element.selectedOptions].map(option => option.textContent)), ["Email", "Push"], `${label}: semantic core controls preserve typed multi-choice data`);
     await page.locator(".pk-form-wizard__step").nth(2).waitFor();
     await page.getByRole("button", { name: /^Next$/ }).click();
     assert.match(await page.locator('[aria-current="step"]').innerText(), /Preferences/);
@@ -113,8 +124,16 @@ async function verify(engine, browserType, profile) {
     const modeler = page.locator(".pk-form-modeler");
     await modeler.getByRole("button", { name: "Add text field" }).click();
     assert.equal(await modeler.getByRole("button", { name: "Field 1", exact: true }).count(), 1, `${label}: palette adds field to tree`);
-    assert.equal(await modeler.getByRole("region", { name: "Layout canvas" }).getByRole("button", { name: /Field 1/ }).count(), 1, `${label}: palette atomically adds matching control to canvas`);
+    assert.equal(await modeler.locator('[data-element-id="field-1-control-1"] > .pk-form-modeler__canvas-heading > button:first-child').count(), 1, `${label}: palette atomically adds matching control to canvas`);
     assert.match(await modeler.getByText(/^Trusted preview:/).innerText(), /Field 1/, `${label}: application-owned preview receives the synchronized document`);
+    await modeler.getByRole("button", { name: "Add group" }).click();
+    const fieldControl = modeler.locator('[data-element-id="field-1-control-1"]');
+    await fieldControl.locator(':scope > .pk-form-modeler__canvas-heading > button:first-child').click();
+    const elementInspector = modeler.getByRole("complementary", { name: "Properties" });
+    await elementInspector.getByRole("combobox", { name: "Parent" }).selectOption("group-1");
+    await elementInspector.getByRole("button", { name: "Move element" }).click();
+    assert.equal(await modeler.locator('[data-element-id="group-1"] [data-element-id="field-1-control-1"]').count(), 1, `${label}: touch and keyboard-safe move controls reparent canvas blocks`);
+    assert.equal(await modeler.getByRole("button", { name: "Move earlier: Field 1" }).isDisabled(), true, `${label}: bounded reorder controls reflect the new sibling position`);
     await modeler.getByRole("button", { name: "Name", exact: true }).click();
     const inspector = modeler.getByRole("complementary", { name: "Properties" });
     await inspector.getByRole("combobox", { name: "Component" }).selectOption("ProgramKit.SearchableSelect");

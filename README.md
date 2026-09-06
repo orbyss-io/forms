@@ -433,7 +433,9 @@ Forms and localization are split into provider-neutral .NET contracts, compiler,
 orchestration, bridge and replaceable storage packages plus an isolated frontend workspace. The frontend boundary validates
 immutable artifacts before rendering, uses JSON Forms behind framework adapters, compiles AJV
 validators during the build, and provides CodeMirror 6 as the dependency-light default JSON editor;
-Monaco is not part of the default graph. Localization management and immutable runtime HTTP
+Monaco is not part of the default graph. The React adapter includes semantic low-rank core controls
+that design systems and specialized packages can override, while the modeler exposes the same
+validated reorder/reparent operation through pointer, touch and keyboard interactions. Localization management and immutable runtime HTTP
 surfaces are independently selected CShells feature packages; neither adds middleware or behavior
 to `ProgramKit.Host`. See the
 [implementation plan](docs/forms-localization-implementation-plan.md) and

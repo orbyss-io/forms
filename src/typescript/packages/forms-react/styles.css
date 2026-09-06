@@ -1,0 +1,12 @@
+.pk-form-control { display: grid; gap: .5rem; min-inline-size: 0; max-inline-size: 40rem; }
+.pk-form-control__label, .pk-form-control__boolean { font-weight: 700; }
+.pk-form-control__input { min-inline-size: 0; }
+.pk-form-control__input > input, .pk-form-control__input > select, .pk-form-control__input > textarea { inline-size: 100%; min-block-size: 44px; padding: .65rem .75rem; border: 1px solid currentColor; border-radius: .5rem; background: Canvas; color: CanvasText; font: inherit; }
+.pk-form-control__input > select[multiple] { min-block-size: 8rem; }
+.pk-form-control__input > textarea { resize: block; }
+.pk-form-control__boolean { display: flex; align-items: center; gap: .65rem; min-block-size: 44px; }
+.pk-form-control__boolean input { inline-size: 1.25rem; block-size: 1.25rem; }
+.pk-form-control__description, .pk-form-control__error { margin: 0; overflow-wrap: anywhere; }
+.pk-form-control__error { color: #a11919; }
+@media (forced-colors: active) { .pk-form-control__input > input, .pk-form-control__input > select, .pk-form-control__input > textarea { border-color: CanvasText; } }
+@media (prefers-reduced-motion: reduce) { .pk-form-control *, .pk-form-control *::before, .pk-form-control *::after { transition-duration: 0s !important; animation-duration: 0s !important; } }

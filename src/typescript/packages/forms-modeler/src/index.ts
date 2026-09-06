@@ -295,6 +295,20 @@ export interface FormModelerSnapshot {
   readonly canRedo: boolean;
 }
 
+export interface FormModelerElementPlacement {
+  readonly elementId: string;
+  readonly parentId?: string;
+  readonly index: number;
+  readonly depth: number;
+}
+
+export interface FormModelerMoveTarget {
+  readonly parentId: string;
+  readonly label: string;
+  /** Maximum zero-based insertion index after the moving element is removed. */
+  readonly maximumIndex: number;
+}
+
 export class FormModelerValidationError extends Error {
   public constructor(public readonly diagnostics: readonly FormModelerDiagnostic[]) {
     super(diagnostics.map(item => `${item.code} ${item.path}: ${item.message}`).join("\n"));
@@ -449,6 +463,7 @@ export function validateFormModelerDocument(
     if (elementIds.has(element.id)) add("PKM032", `${path}/id`, "Element ID is duplicated.");
     elementIds.add(element.id);
     if (!modelerElementKinds.has(element.kind)) add("PKM043", `${path}/kind`, "Element kind is not supported.");
+    if (!formModelerContainerKinds.has(element.kind) && element.elements.length > 0) add("PKM044", `${path}/elements`, "This element kind cannot contain child elements.");
     if (element.kind === "control") {
       if (element.fieldId === undefined || element.fieldId === null || !fieldIds.has(element.fieldId)) add("PKM033", `${path}/fieldId`, "Control must reference an existing field.");
     } else if (element.fieldId !== undefined && element.fieldId !== null) add("PKM034", `${path}/fieldId`, "Only controls may reference a field.");
@@ -482,6 +497,57 @@ export function parseFormModelerDocument(source: string, limits: FormModelerLimi
 
 export function serializeFormModelerDocument(document: FormModelerDocument): string {
   return JSON.stringify(validatedSnapshot(document, defaultFormModelerLimits), null, 2) + "\n";
+}
+
+/** Returns the stable structural location used by pointer, touch, and keyboard authoring adapters. */
+export function getFormModelerElementPlacement(
+  document: FormModelerDocument,
+  elementId: string
+): FormModelerElementPlacement {
+  const valid = validatedSnapshot(document, defaultFormModelerLimits);
+  let placement: FormModelerElementPlacement | undefined;
+  const visit = (element: FormModelerElement, parentId: string | undefined, index: number, depth: number): void => {
+    if (element.id === elementId) placement = Object.freeze({ elementId, ...(parentId === undefined ? {} : { parentId }), index, depth });
+    element.elements.forEach((child, childIndex) => visit(child, element.id, childIndex, depth + 1));
+  };
+  visit(valid.layout, undefined, 0, 0);
+  if (placement === undefined) throw new Error(`Element '${elementId}' does not exist.`);
+  return placement;
+}
+
+/**
+ * Enumerates only legal container targets and excludes the moving subtree. Adapters can therefore
+ * offer reparenting without duplicating cycle or leaf-element policy.
+ */
+export function listFormModelerMoveTargets(
+  document: FormModelerDocument,
+  elementId: string
+): readonly FormModelerMoveTarget[] {
+  const valid = validatedSnapshot(document, defaultFormModelerLimits);
+  if (valid.layout.id === elementId) return Object.freeze([]);
+  const moving = findElement(valid.layout, elementId);
+  if (moving === undefined) throw new Error(`Element '${elementId}' does not exist.`);
+  const current = getFormModelerElementPlacement(valid, elementId);
+  const excluded = new Set<string>();
+  const exclude = (element: FormModelerElement): void => {
+    excluded.add(element.id);
+    element.elements.forEach(exclude);
+  };
+  exclude(moving);
+  const targets: FormModelerMoveTarget[] = [];
+  const visit = (element: FormModelerElement): void => {
+    if (!excluded.has(element.id) && formModelerContainerKinds.has(element.kind)) {
+      const maximumIndex = element.elements.length - (current.parentId === element.id ? 1 : 0);
+      targets.push(Object.freeze({
+        parentId: element.id,
+        label: element.text?.defaultText ?? element.id,
+        maximumIndex: Math.max(0, maximumIndex)
+      }));
+    }
+    element.elements.forEach(visit);
+  };
+  visit(valid.layout);
+  return Object.freeze(targets);
 }
 
 export interface FormModelerGraphNode { readonly id: string; readonly kind: "form" | "field" | "element" | "action"; readonly label: string; }
@@ -654,6 +720,7 @@ function isRecord(value: unknown): value is Record<string, unknown> { return typ
 
 const modelerValueKinds = new Set<ModelerValueKind>(["string", "integer", "number", "boolean", "date", "dateTime", "time", "object", "array"]);
 const modelerElementKinds = new Set<ModelerElementKind>(["control", "group", "horizontalLayout", "verticalLayout", "wizard", "step", "text", "actionBar"]);
+const formModelerContainerKinds = new Set<ModelerElementKind>(["group", "horizontalLayout", "verticalLayout", "wizard", "step"]);
 const modelerActionKinds = new Set<ModelerActionKind>(["back", "next", "saveDraft", "skip", "cancel", "submit", "custom"]);
 const componentOptionKinds = new Set<FormModelerComponentOptionKind>(["string", "boolean", "integer", "choice"]);
 

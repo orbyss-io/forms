@@ -16,14 +16,21 @@
 .pk-form-modeler__graph-node { border: 1px solid currentColor; border-radius: .75rem; padding: .75rem; }
 .pk-form-modeler__canvas { border: 1px solid currentColor; border-radius: .75rem; padding: .75rem; }
 .pk-form-modeler__canvas-block { display: grid; gap: .5rem; padding: .5rem; border-inline-start: .2rem solid currentColor; }
-.pk-form-modeler__canvas-block > button { display: flex; align-items: center; justify-content: space-between; gap: .5rem; inline-size: 100%; text-align: start; }
-.pk-form-modeler__canvas-children { display: grid; gap: .5rem; padding-inline-start: .75rem; }
+.pk-form-modeler__canvas-block[draggable="true"] { cursor: grab; }
+.pk-form-modeler__canvas-block[data-dragging="true"] { opacity: .55; }
+.pk-form-modeler__canvas-heading { display: flex; align-items: center; gap: .5rem; min-inline-size: 0; }
+.pk-form-modeler__canvas-heading > button:first-child { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: .5rem; min-inline-size: 0; text-align: start; }
+.pk-form-modeler__reorder { display: flex; gap: .25rem; }
+.pk-form-modeler__reorder button { min-inline-size: 44px; padding: .25rem; }
+.pk-form-modeler__canvas-children { display: grid; gap: .5rem; min-block-size: 1.5rem; padding-inline-start: .75rem; }
+.pk-form-modeler__empty-drop { padding: .5rem; border: 1px dashed currentColor; opacity: .75; }
 .pk-form-modeler__preview { padding: .75rem; border: 1px dashed currentColor; border-radius: .75rem; }
 .pk-form-modeler__graph-edges { inline-size: 100%; border-collapse: collapse; }
 .pk-form-modeler__graph-edges th, .pk-form-modeler__graph-edges td { padding: .5rem; text-align: start; border-block-end: 1px solid currentColor; overflow-wrap: anywhere; }
 .pk-form-modeler__field { display: grid; gap: .35rem; margin-block-end: .75rem; }
 .pk-form-modeler__field input { inline-size: 100%; }
 .pk-form-modeler__field select { inline-size: 100%; }
+.pk-form-modeler__move { display: grid; gap: .5rem; min-inline-size: 0; }
 .pk-form-modeler__component { margin-block: 1rem; padding-block: .75rem; border-block: 1px solid currentColor; }
 .pk-form-modeler__error { color: #a11919; }
 .pk-form-modeler__diagnostics { border-inline-start: .25rem solid #a11919; padding-inline-start: .75rem; }

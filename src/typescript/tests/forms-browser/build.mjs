@@ -25,15 +25,16 @@ await build({
     name: "program-kit-precompiled-validator",
     setup(buildApi) {
       buildApi.onResolve({ filter: /^program-kit:validator$/ }, () => ({ path: "validator", namespace: "program-kit" }));
-      buildApi.onLoad({ filter: /.*/, namespace: "program-kit" }, () => ({ contents: validator, loader: "js" }));
+      buildApi.onLoad({ filter: /.*/, namespace: "program-kit" }, () => ({ contents: validator, loader: "js", resolveDir: workspace }));
     }
   }]
 });
 await cp(resolve(import.meta.dirname, "index.html"), resolve(output, "index.html"));
 const fixtureStyles = await readFile(resolve(import.meta.dirname, "styles.css"), "utf8");
+const formStyles = await readFile(resolve(workspace, "packages/forms-react/styles.css"), "utf8");
 const modelerStyles = await readFile(resolve(workspace, "packages/forms-modeler-react/styles.css"), "utf8");
 const localizationStyles = await readFile(resolve(workspace, "packages/localization-management-react/styles.css"), "utf8");
-await writeFile(resolve(output, "styles.css"), `${fixtureStyles}\n${modelerStyles}\n${localizationStyles}\n`);
+await writeFile(resolve(output, "styles.css"), `${fixtureStyles}\n${formStyles}\n${modelerStyles}\n${localizationStyles}\n`);
 const bundle = await readFile(resolve(output, "app.js"), "utf8");
 await writeFile(resolve(output, "build-evidence.json"), JSON.stringify({
   schema: schema.$id,

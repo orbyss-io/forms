@@ -3,7 +3,9 @@ import {
   isVisible,
   optionIs,
   rankWith,
+  schemaMatches,
   uiTypeIs,
+  type ControlProps,
   type JsonFormsRendererRegistryEntry,
   type LayoutProps,
   type RankedTester,
@@ -13,6 +15,7 @@ import {
   JsonFormsDispatch,
   JsonForms,
   useJsonForms,
+  withJsonFormsControlProps,
   withJsonFormsLayoutProps
 } from "@jsonforms/react";
 import {
@@ -55,6 +58,9 @@ import {
 } from "@orbyss/program-kit-forms-wizard";
 
 export const programKitReactFormsAdapterVersion = "1.0.0";
+
+const coreRendererRank = 5;
+const specializedCoreRendererRank = 10;
 
 interface JsonFormsValidationError {
   readonly instancePath: string;
@@ -113,7 +119,7 @@ export function ProgramKitJsonForms({
     [runtime.schema, runtime.validate]
   );
   const rendererEntries = useMemo(
-    () => [programKitWizardRendererEntry, programKitActionBarRendererEntry, ...renderers],
+    () => [programKitWizardRendererEntry, programKitActionBarRendererEntry, ...programKitCoreRendererEntries, ...renderers],
     [renderers]
   );
   return (
@@ -121,7 +127,7 @@ export function ProgramKitJsonForms({
       <JsonForms
         ajv={ajv}
         data={data}
-        i18n={{ translate: (key, fallback) => runtime.translate(key, fallback ?? key) }}
+        i18n={{ translate: (key, fallback) => runtime.translate(key, fallback ?? "") }}
         renderers={rendererEntries}
         schema={runtime.schema}
         uischema={runtime.uiSchema as unknown as UISchemaElement}
@@ -137,6 +143,214 @@ export function ProgramKitJsonForms({
       />
     </ProgramKitFormsRuntimeContext.Provider>
   );
+}
+
+type ChoiceValue = string | number | boolean | null;
+
+interface TrustedControlOptions {
+  readonly multi: boolean;
+  readonly placeholder?: string;
+  readonly rows: number;
+  readonly autocomplete?: string;
+  readonly enumLabels: readonly string[];
+}
+
+function ProgramKitControlFrame({ props, children }: { readonly props: ControlProps; readonly children: ReactNode }): ReactNode {
+  if (!props.visible) return null;
+  const description = typeof props.description === "string" ? props.description : "";
+  const descriptionId = description.length > 0 ? `${props.id}-description` : undefined;
+  const errorId = props.errors.length > 0 ? `${props.id}-error` : undefined;
+  const describedBy = [descriptionId, errorId].filter((value): value is string => value !== undefined).join(" ") || undefined;
+  return <div className="pk-form-control" data-control-path={props.path}>
+    <label className="pk-form-control__label" htmlFor={props.id}>{props.label}{props.required && <span aria-hidden="true"> *</span>}</label>
+    {descriptionId !== undefined && <p className="pk-form-control__description" id={descriptionId}>{description}</p>}
+    <div className="pk-form-control__input" data-described-by={describedBy}>{children}</div>
+    {errorId !== undefined && <p className="pk-form-control__error" id={errorId} role="alert">{props.errors}</p>}
+  </div>;
+}
+
+function ProgramKitTextControlComponent(props: ControlProps): ReactNode {
+  const options = trustedControlOptions(props.uischema);
+  const inputType = inputTypeForFormat(props.schema.format);
+  const describedBy = controlDescriptionIds(props);
+  return <ProgramKitControlFrame props={props}><input
+    aria-describedby={describedBy}
+    aria-invalid={props.errors.length > 0 || undefined}
+    autoComplete={options.autocomplete}
+    disabled={!props.enabled}
+    id={props.id}
+    maxLength={finiteInteger(props.schema.maxLength)}
+    minLength={finiteInteger(props.schema.minLength)}
+    onChange={event => props.handleChange(props.path, event.currentTarget.value)}
+    placeholder={options.placeholder}
+    readOnly={schemaIsReadOnly(props.schema)}
+    required={props.required}
+    type={inputType}
+    value={typeof props.data === "string" ? props.data : ""}
+  /></ProgramKitControlFrame>;
+}
+
+function ProgramKitMultilineControlComponent(props: ControlProps): ReactNode {
+  const options = trustedControlOptions(props.uischema);
+  return <ProgramKitControlFrame props={props}><textarea
+    aria-describedby={controlDescriptionIds(props)}
+    aria-invalid={props.errors.length > 0 || undefined}
+    disabled={!props.enabled}
+    id={props.id}
+    maxLength={finiteInteger(props.schema.maxLength)}
+    minLength={finiteInteger(props.schema.minLength)}
+    onChange={event => props.handleChange(props.path, event.currentTarget.value)}
+    placeholder={options.placeholder}
+    readOnly={schemaIsReadOnly(props.schema)}
+    required={props.required}
+    rows={options.rows}
+    value={typeof props.data === "string" ? props.data : ""}
+  /></ProgramKitControlFrame>;
+}
+
+function ProgramKitNumberControlComponent(props: ControlProps): ReactNode {
+  const integer = props.schema.type === "integer";
+  return <ProgramKitControlFrame props={props}><input
+    aria-describedby={controlDescriptionIds(props)}
+    aria-invalid={props.errors.length > 0 || undefined}
+    disabled={!props.enabled}
+    id={props.id}
+    inputMode="decimal"
+    max={finiteNumber(props.schema.maximum)}
+    min={finiteNumber(props.schema.minimum)}
+    onChange={event => props.handleChange(props.path, event.currentTarget.value === "" ? undefined : Number(event.currentTarget.value))}
+    readOnly={schemaIsReadOnly(props.schema)}
+    required={props.required}
+    step={integer ? 1 : "any"}
+    type="number"
+    value={typeof props.data === "number" && Number.isFinite(props.data) ? props.data : ""}
+  /></ProgramKitControlFrame>;
+}
+
+function ProgramKitBooleanControlComponent(props: ControlProps): ReactNode {
+  if (!props.visible) return null;
+  const errorId = props.errors.length > 0 ? `${props.id}-error` : undefined;
+  const description = typeof props.description === "string" ? props.description : "";
+  const descriptionId = description.length > 0 ? `${props.id}-description` : undefined;
+  const describedBy = [descriptionId, errorId].filter((value): value is string => value !== undefined).join(" ") || undefined;
+  return <div className="pk-form-control pk-form-control--boolean" data-control-path={props.path}>
+    <label className="pk-form-control__boolean"><input
+      aria-describedby={describedBy}
+      aria-invalid={props.errors.length > 0 || undefined}
+      checked={props.data === true}
+      disabled={!props.enabled}
+      id={props.id}
+      onChange={event => props.handleChange(props.path, event.currentTarget.checked)}
+      required={props.required}
+      type="checkbox"
+    /><span>{props.label}</span></label>
+    {descriptionId !== undefined && <p className="pk-form-control__description" id={descriptionId}>{description}</p>}
+    {errorId !== undefined && <p className="pk-form-control__error" id={errorId} role="alert">{props.errors}</p>}
+  </div>;
+}
+
+function ProgramKitChoiceControlComponent(props: ControlProps): ReactNode {
+  const choices = primitiveChoices(props.schema.enum);
+  const labels = trustedControlOptions(props.uischema).enumLabels;
+  const selected = choiceKey(props.data);
+  return <ProgramKitControlFrame props={props}><select
+    aria-describedby={controlDescriptionIds(props)}
+    aria-invalid={props.errors.length > 0 || undefined}
+    disabled={!props.enabled}
+    id={props.id}
+    onChange={event => props.handleChange(props.path, choices.find(choice => choiceKey(choice) === event.currentTarget.value))}
+    required={props.required}
+    value={selected}
+  >
+    <option value="">Select</option>
+    {choices.map((choice, index) => <option key={choiceKey(choice)} value={choiceKey(choice)}>{labels[index] ?? String(choice ?? "None")}</option>)}
+  </select></ProgramKitControlFrame>;
+}
+
+function ProgramKitMultiChoiceControlComponent(props: ControlProps): ReactNode {
+  const itemSchema = isRecord(props.schema.items) ? props.schema.items : {};
+  const choices = primitiveChoices(itemSchema.enum);
+  const labels = trustedControlOptions(props.uischema).enumLabels;
+  const selected = new Set((Array.isArray(props.data) ? props.data : []).map(choiceKey));
+  return <ProgramKitControlFrame props={props}><select
+    aria-describedby={controlDescriptionIds(props)}
+    aria-invalid={props.errors.length > 0 || undefined}
+    disabled={!props.enabled}
+    id={props.id}
+    multiple
+    onChange={event => props.handleChange(props.path, [...event.currentTarget.selectedOptions].map(option => choices.find(choice => choiceKey(choice) === option.value)).filter((value): value is ChoiceValue => value !== undefined))}
+    required={props.required}
+    value={[...selected]}
+  >
+    {choices.map((choice, index) => <option key={choiceKey(choice)} value={choiceKey(choice)}>{labels[index] ?? String(choice ?? "None")}</option>)}
+  </select></ProgramKitControlFrame>;
+}
+
+export const programKitMultilineControlTester: RankedTester = rankWith(specializedCoreRendererRank, and(
+  uiTypeIs("Control"),
+  schemaMatches(schema => schema.type === "string"),
+  optionIs("multi", true)
+));
+export const programKitChoiceControlTester: RankedTester = rankWith(specializedCoreRendererRank, and(uiTypeIs("Control"), schemaMatches(schema => Array.isArray(schema.enum))));
+export const programKitMultiChoiceControlTester: RankedTester = rankWith(specializedCoreRendererRank, and(uiTypeIs("Control"), schemaMatches(schema => schema.type === "array" && isRecord(schema.items) && Array.isArray(schema.items.enum))));
+export const programKitBooleanControlTester: RankedTester = rankWith(coreRendererRank, and(uiTypeIs("Control"), schemaMatches(schema => schema.type === "boolean")));
+export const programKitNumberControlTester: RankedTester = rankWith(coreRendererRank, and(uiTypeIs("Control"), schemaMatches(schema => schema.type === "number" || schema.type === "integer")));
+export const programKitTextControlTester: RankedTester = rankWith(coreRendererRank, and(uiTypeIs("Control"), schemaMatches(schema => schema.type === "string")));
+
+export const ProgramKitTextControl = withJsonFormsControlProps(ProgramKitTextControlComponent);
+export const ProgramKitMultilineControl = withJsonFormsControlProps(ProgramKitMultilineControlComponent);
+export const ProgramKitNumberControl = withJsonFormsControlProps(ProgramKitNumberControlComponent);
+export const ProgramKitBooleanControl = withJsonFormsControlProps(ProgramKitBooleanControlComponent);
+export const ProgramKitChoiceControl = withJsonFormsControlProps(ProgramKitChoiceControlComponent);
+export const ProgramKitMultiChoiceControl = withJsonFormsControlProps(ProgramKitMultiChoiceControlComponent);
+
+export const programKitCoreRendererEntries: readonly JsonFormsRendererRegistryEntry[] = Object.freeze([
+  Object.freeze({ tester: programKitMultilineControlTester, renderer: ProgramKitMultilineControl }),
+  Object.freeze({ tester: programKitMultiChoiceControlTester, renderer: ProgramKitMultiChoiceControl }),
+  Object.freeze({ tester: programKitChoiceControlTester, renderer: ProgramKitChoiceControl }),
+  Object.freeze({ tester: programKitBooleanControlTester, renderer: ProgramKitBooleanControl }),
+  Object.freeze({ tester: programKitNumberControlTester, renderer: ProgramKitNumberControl }),
+  Object.freeze({ tester: programKitTextControlTester, renderer: ProgramKitTextControl })
+]);
+
+const allowedAutocomplete = new Set(["off", "on", "name", "email", "username", "new-password", "current-password", "organization", "street-address", "postal-code", "country", "tel", "url"]);
+
+function trustedControlOptions(uiSchema: UISchemaElement): TrustedControlOptions {
+  const raw = isRecord(uiSchema) && isRecord(uiSchema.options) ? uiSchema.options : {};
+  const placeholder = typeof raw.placeholder === "string" && raw.placeholder.length <= 500 ? raw.placeholder : undefined;
+  const autocomplete = typeof raw.autocomplete === "string" && allowedAutocomplete.has(raw.autocomplete) ? raw.autocomplete : undefined;
+  const rows = typeof raw.rows === "number" && Number.isSafeInteger(raw.rows) ? Math.min(30, Math.max(2, raw.rows)) : 5;
+  const enumLabels = Array.isArray(raw.enumLabels) ? raw.enumLabels.filter((value): value is string => typeof value === "string" && value.length <= 500) : [];
+  return Object.freeze({ multi: raw.multi === true, rows, enumLabels: Object.freeze(enumLabels), ...(placeholder === undefined ? {} : { placeholder }), ...(autocomplete === undefined ? {} : { autocomplete }) });
+}
+
+function controlDescriptionIds(props: ControlProps): string | undefined {
+  const values = [typeof props.description === "string" && props.description.length > 0 ? `${props.id}-description` : undefined, props.errors.length > 0 ? `${props.id}-error` : undefined];
+  return values.filter((value): value is string => value !== undefined).join(" ") || undefined;
+}
+
+function inputTypeForFormat(format: string | undefined): "text" | "email" | "url" | "date" | "time" {
+  return format === "email" ? "email" : format === "uri" || format === "url" ? "url" : format === "date" ? "date" : format === "time" ? "time" : "text";
+}
+
+function primitiveChoices(value: unknown): readonly ChoiceValue[] {
+  return Array.isArray(value) ? value.filter((item): item is ChoiceValue => item === null || ["string", "number", "boolean"].includes(typeof item)) : [];
+}
+
+function choiceKey(value: unknown): string {
+  return value === undefined ? "" : JSON.stringify(value);
+}
+
+function finiteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function finiteInteger(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+}
+
+function schemaIsReadOnly(value: unknown): boolean {
+  return isRecord(value) && value.readOnly === true;
 }
 
 export interface ProgramKitActionReactConfig {

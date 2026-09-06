@@ -14,6 +14,8 @@ import {
   FormModelerConcurrencyError,
   FormModelerSession,
   FormModelerValidationError,
+  getFormModelerElementPlacement,
+  listFormModelerMoveTargets,
   parseFormModelerDocument,
   projectFormModelerGraph,
   serializeFormModelerDocument
@@ -29,6 +31,7 @@ import {
   ProgramKitJsonForms,
   ProgramKitWizardNavigation,
   programKitActionBarTester,
+  programKitCoreRendererEntries,
   programKitWizardTester
 } from "@orbyss/program-kit-forms-react";
 import { rankWith, uiTypeIs } from "@jsonforms/core";
@@ -372,6 +375,45 @@ test("modeler applies atomic multi-view commands with concurrency, replay, and u
   assert.equal(session.snapshot().selectedId, undefined);
   assert.equal(session.redo().document.fields.length, 2);
   assert.equal(Object.isFrozen(session.snapshot().document.layout.elements), true);
+});
+
+test("modeler exposes safe move targets and applies reorder or reparent commands atomically", () => {
+  const document = {
+    ...modelerDocument(),
+    layout: {
+      ...modelerDocument().layout,
+      elements: [
+        ...modelerDocument().layout.elements,
+        { id: "contact-group", kind: "group", elements: [] },
+        { id: "summary", kind: "text", text: { key: "content.summary", defaultText: "Summary" }, elements: [] }
+      ]
+    }
+  };
+  const session = new FormModelerSession(document);
+  assert.deepEqual(getFormModelerElementPlacement(document, "summary"), { elementId: "summary", parentId: "registration-layout", index: 2, depth: 1 });
+  assert.deepEqual(listFormModelerMoveTargets(document, "name-control").map(target => target.parentId), ["registration-layout", "contact-group"]);
+  const reordered = session.apply({
+    commandId: "move-summary-first",
+    expectedSequence: 0,
+    operations: [{ type: "moveElement", elementId: "summary", parentId: "registration-layout", index: 0 }]
+  });
+  assert.deepEqual(reordered.document.layout.elements.map(element => element.id), ["summary", "name-control", "contact-group"]);
+  const nested = session.apply({
+    commandId: "nest-name",
+    expectedSequence: 1,
+    operations: [{ type: "moveElement", elementId: "name-control", parentId: "contact-group", index: 0 }]
+  });
+  assert.deepEqual(nested.document.layout.elements.map(element => element.id), ["summary", "contact-group"]);
+  assert.equal(nested.document.layout.elements[1].elements[0].id, "name-control");
+  assert.throws(() => session.apply({
+    commandId: "cycle",
+    expectedSequence: 2,
+    operations: [{ type: "moveElement", elementId: "contact-group", parentId: "name-control", index: 0 }]
+  }), /itself or one of its descendants/);
+  assert.throws(() => new FormModelerSession({
+    ...document,
+    layout: { ...document.layout, elements: [{ id: "invalid-leaf", kind: "text", text: { key: "invalid", defaultText: "Invalid" }, elements: [{ id: "nested", kind: "text", text: { key: "nested", defaultText: "Nested" }, elements: [] }] }] }
+  }), error => error instanceof FormModelerValidationError && error.diagnostics.some(item => item.code === "PKM044"));
 });
 
 test("modeler rejects dangling mutations transactionally and synchronizes JSON and graph views", () => {
@@ -785,6 +827,40 @@ test("Program Kit wizard rejects malformed and duplicate categories", () => {
       { type: "Category", id: "same", elements: [] }
     ]
   }), /Duplicate wizard step/);
+});
+
+test("React binding supplies semantic core controls without preventing higher-ranked overrides", () => {
+  assert.equal(programKitCoreRendererEntries.length, 6);
+  const renderControl = (property, propertySchema, data, options = undefined) => {
+    const schema = { $schema: "https://json-schema.org/draft/2020-12/schema", type: "object", properties: { [property]: propertySchema } };
+    return renderToStaticMarkup(createElement(ProgramKitJsonForms, {
+      runtime: {
+        schema,
+        uiSchema: { type: "Control", scope: `#/properties/${property}`, label: property, ...(options === undefined ? {} : { options }) },
+        validate: () => [],
+        translate: (_key, fallback) => fallback
+      },
+      data: { [property]: data }
+    }));
+  };
+  const text = renderControl("email", { type: "string", format: "email", minLength: 3 }, "user@example.test", { autocomplete: "email", placeholder: "name@example.test" });
+  assert.match(text, /class="pk-form-control"/);
+  assert.match(text, /type="email"/);
+  assert.match(text, /autoComplete="email"/);
+  const multiline = renderControl("notes", { type: "string", maxLength: 500 }, "Line one", { multi: true, rows: 8 });
+  assert.match(multiline, /<textarea/);
+  assert.match(multiline, /rows="8"/);
+  const number = renderControl("quantity", { type: "integer", minimum: 1, maximum: 20 }, 2);
+  assert.match(number, /type="number"/);
+  assert.match(number, /step="1"/);
+  const boolean = renderControl("accepted", { type: "boolean" }, true);
+  assert.match(boolean, /type="checkbox"/);
+  assert.match(boolean, /checked=""/);
+  const choice = renderControl("plan", { type: "string", enum: ["starter", "professional"] }, "professional", { enumLabels: ["Starter", "Professional"] });
+  assert.match(choice, /<select/);
+  assert.match(choice, /Professional/);
+  const multiple = renderControl("roles", { type: "array", items: { type: "string", enum: ["reader", "writer"] } }, ["writer"]);
+  assert.match(multiple, /multiple=""/);
 });
 
 test("React binding selects the custom variant and renders semantic step navigation", () => {

@@ -20,6 +20,8 @@ def main() -> int:
     parser.add_argument("--install", action="store_true")
     args = parser.parse_args()
     package = json.loads((WORKSPACE / "package.json").read_text(encoding="utf-8"))
+    if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs":
+        raise AssertionError("The frontend unit command must be shell-glob independent on Windows and POSIX.")
     if package["devDependencies"] != {
         "@axe-core/playwright": "4.13.0",
         "@playwright/test": "1.62.1",
@@ -141,6 +143,8 @@ def main() -> int:
         "react-dom": "19.2.8",
     }:
         raise AssertionError("The React binding must compile against the governed React type pin.")
+    if react_manifest.get("files") != ["dist", "styles.css"] or react_manifest.get("exports", {}).get("./styles.css") != "./styles.css":
+        raise AssertionError("The semantic React control baseline must remain an explicit optional CSS export.")
 
     all_dependency_names = {
         dependency

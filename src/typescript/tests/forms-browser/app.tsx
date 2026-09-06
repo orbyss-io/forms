@@ -1,14 +1,10 @@
 import {
-  and,
   rankWith,
-  schemaTypeIs,
   uiTypeIs,
-  type ControlProps,
   type LayoutProps
 } from "@jsonforms/core";
 import {
   JsonFormsDispatch,
-  withJsonFormsControlProps,
   withJsonFormsLayoutProps
 } from "@jsonforms/react";
 import { createRoot } from "react-dom/client";
@@ -54,6 +50,11 @@ const uiSchema = {
       options: { icon: { name: "user", bundle: "lucide" } },
       elements: [
         { type: "Control", id: "name", scope: "#/properties/name", label: "Name", i18n: "fields.name" },
+        { type: "Control", id: "notes", scope: "#/properties/notes", label: "Notes", i18n: "fields.notes", options: { multi: true, rows: 4 } },
+        { type: "Control", id: "quantity", scope: "#/properties/quantity", label: "Quantity", i18n: "fields.quantity" },
+        { type: "Control", id: "updates", scope: "#/properties/updates", label: "Product updates", i18n: "fields.updates" },
+        { type: "Control", id: "role", scope: "#/properties/role", label: "Role", i18n: "fields.role", options: { enumLabels: ["Reader", "Writer"] } },
+        { type: "Control", id: "channels", scope: "#/properties/channels", label: "Channels", i18n: "fields.channels", options: { enumLabels: ["Email", "SMS", "Push"] } },
         { type: "ProgramKit.ActionBar", id: "profile-actions", options: { actions: ["submit", "save", "fail"] } }
       ]
     },
@@ -94,6 +95,11 @@ const messages = {
     "steps.preferences": "Preferences",
     "steps.confirm": "Confirm",
     "fields.name": "Name",
+    "fields.notes": "Notes",
+    "fields.quantity": "Quantity",
+    "fields.updates": "Product updates",
+    "fields.role": "Role",
+    "fields.channels": "Channels",
     "fields.plan": "Plan",
     "confirmation.ready": "Everything is ready.",
     "actions.submit": "Submit now",
@@ -105,6 +111,11 @@ const messages = {
     "steps.preferences": "التفضيلات",
     "steps.confirm": "تأكيد",
     "fields.name": "الاسم",
+    "fields.notes": "ملاحظات",
+    "fields.quantity": "الكمية",
+    "fields.updates": "تحديثات المنتج",
+    "fields.role": "الدور",
+    "fields.channels": "القنوات",
     "fields.plan": "الخطة",
     "confirmation.ready": "كل شيء جاهز.",
     "actions.submit": "إرسال الآن",
@@ -257,25 +268,6 @@ function validate(data: JsonValue): readonly RuntimeValidationIssue[] {
   });
 }
 
-function TextControl({ id, data, enabled, errors, handleChange, label, path, visible }: ControlProps): ReactNode {
-  if (!visible) return null;
-  const errorId = `${id}-error`;
-  return (
-    <div className="fixture-field">
-      <label htmlFor={id}>{label}</label>
-      <input
-        aria-describedby={errors.length === 0 ? undefined : errorId}
-        aria-invalid={errors.length > 0}
-        disabled={!enabled}
-        id={id}
-        onChange={event => handleChange(path, event.currentTarget.value)}
-        value={typeof data === "string" ? data : ""}
-      />
-      {errors.length > 0 && <p className="fixture-error" id={errorId}>{errors}</p>}
-    </div>
-  );
-}
-
 function CategoryLayout({ cells, enabled, path, renderers, schema: dataSchema, uischema, visible }: LayoutProps): ReactNode {
   if (!visible || !("elements" in uischema) || !Array.isArray(uischema.elements)) return null;
   return (
@@ -303,7 +295,6 @@ function TextLabel({ uischema, visible }: LayoutProps): ReactNode {
 
 const renderers = [
   programKitSearchableSelectRendererEntry,
-  { tester: rankWith(20, and(uiTypeIs("Control"), schemaTypeIs("string"))), renderer: withJsonFormsControlProps(TextControl) },
   { tester: rankWith(10, uiTypeIs("Category")), renderer: withJsonFormsLayoutProps(CategoryLayout) },
   { tester: rankWith(10, uiTypeIs("Label")), renderer: withJsonFormsLayoutProps(TextLabel) }
 ];

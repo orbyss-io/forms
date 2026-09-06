@@ -1,7 +1,9 @@
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { mountJsonEditor, type JsonEditorDiagnostic, type JsonEditorHandle } from "@orbyss/program-kit-forms-codemirror";
 import {
   FormModelerSession,
+  getFormModelerElementPlacement,
+  listFormModelerMoveTargets,
   parseFormModelerDocument,
   projectFormModelerGraph,
   serializeFormModelerDocument,
@@ -48,6 +50,11 @@ export interface ProgramKitFormModelerLabels {
   readonly palette: string;
   readonly canvas: string;
   readonly preview: string;
+  readonly moveEarlier: string;
+  readonly moveLater: string;
+  readonly moveTo: string;
+  readonly position: string;
+  readonly move: string;
 }
 
 export interface ProgramKitFormModelerProps {
@@ -71,7 +78,8 @@ const defaults: ProgramKitFormModelerLabels = Object.freeze({
   undo: "Undo", redo: "Redo", commit: "Commit changes", applyJson: "Apply JSON",
   design: "Design", json: "JSON", graph: "Graph", structure: "Form structure",
   inspector: "Properties", editor: "Form JSON", nodes: "Form nodes", relationships: "Relationships",
-  diagnostics: "Modeler diagnostics", palette: "Component palette", canvas: "Layout canvas", preview: "Live preview"
+  diagnostics: "Modeler diagnostics", palette: "Component palette", canvas: "Layout canvas", preview: "Live preview",
+  moveEarlier: "Move earlier", moveLater: "Move later", moveTo: "Parent", position: "Position", move: "Move element"
 });
 
 export function ProgramKitFormModeler({ session, initialView = "design", labels: overrides, actionCatalog, componentCatalog, paletteItems = defaultFormModelerPalette, renderPreview, editorMode = "codemirror", cspNonce, onChange, onCommit }: ProgramKitFormModelerProps): ReactNode {
@@ -132,10 +140,10 @@ export function ProgramKitFormModeler({ session, initialView = "design", labels:
           <FormModelerPalette items={paletteItems} label={labels.palette} onAdd={addPaletteItem} />
           <div className="pk-form-modeler__design">
             <FormModelerTree document={snapshot.document} label={labels.structure} onSelect={select} selectedId={snapshot.selectedId} />
-            <FormModelerCanvas document={snapshot.document} label={labels.canvas} onSelect={select} selectedId={snapshot.selectedId} />
+            <FormModelerCanvas document={snapshot.document} labels={labels} onMove={(elementId, parentId, index) => apply([{ type: "moveElement", elementId, parentId, index }])} onSelect={select} selectedId={snapshot.selectedId} />
             <section aria-label={labels.preview} className="pk-form-modeler__preview"><h2>{labels.preview}</h2>{renderPreview?.(snapshot.document) ?? <p>{snapshot.document.fields.length} fields · {countElements(snapshot.document.layout)} layout blocks</p>}</section>
           </div>
-          <FormModelerInspector actionCatalog={actionCatalog} componentCatalog={componentCatalog} document={snapshot.document} label={labels.inspector} onApply={apply} selectedId={snapshot.selectedId} />
+          <FormModelerInspector actionCatalog={actionCatalog} componentCatalog={componentCatalog} document={snapshot.document} label={labels.inspector} labels={labels} onApply={apply} selectedId={snapshot.selectedId} />
         </div>
       )}
       {view === "json" && (
@@ -155,14 +163,90 @@ export function FormModelerPalette({ items, label, onAdd }: { readonly items: re
   return <aside aria-label={label} className="pk-form-modeler__palette"><h2>{label}</h2>{categories.map(category => <section key={category}><h3>{category}</h3><div>{items.filter(item => item.category === category).map(item => <button key={item.id} onClick={() => onAdd(item)} type="button">{item.label}</button>)}</div></section>)}</aside>;
 }
 
-export function FormModelerCanvas({ document, label, selectedId, onSelect }: { readonly document: FormModelerDocument; readonly label: string; readonly selectedId: string | undefined; readonly onSelect: (id: string) => void }): ReactNode {
-  const fields = new Map(document.fields.map(field => [field.id, field]));
-  return <section aria-label={label} className="pk-form-modeler__canvas"><h2>{label}</h2><CanvasElement element={document.layout} fields={fields} onSelect={onSelect} selectedId={selectedId} /></section>;
+export interface FormModelerCanvasProps {
+  readonly document: FormModelerDocument;
+  readonly labels: Pick<ProgramKitFormModelerLabels, "canvas" | "moveEarlier" | "moveLater">;
+  readonly selectedId: string | undefined;
+  readonly onSelect: (id: string) => void;
+  readonly onMove: (elementId: string, parentId: string, index: number) => void;
 }
 
-function CanvasElement({ element, fields, selectedId, onSelect }: { readonly element: FormModelerElement; readonly fields: ReadonlyMap<string, FormModelerField>; readonly selectedId: string | undefined; readonly onSelect: (id: string) => void }): ReactNode {
+export function FormModelerCanvas({ document, labels, selectedId, onSelect, onMove }: FormModelerCanvasProps): ReactNode {
+  const fields = new Map(document.fields.map(field => [field.id, field]));
+  const [draggingId, setDraggingId] = useState<string>();
+  const move = (elementId: string, parentId: string, index: number): void => {
+    const target = listFormModelerMoveTargets(document, elementId).find(candidate => candidate.parentId === parentId);
+    if (target === undefined || index < 0 || index > target.maximumIndex) return;
+    onMove(elementId, parentId, index);
+  };
+  return <section aria-label={labels.canvas} className="pk-form-modeler__canvas"><h2>{labels.canvas}</h2><CanvasElement draggingId={draggingId} element={document.layout} fields={fields} index={0} labels={labels} onDragEnd={() => setDraggingId(undefined)} onDragStart={setDraggingId} onMove={move} onSelect={onSelect} selectedId={selectedId} siblingCount={1} /></section>;
+}
+
+interface CanvasElementProps {
+  readonly element: FormModelerElement;
+  readonly fields: ReadonlyMap<string, FormModelerField>;
+  readonly selectedId: string | undefined;
+  readonly index: number;
+  readonly siblingCount: number;
+  readonly parentId?: string;
+  readonly draggingId: string | undefined;
+  readonly labels: Pick<ProgramKitFormModelerLabels, "moveEarlier" | "moveLater">;
+  readonly onSelect: (id: string) => void;
+  readonly onMove: (elementId: string, parentId: string, index: number) => void;
+  readonly onDragStart: (elementId: string) => void;
+  readonly onDragEnd: () => void;
+}
+
+function CanvasElement({ element, fields, selectedId, index, siblingCount, parentId, draggingId, labels, onSelect, onMove, onDragStart, onDragEnd }: CanvasElementProps): ReactNode {
   const field = element.fieldId === undefined || element.fieldId === null ? undefined : fields.get(element.fieldId);
-  return <div className="pk-form-modeler__canvas-block" data-kind={element.kind}><button aria-pressed={selectedId === element.id} onClick={() => onSelect(element.id)} type="button"><strong>{field?.label.defaultText ?? element.text?.defaultText ?? element.id}</strong><small>{element.kind}</small></button>{element.elements.length > 0 && <div className="pk-form-modeler__canvas-children">{element.elements.map(child => <CanvasElement element={child} fields={fields} key={child.id} onSelect={onSelect} selectedId={selectedId} />)}</div>}</div>;
+  const title = field?.label.defaultText ?? element.text?.defaultText ?? element.id;
+  const movable = parentId !== undefined;
+  const dropBefore = (event: DragEvent<HTMLDivElement>): void => {
+    if (draggingId === undefined || parentId === undefined || draggingId === element.id) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onMove(draggingId, parentId, index);
+    onDragEnd();
+  };
+  const dropInside = (event: DragEvent<HTMLDivElement>): void => {
+    if (draggingId === undefined || !containerKinds.has(element.kind) || draggingId === element.id) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onMove(draggingId, element.id, element.elements.length);
+    onDragEnd();
+  };
+  return <div
+    className="pk-form-modeler__canvas-block"
+    data-dragging={draggingId === element.id || undefined}
+    data-element-id={element.id}
+    data-kind={element.kind}
+    draggable={movable}
+    onDragEnd={onDragEnd}
+    onDragOver={event => { if (draggingId !== undefined && movable) event.preventDefault(); }}
+    onDragStart={event => {
+      if (!movable) return;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("application/x-program-kit-form-element", element.id);
+      onDragStart(element.id);
+    }}
+    onDrop={dropBefore}
+  >
+    <div className="pk-form-modeler__canvas-heading">
+      <button aria-pressed={selectedId === element.id} onClick={() => onSelect(element.id)} onKeyDown={event => {
+        if (!event.altKey || parentId === undefined) return;
+        if (event.key === "ArrowUp" && index > 0) { event.preventDefault(); onMove(element.id, parentId, index - 1); }
+        if (event.key === "ArrowDown" && index < siblingCount - 1) { event.preventDefault(); onMove(element.id, parentId, index + 1); }
+      }} type="button"><strong>{title}</strong><small>{element.kind}</small></button>
+      {movable && <div aria-label={`Reorder ${title}`} className="pk-form-modeler__reorder" role="group">
+        <button aria-label={`${labels.moveEarlier}: ${title}`} disabled={index === 0} onClick={() => onMove(element.id, parentId, index - 1)} type="button">↑</button>
+        <button aria-label={`${labels.moveLater}: ${title}`} disabled={index >= siblingCount - 1} onClick={() => onMove(element.id, parentId, index + 1)} type="button">↓</button>
+      </div>}
+    </div>
+    {containerKinds.has(element.kind) && <div className="pk-form-modeler__canvas-children" data-drop-parent={element.id} onDragOver={event => { if (draggingId !== undefined && draggingId !== element.id) event.preventDefault(); }} onDrop={dropInside}>
+      {element.elements.map((child, childIndex) => <CanvasElement draggingId={draggingId} element={child} fields={fields} index={childIndex} key={child.id} labels={labels} onDragEnd={onDragEnd} onDragStart={onDragStart} onMove={onMove} onSelect={onSelect} parentId={element.id} selectedId={selectedId} siblingCount={element.elements.length} />)}
+      {element.elements.length === 0 && <span aria-hidden="true" className="pk-form-modeler__empty-drop">Drop components here</span>}
+    </div>}
+  </div>;
 }
 
 export interface FormModelerTreeProps { readonly document: FormModelerDocument; readonly label: string; readonly selectedId: string | undefined; readonly onSelect: (id: string) => void; }
@@ -182,16 +266,39 @@ function TreeButton({ id, label, selectedId, onSelect }: { readonly id: string; 
   return <li><button aria-current={selectedId === id} onClick={() => onSelect(id)} type="button">{label}</button></li>;
 }
 
-interface InspectorProps { readonly document: FormModelerDocument; readonly selectedId: string | undefined; readonly label: string; readonly actionCatalog: FormModelerActionCatalog | undefined; readonly componentCatalog: FormModelerComponentCatalog | undefined; readonly onApply: (operations: readonly FormModelerOperation[]) => void; }
-export function FormModelerInspector({ document, selectedId, label, actionCatalog, componentCatalog, onApply }: InspectorProps): ReactNode {
+interface InspectorProps { readonly document: FormModelerDocument; readonly selectedId: string | undefined; readonly label: string; readonly labels: Pick<ProgramKitFormModelerLabels, "moveTo" | "position" | "move">; readonly actionCatalog: FormModelerActionCatalog | undefined; readonly componentCatalog: FormModelerComponentCatalog | undefined; readonly onApply: (operations: readonly FormModelerOperation[]) => void; }
+export function FormModelerInspector({ document, selectedId, label, labels, actionCatalog, componentCatalog, onApply }: InspectorProps): ReactNode {
   const entity = findEntity(document, selectedId ?? document.id);
   if (entity.kind === "field") return <FieldInspector componentCatalog={componentCatalog} field={entity.value} label={label} onApply={onApply} />;
   if (entity.kind === "action") {
     const contract = actionCatalog?.resolve(entity.value.handlerId);
     return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{entity.value.label.defaultText}</h2><dl><dt>Handler</dt><dd>{entity.value.handlerId}</dd><dt>Execution</dt><dd>{contract?.execution ?? "Unregistered"}</dd><dt>Package</dt><dd>{contract?.providerPackage ?? "Application-owned"}</dd></dl></aside>;
   }
-  if (entity.kind === "element") return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{entity.value.id}</h2><dl><dt>Kind</dt><dd>{entity.value.kind}</dd><dt>Children</dt><dd>{entity.value.elements.length}</dd></dl></aside>;
+  if (entity.kind === "element") return <ElementInspector document={document} element={entity.value} label={label} labels={labels} onApply={onApply} />;
   return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{document.name}</h2><dl><dt>ID</dt><dd>{document.id}</dd><dt>Revision</dt><dd>{document.revision}</dd><dt>Source locale</dt><dd>{document.sourceLocale}</dd></dl></aside>;
+}
+
+function ElementInspector({ document, element, label, labels, onApply }: { readonly document: FormModelerDocument; readonly element: FormModelerElement; readonly label: string; readonly labels: Pick<ProgramKitFormModelerLabels, "moveTo" | "position" | "move">; readonly onApply: (operations: readonly FormModelerOperation[]) => void }): ReactNode {
+  const placement = getFormModelerElementPlacement(document, element.id);
+  const targets = listFormModelerMoveTargets(document, element.id);
+  const [parentId, setParentId] = useState(placement.parentId ?? "");
+  const selectedTarget = targets.find(target => target.parentId === parentId);
+  const [position, setPosition] = useState(placement.index);
+  useEffect(() => {
+    setParentId(placement.parentId ?? "");
+    setPosition(placement.index);
+  }, [element.id, placement.parentId, placement.index]);
+  useEffect(() => {
+    if (selectedTarget !== undefined && position > selectedTarget.maximumIndex) setPosition(selectedTarget.maximumIndex);
+  }, [position, selectedTarget]);
+  return <aside aria-label={label} className="pk-form-modeler__inspector"><h2>{element.id}</h2>
+    <dl><dt>Kind</dt><dd>{element.kind}</dd><dt>Children</dt><dd>{element.elements.length}</dd></dl>
+    {placement.parentId !== undefined && <fieldset className="pk-form-modeler__move"><legend>{labels.move}</legend>
+      <label className="pk-form-modeler__field">{labels.moveTo}<select onChange={event => { const nextParent = event.currentTarget.value; setParentId(nextParent); const target = targets.find(candidate => candidate.parentId === nextParent); setPosition(Math.min(placement.index, target?.maximumIndex ?? 0)); }} value={parentId}>{targets.map(target => <option key={target.parentId} value={target.parentId}>{target.label}</option>)}</select></label>
+      <label className="pk-form-modeler__field">{labels.position}<select onChange={event => setPosition(Number(event.currentTarget.value))} value={position}>{Array.from({ length: (selectedTarget?.maximumIndex ?? 0) + 1 }, (_, index) => <option key={index} value={index}>{index + 1}</option>)}</select></label>
+      <button disabled={selectedTarget === undefined || parentId === placement.parentId && position === placement.index} onClick={() => onApply([{ type: "moveElement", elementId: element.id, parentId, index: position }])} type="button">{labels.move}</button>
+    </fieldset>}
+  </aside>;
 }
 
 function FieldInspector({ field, label, componentCatalog, onApply }: { readonly field: FormModelerField; readonly label: string; readonly componentCatalog: FormModelerComponentCatalog | undefined; readonly onApply: (operations: readonly FormModelerOperation[]) => void }): ReactNode {

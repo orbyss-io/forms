@@ -86,8 +86,8 @@ It currently contains fourteen independently packable packages:
   catalogs that expose installed package ownership and validate typed allowlisted bindings; and
 - `@orbyss/program-kit-forms-modeler-react`: the optional responsive administration binding with a
   synchronized structure tree, property inspector, CodeMirror JSON source, strict-CSP native source
-  fallback, field/layout palette, block canvas, application-owned live preview and relationship
-  graph; and
+  fallback, field/layout palette, pointer drag targets, touch/keyboard reorder and reparent controls,
+  block canvas, application-owned live preview and relationship graph; and
 - `@orbyss/program-kit-forms-lookups`: trusted searchable source contracts and a framework-neutral
   controller for bounded search, cursor paging, declared dependent filters, cancellation, selected
   label rehydration and public-safe provider failures; and
@@ -96,7 +96,10 @@ It currently contains fourteen independently packable packages:
   data-pointer filters; and
 - `@orbyss/program-kit-forms-react`: the exact-pinned React 19/JSON Forms binding and semantic
   custom wizard and action-bar renderers, including conditional-step evaluation, AJV error-to-step
-  mapping, localized action labels and consumer-owned icon rendering; and
+  mapping, localized action labels and consumer-owned icon rendering. It also provides low-rank,
+  design-system-neutral text, multiline, numeric, Boolean, date/time, single-choice and multi-choice
+  controls with an explicitly imported baseline stylesheet; consumer and specialized renderers can
+  override them by rank; and
 - `@orbyss/program-kit-localization-management`: dependency-free structured localization scopes,
   locale/value workflow state, audited optimistic/idempotent commands, undo/redo, ICU diagnostics
   and bounded windowed row projections; and
@@ -148,7 +151,10 @@ inline style, `eval` and dynamic `Function` construction. Playwright 1.62.1 and 
 - the responsive modeler synchronizes inspector changes into its tree and JSON source, rejects an
   invalid replacement document, restores edits through undo, exposes trusted action-package
   ownership, atomically adds a field/control from its palette, renders an application-owned preview,
-  validates typed installed renderer options before commit and projects relationships into the graph;
+  validates typed installed renderer options before commit, reorders/reparents through pointer or
+  touch/keyboard-safe controls, rejects cyclic/leaf targets and projects relationships into the graph;
+- semantic text, multiline, integer, Boolean, single-choice and multi-choice renderers preserve
+  typed values and remain lower-ranked than the installed searchable-lookup renderer;
 - localization rows filter by structured form scope and target locale, missing Arabic values edit
   with RTL direction, audited changes enter undo history, completed rows leave the missing-only
   projection, a typed-argument ICU message can be added through the responsive dialog, and a

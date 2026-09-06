@@ -48,7 +48,11 @@ As of 2026-09-06:
   trusted application callback supplies live preview without executable document data. Installed
   component packages contribute immutable typed authoring contracts; their compatible value kinds,
   version range and allowlisted options appear in the inspector and invalid bindings block commit.
-  Drag/reorder authoring and the broader production custom-control renderer suite remain.
+  Pointer drag/reparenting, Alt+Arrow and explicit touch/keyboard move controls now share the same
+  validated optimistic move command; provider-neutral target discovery excludes cycles and leaf
+  elements. The React adapter now also supplies a low-rank semantic core renderer suite for text,
+  multiline text, number/integer, Boolean, date/time string input, single choice and multi-choice.
+  Specialized and application renderers retain priority. Vue/Angular bindings remain.
 - Slice 6 is complete: locale/fallback validation, structured scopes, ICU-style
   placeholder/plural/select checks, exact/fallback immutable resolution and deterministic bundles.
   The explicit Forms-to-Localization bridge adds missing catalog messages, preserves reviewed
