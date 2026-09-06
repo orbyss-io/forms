@@ -32,9 +32,14 @@ into a consumer npm graph. Consumers install only the adapters they select.
 - `forms-modeler-vue` supplies the same governed form-modeler session, palette, structure, canvas,
   inspector, preview, JSON editor and graph through Vue-native events and rendering. It preserves
   explicit touch/keyboard reordering, optional pointer dragging, strict-CSP editing and theme slots.
+- `forms-modeler-angular` is the Angular 22 standalone binding over the same governed session and
+  catalogs. It provides the palette, structure, canvas, inspector, application-owned `TemplateRef`
+  preview, JSON editor and graph with partial compilation and strict template checking.
 - `forms-schema-modeler` owns the independent bounded JSON Schema 2020-12 authoring model.
   `forms-schema-modeler-react` and `forms-schema-modeler-vue` provide synchronized, themeable
   tree/canvas/editor/graph planes over that same governed session without duplicating schema rules.
+  `forms-schema-modeler-angular` provides the equivalent Angular 22 standalone plane and shares the
+  same injected CodeMirror/Monaco adapter contract and strict-CSP native fallback.
 - `forms-lookups` owns trusted searchable data-source contracts, bounded/cancellable queries,
   paging, dependent filters, selected-label rehydration and public-safe loading state without
   embedding URLs, credentials or executable fetch logic in form schemas.
@@ -56,3 +61,6 @@ into a consumer npm graph. Consumers install only the adapters they select.
 - `localization-management-vue` provides the equivalent Vue management plane over the same audited
   session: scoped filters, bounded paging, inline editing, lifecycle gates, add-message/ICU authoring,
   bounded import preview/review/apply, stable theme slots and application-owned integration callbacks.
+- `localization-management-angular` provides the equivalent Angular 22 standalone management plane
+  over the same audited session and application-owned import ports, with partial compilation and
+  strict template checking.

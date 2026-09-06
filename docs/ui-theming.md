@@ -13,12 +13,16 @@ import "@orbyss/program-kit-ui-theme/default.css";
 import "@orbyss/program-kit-forms-modeler-react/styles.css";
 // Vue consumers import the equivalent Vue package stylesheet instead:
 // import "@orbyss/program-kit-forms-modeler-vue/styles.css";
+// Angular consumers import the equivalent Angular package stylesheet instead:
+// import "@orbyss/program-kit-forms-modeler-angular/styles.css";
 import "@orbyss/program-kit-forms-schema-modeler-react/styles.css";
 // Vue consumers import the equivalent Vue package stylesheet instead:
 // import "@orbyss/program-kit-forms-schema-modeler-vue/styles.css";
+// import "@orbyss/program-kit-forms-schema-modeler-angular/styles.css"; // Angular
 import "@orbyss/program-kit-localization-management-react/styles.css";
 // Vue consumers import the equivalent Vue package stylesheet instead:
 // import "@orbyss/program-kit-localization-management-vue/styles.css";
+// import "@orbyss/program-kit-localization-management-angular/styles.css"; // Angular
 ```
 
 Scope the built-in light, dark or operating-system-responsive theme to an application region:

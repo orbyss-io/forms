@@ -20,9 +20,9 @@ def main() -> int:
     parser.add_argument("--install", action="store_true")
     args = parser.parse_args()
     package = json.loads((WORKSPACE / "package.json").read_text(encoding="utf-8"))
-    if package.get("scripts", {}).get("build") != "tsc -b && npm run build --workspace=@orbyss/program-kit-forms-angular":
+    if package.get("scripts", {}).get("build") != "tsc -b && npm run build --workspace=@orbyss/program-kit-forms-angular && npm run build --workspace=@orbyss/program-kit-forms-modeler-angular && npm run build --workspace=@orbyss/program-kit-forms-schema-modeler-angular && npm run build --workspace=@orbyss/program-kit-localization-management-angular":
         raise AssertionError("The frontend build must include Angular partial compilation after framework-neutral TypeScript builds.")
-    if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs":
+    if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs && node --import @angular/compiler --test tests/angular-management.test.mjs":
         raise AssertionError("The frontend unit command must be shell-glob independent on Windows and POSIX.")
     if package["devDependencies"] != {
         "@axe-core/playwright": "4.13.0",
@@ -45,9 +45,11 @@ def main() -> int:
         "@orbyss/program-kit-forms-actions",
         "@orbyss/program-kit-forms-angular",
         "@orbyss/program-kit-forms-modeler",
+        "@orbyss/program-kit-forms-modeler-angular",
         "@orbyss/program-kit-forms-modeler-react",
         "@orbyss/program-kit-forms-modeler-vue",
         "@orbyss/program-kit-forms-schema-modeler",
+        "@orbyss/program-kit-forms-schema-modeler-angular",
         "@orbyss/program-kit-forms-schema-modeler-react",
         "@orbyss/program-kit-forms-schema-modeler-vue",
         "@orbyss/program-kit-forms-lookups",
@@ -55,6 +57,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-react",
         "@orbyss/program-kit-forms-vue",
         "@orbyss/program-kit-localization-management",
+        "@orbyss/program-kit-localization-management-angular",
         "@orbyss/program-kit-localization-management-react",
         "@orbyss/program-kit-localization-management-vue",
         "@orbyss/program-kit-ui-theme",
@@ -115,6 +118,15 @@ def main() -> int:
     modeler = by_name["@orbyss/program-kit-forms-modeler"]
     if modeler.get("dependencies") or modeler.get("peerDependencies"):
         raise AssertionError("The provider-neutral form modeler must remain dependency-free.")
+    modeler_angular = by_name["@orbyss/program-kit-forms-modeler-angular"]
+    if modeler_angular.get("dependencies") != {
+        "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or modeler_angular.get("peerDependencies") != {"@angular/common": "22.1.5", "@angular/core": "22.1.5"} \
+            or modeler_angular.get("devDependencies") != {"@angular/compiler": "22.1.5", "@angular/compiler-cli": "22.1.5", "typescript": "6.0.3"}:
+        raise AssertionError("The Angular form modeler crossed its governed framework-neutral boundary.")
 
     modeler_react = by_name["@orbyss/program-kit-forms-modeler-react"]
     if modeler_react.get("dependencies") != {
@@ -140,6 +152,15 @@ def main() -> int:
     schema_modeler = by_name["@orbyss/program-kit-forms-schema-modeler"]
     if schema_modeler.get("dependencies") or schema_modeler.get("peerDependencies") or schema_modeler.get("devDependencies"):
         raise AssertionError("The provider-neutral schema modeler must remain dependency-free.")
+    schema_modeler_angular = by_name["@orbyss/program-kit-forms-schema-modeler-angular"]
+    if schema_modeler_angular.get("dependencies") != {
+        "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-schema-modeler": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or schema_modeler_angular.get("peerDependencies") != {"@angular/common": "22.1.5", "@angular/core": "22.1.5"} \
+            or schema_modeler_angular.get("devDependencies") != {"@angular/compiler": "22.1.5", "@angular/compiler-cli": "22.1.5", "typescript": "6.0.3"}:
+        raise AssertionError("The Angular schema modeler crossed its governed framework-neutral boundary.")
     schema_modeler_react = by_name["@orbyss/program-kit-forms-schema-modeler-react"]
     if schema_modeler_react.get("dependencies") != {
         "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
@@ -163,6 +184,13 @@ def main() -> int:
     localization_management = by_name["@orbyss/program-kit-localization-management"]
     if localization_management.get("dependencies") or localization_management.get("peerDependencies"):
         raise AssertionError("Localization management contracts and session state must remain dependency-free.")
+    localization_angular = by_name["@orbyss/program-kit-localization-management-angular"]
+    if localization_angular.get("dependencies") != {
+        "@orbyss/program-kit-localization-management": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or localization_angular.get("peerDependencies") != {"@angular/common": "22.1.5", "@angular/core": "22.1.5"} \
+            or localization_angular.get("devDependencies") != {"@angular/compiler": "22.1.5", "@angular/compiler-cli": "22.1.5", "typescript": "6.0.3"}:
+        raise AssertionError("The Angular localization plane crossed its governed framework-neutral boundary.")
 
     localization_react = by_name["@orbyss/program-kit-localization-management-react"]
     if localization_react.get("dependencies") != {
@@ -193,10 +221,13 @@ def main() -> int:
         raise AssertionError("The default theme must remain scoped and cascade-layered.")
     for stylesheet in (
         WORKSPACE / "packages/forms-modeler-react/styles.css",
+        WORKSPACE / "packages/forms-modeler-angular/styles.css",
         WORKSPACE / "packages/forms-modeler-vue/styles.css",
         WORKSPACE / "packages/forms-schema-modeler-react/styles.css",
+        WORKSPACE / "packages/forms-schema-modeler-angular/styles.css",
         WORKSPACE / "packages/forms-schema-modeler-vue/styles.css",
         WORKSPACE / "packages/localization-management-react/styles.css",
+        WORKSPACE / "packages/localization-management-angular/styles.css",
         WORKSPACE / "packages/localization-management-vue/styles.css",
     ):
         content = stylesheet.read_text(encoding="utf-8")
@@ -205,18 +236,30 @@ def main() -> int:
     if (WORKSPACE / "packages/forms-schema-modeler-react/styles.css").read_text(encoding="utf-8") != \
             (WORKSPACE / "packages/forms-schema-modeler-vue/styles.css").read_text(encoding="utf-8"):
         raise AssertionError("React and Vue schema modelers must expose the same portable visual contract.")
+    if (WORKSPACE / "packages/forms-schema-modeler-react/styles.css").read_text(encoding="utf-8") != \
+            (WORKSPACE / "packages/forms-schema-modeler-angular/styles.css").read_text(encoding="utf-8"):
+        raise AssertionError("React and Angular schema modelers must expose the same portable visual contract.")
     if (WORKSPACE / "packages/forms-modeler-react/styles.css").read_text(encoding="utf-8") != \
             (WORKSPACE / "packages/forms-modeler-vue/styles.css").read_text(encoding="utf-8"):
         raise AssertionError("React and Vue form modelers must expose the same portable visual contract.")
+    if (WORKSPACE / "packages/forms-modeler-react/styles.css").read_text(encoding="utf-8") != \
+            (WORKSPACE / "packages/forms-modeler-angular/styles.css").read_text(encoding="utf-8"):
+        raise AssertionError("React and Angular form modelers must expose the same portable visual contract.")
     if (WORKSPACE / "packages/localization-management-react/styles.css").read_text(encoding="utf-8") != \
             (WORKSPACE / "packages/localization-management-vue/styles.css").read_text(encoding="utf-8"):
         raise AssertionError("React and Vue localization planes must expose the same portable visual contract.")
+    if (WORKSPACE / "packages/localization-management-react/styles.css").read_text(encoding="utf-8") != \
+            (WORKSPACE / "packages/localization-management-angular/styles.css").read_text(encoding="utf-8"):
+        raise AssertionError("React and Angular localization planes must expose the same portable visual contract.")
     for source in (
         WORKSPACE / "packages/forms-modeler-react/src/index.tsx",
+        WORKSPACE / "packages/forms-modeler-angular/src/index.ts",
         WORKSPACE / "packages/forms-modeler-vue/src/index.ts",
         WORKSPACE / "packages/forms-schema-modeler-react/src/index.tsx",
+        WORKSPACE / "packages/forms-schema-modeler-angular/src/index.ts",
         WORKSPACE / "packages/forms-schema-modeler-vue/src/index.ts",
         WORKSPACE / "packages/localization-management-react/src/index.tsx",
+        WORKSPACE / "packages/localization-management-angular/src/index.ts",
         WORKSPACE / "packages/localization-management-vue/src/index.ts",
     ):
         content = source.read_text(encoding="utf-8")
@@ -241,7 +284,7 @@ def main() -> int:
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
     if base_config["compilerOptions"].get("skipLibCheck") is not False:
         raise AssertionError("Library declaration checking must remain enabled for the frontend workspace.")
-    quarantined = {"forms-angular", "forms-react", "forms-lookups-react", "forms-vue"}
+    quarantined = {"forms-angular", "forms-modeler-angular", "forms-schema-modeler-angular", "localization-management-angular", "forms-react", "forms-lookups-react", "forms-vue"}
     for config_path in (WORKSPACE / "packages").glob("*/tsconfig.json"):
         config = json.loads(config_path.read_text(encoding="utf-8"))
         skipped = config.get("compilerOptions", {}).get("skipLibCheck", False)
@@ -359,6 +402,15 @@ def main() -> int:
     angular_output = (WORKSPACE / "packages/forms-angular/dist/index.js").read_text(encoding="utf-8")
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
+    schema_angular_output = (WORKSPACE / "packages/forms-schema-modeler-angular/dist/index.js").read_text(encoding="utf-8")
+    if "ɵɵngDeclareComponent" not in schema_angular_output or 'version: "22.1.5"' not in schema_angular_output:
+        raise AssertionError("The Angular schema modeler was not partial-compiled by the exact Angular compiler.")
+    modeler_angular_output = (WORKSPACE / "packages/forms-modeler-angular/dist/index.js").read_text(encoding="utf-8")
+    if "ɵɵngDeclareComponent" not in modeler_angular_output or 'version: "22.1.5"' not in modeler_angular_output:
+        raise AssertionError("The Angular form modeler was not partial-compiled by the exact Angular compiler.")
+    localization_angular_output = (WORKSPACE / "packages/localization-management-angular/dist/index.js").read_text(encoding="utf-8")
+    if "ɵɵngDeclareComponent" not in localization_angular_output or 'version: "22.1.5"' not in localization_angular_output:
+        raise AssertionError("The Angular localization plane was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
     print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, React/Vue form/schema/localization management UI, searchable lookups, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
     return 0

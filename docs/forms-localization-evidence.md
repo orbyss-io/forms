@@ -64,7 +64,7 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains twenty-four independently packable packages:
+It currently contains twenty-seven independently packable packages:
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -100,6 +100,10 @@ It currently contains twenty-four independently packable packages:
   optimistic modeler session, component/action catalogs and editor contract, with palette, tree,
   canvas, inspector, application-owned preview, JSON and graph views plus pointer and explicit
   touch/keyboard movement; and
+- `@orbyss/program-kit-forms-modeler-angular`: the optional Angular 22 standalone administration
+  component over that same session and catalogs, with palette, tree, canvas, inspector,
+  application-owned `TemplateRef` preview, JSON and graph views, explicit movement controls and the
+  injected CodeMirror/Monaco editor contract; and
 - `@orbyss/program-kit-forms-schema-modeler`: the dependency-free safe JSON Schema 2020-12
   authoring subset with bounded validation, strict import/compilation, atomic optimistic and
   idempotent edits, undo/redo, tree ordering and graph projection; and
@@ -109,6 +113,9 @@ It currently contains twenty-four independently packable packages:
 - `@orbyss/program-kit-forms-schema-modeler-vue`: the equivalent optional Vue management plane,
   rendering the same governed session with stable theme slots, consumer classes, unstyled mode,
   strict-CSP source editing and the injected CodeMirror/Monaco adapter seam; and
+- `@orbyss/program-kit-forms-schema-modeler-angular`: the equivalent Angular 22 standalone
+  management component, partial-compiled with strict templates over the shared bounded schema
+  session, editor seam and portable theme slots; and
 - `@orbyss/program-kit-forms-lookups`: trusted searchable source contracts and a framework-neutral
   controller for bounded search, cursor paging, declared dependent filters, cancellation, selected
   label rehydration and public-safe provider failures; and
@@ -140,7 +147,10 @@ It currently contains twenty-four independently packable packages:
   integration mode; and
 - `@orbyss/program-kit-localization-management-vue`: the equivalent Vue management plane over the
   same audited session, including scoped filters, bounded paging, inline values/states, lifecycle
-  gates, ICU message creation, bounded file submission and reviewed import application.
+  gates, ICU message creation, bounded file submission and reviewed import application; and
+- `@orbyss/program-kit-localization-management-angular`: the equivalent Angular 22 standalone
+  management component with those audited filters, edits, lifecycle gates, ICU authoring and
+  hash-bound import-preview operations over application-owned ports.
 
 JSON Forms Core 3.8.0 is an exact peer dependency of the runtime boundary. The framework-neutral
 package intentionally exposes JSON values rather than upstream framework types; React, Vue and
@@ -298,11 +308,13 @@ Verified commands and results:
   standalone-CSP checks, artifact/renderer/action/translation security tests, CodeMirror default
   checks, wizard/action navigation and state, modeler transactions/React administration/graph
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
-  behavior, rendered React/Vue binding tests, and twenty-four workspace package
+  behavior, rendered React/Vue binding tests, Angular shared-session/component tests, strict Angular
+  partial compilation, and twenty-seven workspace package
   dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: twenty-four real npm archives contained their
+- `python tests/validate_forms_frontend_packages.py`: twenty-seven real npm archives contained their
   declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
-  the archives with exact JSON Forms/React/Vue/Angular peers and imported every public package successfully.
+  the archives with exact JSON Forms/React/Vue/Angular peers, bundled all four Angular public
+  components in a clean consumer, and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and
   WebKit desktop/tablet profiles passed locally, including governed action execution, searchable
   lookup paging/selection/localized rehydration, React and Vue form-modeler synchronization,
