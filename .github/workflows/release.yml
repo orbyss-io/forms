@@ -57,6 +57,9 @@ jobs:
       - name: Validate Forms frontend runtime, AJV parity, and CodeMirror default
         run: python tests/validate_forms_frontend.py --install
 
+      - name: Validate clean Forms frontend package installation
+        run: python tests/validate_forms_frontend_packages.py
+
       - name: Validate UI accessibility, keyboard and analytics in Chromium
         run: python tests/validate_ui_browser.py --install --install-browser
 

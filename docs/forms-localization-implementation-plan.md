@@ -97,11 +97,13 @@ As of 2026-09-06:
   transport composes independently selected Forms and Localization contributors without Host
   behavior. Complete bounded in-memory adapters now drive the public-contract, management HTTP,
   runtime, and shared MCP probes.
-- Slice 8 remains pending except for the already-established UI experience harness and
-  package-isolation checks. Slices 4 and 5 remain incomplete only where described above. No web
-  behavior has been added to `ProgramKit.Host`. Production EF Core, SQLite, migration, and
-  object-storage choices are deliberately deferred to consumers rather than becoming Program Kit
-  defaults.
+- Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
+  shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
+  consumer that installs and imports all fourteen packages with their exact framework peers. The
+  tagged GitHub Packages publication step, Vue/Angular bindings, physical-device/manual assistive
+  evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
+  to `ProgramKit.Host`. Production EF Core, SQLite, migration, and object-storage choices are
+  deliberately deferred to consumers rather than becoming Program Kit defaults.
 
 ## Fixed decisions
 

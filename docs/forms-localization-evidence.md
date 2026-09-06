@@ -263,6 +263,9 @@ Verified commands and results:
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
   behavior, rendered React binding tests, and fourteen workspace package
   dry-run packs passed.
+- `python tests/validate_forms_frontend_packages.py`: fourteen real npm archives contained their
+  declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
+  the archives with exact JSON Forms/React peers and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and
   WebKit desktop/tablet profiles passed locally, including governed action execution, searchable
   lookup paging/selection/localized rehydration, strict-CSP modeler and localization management,

@@ -35,6 +35,8 @@ if ($LASTEXITCODE -ne 0) { throw 'UI experience/discovery contract validation fa
 
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend.py') --install
 if ($LASTEXITCODE -ne 0) { throw 'Forms frontend runtime, AJV parity, or CodeMirror validation failed.' }
+& $python (Join-Path $projectRoot 'tests\validate_forms_frontend_packages.py')
+if ($LASTEXITCODE -ne 0) { throw 'Forms frontend clean package installation validation failed.' }
 
 & $python (Join-Path $projectRoot 'tests\validate_ui_browser.py') --install --install-browser
 if ($LASTEXITCODE -ne 0) { throw 'UI browser and analytics acceptance failed.' }
