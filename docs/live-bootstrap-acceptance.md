@@ -34,6 +34,11 @@ same bootstrap workflow runs. This keeps the acceptance target unambiguous while
 7. bootstrap-context handoffs;
 8. final readiness and deterministic governance validation.
 
+On Windows, the harness still registers the isolated loopback catalogs but installs the extracted
+candidate components locally before recording the real bundle in offline mode. This avoids the
+installed Python/OpenSSL runtime's local-download failure without contacting a public catalog or
+weakening bundle provenance. Other platforms exercise the loopback download path directly.
+
 The stronger intake mode additionally proves that the installed skill converts a raw description
 into the canonical project intent, architecture map, Structurizr projection, and confirmed intake;
 that deterministic validation accepts those generated artifacts; and that the skill returns the

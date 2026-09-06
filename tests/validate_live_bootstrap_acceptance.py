@@ -545,6 +545,8 @@ def main() -> int:
         "server.shutdown()",
         "$speckit-program-kit-governance-bootstrap",
         "specify_bridge_command",
+        "install_local_candidate_bundle",
+        '"--offline"',
         "validate_intake_skill_result",
     )
     print("Live bootstrap acceptance request, CI, fixture, and evidence contracts passed.")

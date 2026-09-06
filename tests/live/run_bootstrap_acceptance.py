@@ -135,6 +135,36 @@ def specify_bridge_command(root: Path, *arguments: str) -> list[str]:
     ]
 
 
+def install_local_candidate_bundle(
+    root: Path,
+    project: Path,
+    packages: Path,
+    integration: str,
+    log: IO[str],
+) -> None:
+    commands = (
+        ("workflow", "add", str(packages / "workflow"), "--dev"),
+        ("extension", "add", str(packages / "governance"), "--dev", "--force"),
+        ("extension", "add", str(packages / "dotnet"), "--dev", "--force"),
+        ("preset", "add", "--dev", str(packages / "preset")),
+        (
+            "bundle",
+            "install",
+            str(packages / "bundle/bundle.yml"),
+            "--offline",
+            "--integration",
+            integration,
+        ),
+    )
+    log.write(
+        "Windows local-catalog downloads are unavailable in this installed Python/OpenSSL runtime; "
+        "installing the extracted candidate components before recording the real offline bundle.\n"
+    )
+    log.flush()
+    for arguments in commands:
+        run_logged(specify_bridge_command(root, *arguments), project, log)
+
+
 def safe_extract(archive_path: Path, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=False)
     destination_root = destination.resolve()
@@ -847,23 +877,26 @@ def install_candidate(
             # Spec Kit 1.0.1 requires the workflow to be preinstalled before
             # bundle installation. The remaining components are installed and
             # provenance-recorded by the real bundle machinery.
-            run_logged(
-                specify_bridge_command(root, "workflow", "add", "program-kit-bootstrap"),
-                project,
-                log,
-            )
-            run_logged_with_catalog_retry(
-                specify_bridge_command(
-                    root,
-                    "bundle",
-                    "install",
-                    str(archives["bundle"]),
-                    "--integration",
-                    integration,
-                ),
-                project,
-                log,
-            )
+            if os.name == "nt":
+                install_local_candidate_bundle(root, project, packages, integration, log)
+            else:
+                run_logged(
+                    specify_bridge_command(root, "workflow", "add", "program-kit-bootstrap"),
+                    project,
+                    log,
+                )
+                run_logged_with_catalog_retry(
+                    specify_bridge_command(
+                        root,
+                        "bundle",
+                        "install",
+                        str(archives["bundle"]),
+                        "--integration",
+                        integration,
+                    ),
+                    project,
+                    log,
+                )
         finally:
             server.shutdown()
             server.server_close()
