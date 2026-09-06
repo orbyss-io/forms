@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
-import { mountJsonEditor, type JsonEditorDiagnostic, type JsonEditorHandle } from "@orbyss/program-kit-forms-codemirror";
+import { codeMirrorJsonEditorAdapter } from "@orbyss/program-kit-forms-codemirror";
+import type { JsonEditorAdapter, JsonEditorDiagnostic, JsonEditorHandle } from "@orbyss/program-kit-forms-editor-contracts";
 import {
   FormModelerSession,
   getFormModelerElementPlacement,
@@ -82,6 +83,8 @@ export interface ProgramKitFormModelerProps {
   readonly renderPreview?: (document: FormModelerDocument) => ReactNode;
   /** CodeMirror is the default. Use strictCsp when style attributes are prohibited by policy. */
   readonly editorMode?: FormModelerEditorMode;
+  /** Trusted application-installed editor. Omit for CodeMirror; Monaco is supplied by its optional package. */
+  readonly editorAdapter?: JsonEditorAdapter;
   /** Nonce for CodeMirror's generated stylesheet; it does not authorize runtime style attributes. */
   readonly cspNonce?: string;
   readonly onChange?: (snapshot: FormModelerSnapshot) => void;
@@ -119,7 +122,7 @@ const defaults: ProgramKitFormModelerLabels = Object.freeze({
   moveEarlier: "Move earlier", moveLater: "Move later", moveTo: "Parent", position: "Position", move: "Move element"
 });
 
-export function ProgramKitFormModeler({ session, initialView = "design", labels: overrides, actionCatalog, componentCatalog, paletteItems = defaultFormModelerPalette, classNames = {}, className, unstyled = false, renderPreview, editorMode = "codemirror", cspNonce, onChange, onCommit }: ProgramKitFormModelerProps): ReactNode {
+export function ProgramKitFormModeler({ session, initialView = "design", labels: overrides, actionCatalog, componentCatalog, paletteItems = defaultFormModelerPalette, classNames = {}, className, unstyled = false, renderPreview, editorMode = "codemirror", editorAdapter = codeMirrorJsonEditorAdapter, cspNonce, onChange, onCommit }: ProgramKitFormModelerProps): ReactNode {
   const instanceId = useId();
   const labels = { ...defaults, ...overrides };
   const [view, setView] = useState<FormModelerView>(initialView);
@@ -187,7 +190,7 @@ export function ProgramKitFormModeler({ session, initialView = "design", labels:
       )}
       {view === "json" && (
         <div aria-labelledby={`${instanceId}-json-tab`} {...modelerSlot(appearance, "panel", "pk-form-modeler__panel")} id={`${instanceId}-json-panel`} role="tabpanel">
-          <FormModelerJsonEditor accessibleLabel={labels.editor} {...(cspNonce === undefined ? {} : { cspNonce })} mode={editorMode} onChange={setSource} source={source} />
+          <FormModelerJsonEditor accessibleLabel={labels.editor} adapter={editorAdapter} {...(cspNonce === undefined ? {} : { cspNonce })} mode={editorMode} onChange={setSource} source={source} />
           <button onClick={applySource} type="button">{labels.applyJson}</button>
           {sourceError.length > 0 && <pre className="pk-form-modeler__error" role="alert">{sourceError}</pre>}
         </div>
@@ -367,16 +370,16 @@ function FieldInspector({ field, label, componentCatalog, onApply }: { readonly 
   </aside>;
 }
 
-export function FormModelerJsonEditor({ source, accessibleLabel, cspNonce, mode, onChange }: { readonly source: string; readonly accessibleLabel: string; readonly cspNonce?: string; readonly mode: FormModelerEditorMode; readonly onChange: (source: string) => void }): ReactNode {
+export function FormModelerJsonEditor({ source, accessibleLabel, adapter = codeMirrorJsonEditorAdapter, cspNonce, mode, onChange }: { readonly source: string; readonly accessibleLabel: string; readonly adapter?: JsonEditorAdapter; readonly cspNonce?: string; readonly mode: FormModelerEditorMode; readonly onChange: (source: string) => void }): ReactNode {
   const appearance = useFormModelerAppearance();
   const parent = useRef<HTMLDivElement>(null);
   const handle = useRef<JsonEditorHandle | null>(null);
   useEffect(() => {
     if (mode === "strictCsp") return;
     if (parent.current === null) return;
-    handle.current = mountJsonEditor({ parent: parent.current, document: source, accessibleLabel, onChange, diagnostics: sourceDiagnostics, ...(cspNonce === undefined ? {} : { cspNonce }) });
+    handle.current = adapter.mount({ parent: parent.current, document: source, accessibleLabel, onChange, diagnostics: sourceDiagnostics, ...(cspNonce === undefined ? {} : { cspNonce }) });
     return () => { handle.current?.destroy(); handle.current = null; };
-  }, [accessibleLabel, cspNonce, mode, onChange]);
+  }, [accessibleLabel, adapter, cspNonce, mode, onChange]);
   useEffect(() => handle.current?.setDocument(source), [source]);
   if (mode === "strictCsp") {
     return <textarea aria-label={accessibleLabel} {...modelerSlot(appearance, "editor", "pk-form-modeler__editor pk-form-modeler__editor--strict-csp")} onChange={event => onChange(event.currentTarget.value)} spellCheck={false} value={source} />;

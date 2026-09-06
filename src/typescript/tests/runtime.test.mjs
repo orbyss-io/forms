@@ -3,8 +3,9 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss/program-kit-forms-ajv-build";
-import { mountJsonEditor } from "@orbyss/program-kit-forms-codemirror";
+import { codeMirrorJsonEditorAdapter, mountJsonEditor } from "@orbyss/program-kit-forms-codemirror";
 import { defaultRuntimeLimits } from "@orbyss/program-kit-forms-contracts";
+import { normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss/program-kit-forms-editor-contracts";
 import {
   createJsonFormsTranslator,
   createPrecompiledJsonFormsAjvFacade,
@@ -858,9 +859,18 @@ test("runtime refuses to render a release whose trusted action package is not in
   ), /Required action handler 'registration.submit' is not registered/);
 });
 
-test("default runtime bounds and CodeMirror adapter stay independently consumable", () => {
+test("default runtime bounds and JSON editor adapters stay independently consumable", () => {
   assert.equal(defaultRuntimeLimits.maximumArtifactBytes, 1_048_576);
   assert.equal(typeof mountJsonEditor, "function");
+  assert.equal(codeMirrorJsonEditorAdapter.id, "program-kit.codemirror-json");
+  assert.equal(codeMirrorJsonEditorAdapter.requiresWorkers, false);
+  assert.throws(() => requireJsonEditorOptions({ parent: {}, document: "{}", accessibleLabel: " " }), /accessible label/);
+  assert.deepEqual(normalizeJsonEditorDiagnostics([
+    { from: -3, to: 99, severity: "error", message: "Invalid document" }
+  ], 4), [{ from: 0, to: 4, severity: "error", message: "Invalid document" }]);
+  assert.throws(() => normalizeJsonEditorDiagnostics([
+    { from: 0, to: 0, severity: "fatal", message: "Invalid severity" }
+  ], 0), /unsupported severity/);
 });
 
 test("Program Kit wizard parses translated labels, icons, and portable presentation policy", () => {

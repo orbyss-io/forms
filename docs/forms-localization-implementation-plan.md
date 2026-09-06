@@ -23,7 +23,8 @@ As of 2026-09-06:
   exchange and bundled-helper browser acceptance remain part of the release-proof slice.
 - Slice 4 has its framework-neutral foundation and first framework binding: JSON-safe runtime
   contracts, release-integrity and schema-bound checks, a renderer/action registry, AJV build-time
-  standalone compilation, the CodeMirror 6 default editor adapter, and an exact-pinned React/JSON
+  standalone compilation, a dependency-free editor contract, the CodeMirror 6 default editor
+  adapter, a separately installed exact-pinned Monaco adapter, and an exact-pinned React/JSON
   Forms adapter using a precompiled-validator facade rather than browser code generation. JSON Forms
   remains a peer boundary rather than a public contract. The React journey now has Chromium/WebKit
   desktop, phone and tablet acceptance; Firefox remains an unconditional Linux CI gate because the
@@ -99,7 +100,7 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
   shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all seventeen packages with their exact framework peers. The
+  consumer that installs and imports all nineteen packages with their exact framework peers. The
   first Vue runtime binding shares the CSP-safe precompiled validation seam. The tagged GitHub
   Packages publication step, deeper Vue/Angular management parity, physical-device/manual assistive
   evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
@@ -114,8 +115,8 @@ As of 2026-09-06:
   spacing, typography, density, focus, shape, shadow and motion; stable `data-pk-slot` attributes
   and typed class maps allow targeted composition; optional component styles live in a low-priority
   cascade layer; and an unstyled mode preserves accessible markup without Program Kit classes.
-- CodeMirror 6 is the unconditional rich JSON editor default. Monaco is a separately installed,
-  lazy-loaded desktop enhancement and must never become a transitive dependency of the default
+- CodeMirror 6 is the unconditional rich JSON editor default. Monaco is a separately installed
+  desktop enhancement behind the shared editor contract and must never become a transitive dependency of the default
   authoring experience. Because CodeMirror uses dynamic layout style attributes, deployments that
   prohibit all style attributes use the built-in native source editor; CSP is not weakened for an
   editor dependency.

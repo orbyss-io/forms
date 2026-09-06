@@ -10,8 +10,10 @@ into a consumer npm graph. Consumers install only the adapters they select.
   prebuilt validator and do not require unsafe dynamic code evaluation. Generated modules that
   reference AJV runtime helpers must be bundled before browser delivery; raw generated source is not
   itself the deployment artifact.
-- `forms-codemirror` is the unconditional default JSON editor adapter. Monaco is intentionally not a
-  dependency of this workspace slice. CodeMirror needs runtime layout style attributes; the React
+- `forms-editor-contracts` keeps modelers independent from a specific editor. `forms-codemirror` is
+  the unconditional default JSON editor adapter, while `forms-monaco` is an exact-pinned optional
+  package and Monaco remains outside every default consumer graph. Both rich editors need runtime
+  layout style attributes; the React
   modeler exposes a native strict-CSP editing mode for deployments whose policy prohibits them.
 - `forms-wizard` parses the compiled Program Kit `Categorization` variant and owns shared navigation,
   validation, conditional-step, progress and status behavior for every framework renderer.

@@ -368,6 +368,7 @@ function App(): ReactNode {
       />
       <p aria-live="polite" className="fixture-action-result">{actionMessage}</p>
       <p aria-live="polite" className="fixture-finished">{finished ? "Journey completed" : ""}</p>
+      <output aria-hidden="true" className="fixture-form-data" hidden>{JSON.stringify(data)}</output>
       <section aria-labelledby="modeler-heading" className="fixture-modeler">
         <h2 id="modeler-heading">Form modeler acceptance</h2>
         <p aria-live="polite" className="fixture-modeler-sequence">Modeler sequence: {modelerSequence}</p>

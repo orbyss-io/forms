@@ -1,12 +1,14 @@
 {
   "files": [],
   "references": [
+    { "path": "packages/forms-editor-contracts" },
     { "path": "packages/forms-contracts" },
     { "path": "packages/ui-theme" },
     { "path": "packages/forms-renderer-registry" },
     { "path": "packages/forms-ajv-build" },
     { "path": "packages/forms-jsonforms-runtime" },
     { "path": "packages/forms-codemirror" },
+    { "path": "packages/forms-monaco" },
     { "path": "packages/forms-wizard" },
     { "path": "packages/forms-actions" },
     { "path": "packages/forms-modeler" },

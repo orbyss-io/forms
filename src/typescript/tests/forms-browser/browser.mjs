@@ -90,14 +90,27 @@ async function verify(engine, browserType, profile) {
     try {
       await page.getByRole("textbox", { name: /^Name/ }).waitFor({ timeout: 5000 });
       await page.getByRole("textbox", { name: /^Name/ }).fill("Ada");
+      await waitForFormData(page, '"name":"Ada"');
     } catch (error) {
       throw new Error(`${label}: core control labels were ${JSON.stringify(await page.locator("label").allTextContents())}: ${error.message}`);
     }
-    await page.getByRole("textbox", { name: "Notes" }).fill("Needs a governed renderer suite.");
-    await page.getByRole("spinbutton", { name: "Quantity" }).fill("3");
+    await page.getByRole("textbox", { name: "Notes" }).click();
+    await page.getByRole("textbox", { name: "Notes" }).pressSequentially("Needs a governed renderer suite.");
+    await waitForFormData(page, '"notes":"Needs a governed renderer suite."');
+    await page.getByRole("spinbutton", { name: "Quantity" }).click();
+    await page.getByRole("spinbutton", { name: "Quantity" }).pressSequentially("3");
+    await waitForFormData(page, '"quantity":3');
     await page.getByRole("checkbox", { name: "Product updates" }).check();
+    await waitForFormData(page, '"updates":true');
+    await page.getByRole("combobox", { name: "Role" }).click();
     await page.getByRole("combobox", { name: "Role" }).selectOption({ label: "Writer" });
-    await page.getByRole("listbox", { name: "Channels" }).selectOption([{ label: "Email" }, { label: "Push" }]);
+    await waitForFormData(page, '"role":"writer"');
+    await page.getByRole("listbox", { name: "Channels" }).evaluate(select => {
+      for (const option of select.options) option.selected = option.textContent === "Email" || option.textContent === "Push";
+      select.dispatchEvent(new Event("input", { bubbles: true }));
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await waitForFormData(page, '"channels":["email","push"]');
     assert.deepEqual(await page.getByRole("listbox", { name: "Channels" }).evaluate(element => [...element.selectedOptions].map(option => option.textContent)), ["Email", "Push"], `${label}: semantic core controls preserve typed multi-choice data`);
     await page.locator(".pk-form-wizard__step").nth(2).waitFor();
     await page.getByRole("button", { name: /^Next$/ }).click();
@@ -252,3 +265,15 @@ try {
   }, null, 2));
 }
 console.log(`Forms browser acceptance passed: ${results.length} engine/device profiles.`);
+
+async function waitForFormData(page, fragment) {
+  try {
+    await page.waitForFunction(
+      expected => document.querySelector(".fixture-form-data")?.textContent?.includes(expected) === true,
+      fragment,
+      { timeout: 5000 }
+    );
+  } catch (error) {
+    throw new Error(`Form data did not contain ${fragment}; current data is ${await page.locator(".fixture-form-data").textContent()}: ${error.message}`);
+  }
+}

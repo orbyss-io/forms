@@ -52,8 +52,8 @@ def main() -> int:
         for path in sorted((WORKSPACE / "packages").glob("*/package.json"))
     ]
     names = sorted(manifest["name"] for manifest in manifests)
-    if len(names) != 17 or len(set(names)) != len(names):
-        raise AssertionError("The clean frontend consumer requires exactly seventeen unique packages.")
+    if len(names) != 19 or len(set(names)) != len(names):
+        raise AssertionError("The clean frontend consumer requires exactly nineteen unique packages.")
 
     artifacts = ROOT / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
@@ -118,10 +118,14 @@ def main() -> int:
             "react-dom@19.2.8",
             "rxjs@7.8.2",
             "vue@3.5.42",
+            "monaco-editor@0.56.0",
             *(str(archive) for archive in archives),
         ]
         run(npm + install_arguments, consumer, environment)
-        node_names = [name for name in names if name != "@orbyss/program-kit-forms-angular"]
+        node_names = [name for name in names if name not in {
+            "@orbyss/program-kit-forms-angular",
+            "@orbyss/program-kit-forms-monaco",
+        }]
         module_probe = (
             "const names=" + json.dumps(node_names) + ";"
             "for(const name of names){const value=await import(name);"
@@ -153,6 +157,25 @@ def main() -> int:
         ], consumer, environment)
         if not (consumer / "angular-bundle.js").is_file():
             raise AssertionError("The clean frontend consumer did not resolve the Angular package for browser bundling.")
+
+        monaco_entry = consumer / "monaco-entry.js"
+        monaco_entry.write_text(
+            'import { monacoJsonEditorAdapter } from "@orbyss/program-kit-forms-monaco";\n'
+            'console.log(monacoJsonEditorAdapter);\n',
+            encoding="utf-8",
+        )
+        run([
+            str(esbuild),
+            str(monaco_entry),
+            "--bundle",
+            "--platform=browser",
+            "--format=esm",
+            "--outfile=monaco-bundle.js",
+            "--external:monaco-editor",
+            "--log-level=error",
+        ], consumer, environment)
+        if not (consumer / "monaco-bundle.js").is_file():
+            raise AssertionError("The clean frontend consumer did not resolve the optional Monaco adapter for browser bundling.")
 
     print(f"Forms frontend clean pack/install/import isolation passed ({trust} toolchain).")
     return 0

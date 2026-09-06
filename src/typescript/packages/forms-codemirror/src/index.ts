@@ -1,36 +1,27 @@
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter, type Diagnostic } from "@codemirror/lint";
 import { basicSetup, EditorView } from "codemirror";
+import {
+  normalizeJsonEditorDiagnostics,
+  requireJsonEditorOptions,
+  type JsonEditorAdapter,
+  type JsonEditorDiagnostic,
+  type JsonEditorHandle,
+  type JsonEditorOptions
+} from "@orbyss/program-kit-forms-editor-contracts";
 
-export interface JsonEditorDiagnostic {
-  readonly from: number;
-  readonly to: number;
-  readonly severity: "info" | "warning" | "error";
-  readonly message: string;
-}
+export type { JsonEditorAdapter, JsonEditorDiagnostic, JsonEditorHandle, JsonEditorOptions } from "@orbyss/program-kit-forms-editor-contracts";
 
-export interface JsonEditorOptions {
-  readonly parent: HTMLElement;
-  readonly document: string;
-  readonly accessibleLabel: string;
-  /** Nonce applied to CodeMirror's generated style element. Runtime layout still uses style attributes. */
-  readonly cspNonce?: string;
-  readonly readOnly?: boolean;
-  readonly onChange?: (document: string) => void;
-  readonly diagnostics?: (document: string) => readonly JsonEditorDiagnostic[];
-}
-
-export interface JsonEditorHandle {
-  readonly getDocument: () => string;
-  readonly setDocument: (document: string) => void;
-  readonly focus: () => void;
-  readonly destroy: () => void;
-}
+export const codeMirrorJsonEditorAdapter: JsonEditorAdapter = Object.freeze({
+  id: "program-kit.codemirror-json",
+  displayName: "CodeMirror",
+  requiresStyleAttributes: true,
+  requiresWorkers: false,
+  mount: mountJsonEditor
+});
 
 export function mountJsonEditor(options: JsonEditorOptions): JsonEditorHandle {
-  if (options.accessibleLabel.trim().length === 0) {
-    throw new Error("A JSON editor requires an accessible label.");
-  }
+  requireJsonEditorOptions(options);
   let applyingExternalDocument = false;
   const extensions = [
     basicSetup,
@@ -44,7 +35,7 @@ export function mountJsonEditor(options: JsonEditorOptions): JsonEditorHandle {
     extensions.push(EditorView.cspNonce.of(options.cspNonce));
   }
   if (options.diagnostics !== undefined) {
-    extensions.push(linter(view => options.diagnostics?.(view.state.doc.toString()).map(toDiagnostic) ?? []));
+    extensions.push(linter(view => normalizeJsonEditorDiagnostics(options.diagnostics?.(view.state.doc.toString()) ?? [], view.state.doc.length).map(toDiagnostic)));
   }
   if (options.onChange !== undefined) {
     extensions.push(EditorView.updateListener.of(update => {

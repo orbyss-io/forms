@@ -9,6 +9,7 @@
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [
     { "path": "../forms-codemirror" },
+    { "path": "../forms-editor-contracts" },
     { "path": "../forms-modeler" },
     { "path": "../ui-theme" }
   ]

@@ -64,7 +64,7 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains seventeen independently packable packages:
+It currently contains nineteen independently packable packages:
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -73,8 +73,12 @@ It currently contains seventeen independently packable packages:
   reference, sensitive-key, renderer and action checks before an artifact reaches a UI binding;
 - `@orbyss/program-kit-forms-ajv-build`: AJV 2020-12 validation and CSP-compatible standalone ESM
   generation for the build pipeline; and
+- `@orbyss/program-kit-forms-editor-contracts`: the dependency-free editor mount, lifecycle,
+  diagnostic and capability contract shared by authoring surfaces; and
 - `@orbyss/program-kit-forms-codemirror`: the accessible CodeMirror 6 JSON editor adapter with JSON
   and external diagnostics; and
+- `@orbyss/program-kit-forms-monaco`: the separately installed Monaco 0.56 adapter with bounded
+  external diagnostics and consumer-owned same-origin worker bundling; and
 - `@orbyss/program-kit-ui-theme`: the dependency-free cross-framework visual contract with typed
   semantic token names, deterministic class composition, stable `data-pk-slot` conventions and an
   optional cascade-layered light/dark/automatic default theme; and
@@ -125,8 +129,8 @@ It currently contains seventeen independently packable packages:
 JSON Forms Core 3.8.0 is an exact peer dependency of the runtime boundary. The framework-neutral
 package intentionally exposes JSON values rather than upstream framework types; React, Vue and
 Angular bindings own those types and renderer integration. AJV is build-time-only for runtime
-artifacts. CodeMirror is the unconditional rich-editor default, while Monaco is absent from both
-manifests and the lockfile. CodeMirror's generated stylesheet accepts a caller-provided CSP nonce,
+artifacts. CodeMirror is the unconditional rich-editor default, while Monaco occurs only in its
+separately selected adapter and cannot enter a default consumer dependency graph. CodeMirror's generated stylesheet accepts a caller-provided CSP nonce,
 but its editor layout also relies on dynamic style attributes. The React modeler therefore provides
 an explicit native source-editing mode for the stricter Program Kit policy that prohibits all style
 attributes; the browser suite does not weaken CSP to accommodate an editor dependency.
@@ -275,9 +279,9 @@ Verified commands and results:
   standalone-CSP checks, artifact/renderer/action/translation security tests, CodeMirror default
   checks, wizard/action navigation and state, modeler transactions/React administration/graph
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
-  behavior, rendered React binding tests, and fourteen workspace package
+  behavior, rendered React binding tests, and nineteen workspace package
   dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: seventeen real npm archives contained their
+- `python tests/validate_forms_frontend_packages.py`: nineteen real npm archives contained their
   declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
   the archives with exact JSON Forms/React/Vue/Angular peers and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and

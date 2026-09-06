@@ -1,5 +1,5 @@
 {
-  "name": "@orbyss/program-kit-forms-codemirror",
+  "name": "@orbyss/program-kit-forms-editor-contracts",
   "version": "0.9.9-preview.1",
   "type": "module",
   "sideEffects": false,
@@ -12,11 +12,5 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json"
-  },
-  "dependencies": {
-    "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
-    "@codemirror/lang-json": "6.0.2",
-    "@codemirror/lint": "6.9.7",
-    "codemirror": "6.0.2"
   }
 }

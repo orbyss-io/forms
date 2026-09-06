@@ -39,6 +39,8 @@ def main() -> int:
         "@orbyss/program-kit-forms-jsonforms-runtime",
         "@orbyss/program-kit-forms-ajv-build",
         "@orbyss/program-kit-forms-codemirror",
+        "@orbyss/program-kit-forms-editor-contracts",
+        "@orbyss/program-kit-forms-monaco",
         "@orbyss/program-kit-forms-wizard",
         "@orbyss/program-kit-forms-actions",
         "@orbyss/program-kit-forms-angular",
@@ -67,9 +69,24 @@ def main() -> int:
     if runtime_manifest.get("peerDependencies") != {"@jsonforms/core": "3.8.0"} or "ajv" in runtime_dependencies:
         raise AssertionError("The JSON Forms runtime must exact-pin JSON Forms core as a peer and must not compile AJV at runtime.")
 
+    editor_contracts = by_name["@orbyss/program-kit-forms-editor-contracts"]
+    if editor_contracts.get("dependencies") or editor_contracts.get("peerDependencies") or editor_contracts.get("devDependencies"):
+        raise AssertionError("The shared JSON editor contract must remain dependency-free.")
+
     codemirror_dependencies = by_name["@orbyss/program-kit-forms-codemirror"]["dependencies"]
-    if codemirror_dependencies.get("codemirror") != "6.0.2":
+    if codemirror_dependencies != {
+        "@codemirror/lang-json": "6.0.2",
+        "@codemirror/lint": "6.9.7",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
+        "codemirror": "6.0.2",
+    }:
         raise AssertionError("CodeMirror 6 must remain the default editor.")
+
+    monaco = by_name["@orbyss/program-kit-forms-monaco"]
+    if monaco.get("dependencies") != {"@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1"} \
+            or monaco.get("peerDependencies") != {"monaco-editor": "0.56.0"} \
+            or monaco.get("devDependencies") != {"monaco-editor": "0.56.0"}:
+        raise AssertionError("Monaco must remain a separately installed exact-pinned editor adapter.")
 
     wizard_dependencies = by_name["@orbyss/program-kit-forms-wizard"]["dependencies"]
     if wizard_dependencies != {"@orbyss/program-kit-forms-contracts": "0.9.9-preview.1"}:
@@ -86,6 +103,7 @@ def main() -> int:
     modeler_react = by_name["@orbyss/program-kit-forms-modeler-react"]
     if modeler_react.get("dependencies") != {
         "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
         "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1",
         "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
     } or modeler_react.get("peerDependencies") != {
@@ -210,14 +228,16 @@ def main() -> int:
     }:
         raise AssertionError("The Angular binding crossed its governed framework or compiler boundary.")
 
-    all_dependency_names = {
-        dependency
-        for manifest in manifests
-        for section in ("dependencies", "devDependencies", "peerDependencies")
-        for dependency in manifest.get(section, {})
-    }
-    if any("monaco" in dependency.lower() for dependency in all_dependency_names):
-        raise AssertionError("Monaco leaked into the default frontend workspace.")
+    for manifest in manifests:
+        if manifest["name"] == "@orbyss/program-kit-forms-monaco":
+            continue
+        dependencies = {
+            dependency
+            for section in ("dependencies", "devDependencies", "peerDependencies")
+            for dependency in manifest.get(section, {})
+        }
+        if any("monaco" in dependency.lower() for dependency in dependencies):
+            raise AssertionError(f"Monaco leaked outside its optional adapter: {manifest['name']}")
 
     node, _ = js_toolchain.resolve_node(ROOT, package["engines"]["node"], "node", "auto")
     if node is None:
@@ -254,15 +274,16 @@ def main() -> int:
     lock = json.loads((WORKSPACE / "package-lock.json").read_text(encoding="utf-8"))
     if lock.get("lockfileVersion") != 3:
         raise AssertionError("The frontend workspace requires a committed npm lockfile v3.")
-    if "monaco" in json.dumps(lock, sort_keys=True).lower():
-        raise AssertionError("Monaco leaked into the isolated default frontend lockfile.")
+    monaco_lock = lock.get("packages", {}).get("node_modules/monaco-editor", {})
+    if monaco_lock.get("version") != "0.56.0":
+        raise AssertionError("The optional Monaco adapter must resolve its exact governed peer version.")
 
     run(["test", "--ignore-scripts", "--no-audit", "--no-fund"])
     angular_output = (WORKSPACE / "packages/forms-angular/dist/index.js").read_text(encoding="utf-8")
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, and CodeMirror default passed.")
+    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
     return 0
 
 
