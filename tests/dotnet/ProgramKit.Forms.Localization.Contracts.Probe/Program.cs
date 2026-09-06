@@ -121,6 +121,10 @@ using (var compiledUi = JsonDocument.Parse(compiled.UiSchema.Content))
         "action-bar references missing");
 }
 Require(compiled.CandidateSha256.Length == 64 && compiled.DataSchema.Sha256.Length == 64, "artifact hashes missing");
+Require(
+    !compiled.DataSchema.Content.Replace("\r\n", string.Empty, StringComparison.Ordinal).Contains('\n')
+    && !compiled.UiSchema.Content.Replace("\r\n", string.Empty, StringComparison.Ordinal).Contains('\n'),
+    "compiled artifacts contain platform-dependent newlines");
 if (args.Contains("--print-frontend-fixture", StringComparer.Ordinal))
 {
     var releaseFixture = new FormRelease(

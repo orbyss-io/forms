@@ -13,6 +13,7 @@ import yaml
 
 from live.run_bootstrap_acceptance import (
     AcceptanceError,
+    CI_ENVIRONMENT_KEYS,
     analyze_metrics,
     discover_run_state,
     git_excludes_override,
@@ -145,6 +146,9 @@ def main() -> int:
             raise AssertionError("Unapproved live run created output before refusing")
 
     with tempfile.TemporaryDirectory(prefix="program-kit-live-intake-mode-") as directory:
+        non_ci_environment = os.environ.copy()
+        for key in CI_ENVIRONMENT_KEYS:
+            non_ci_environment.pop(key, None)
         denied = run_guard(
             runner,
             "--approved",
@@ -153,6 +157,7 @@ def main() -> int:
             "claude",
             "--output-root",
             directory,
+            env=non_ci_environment,
         )
         if denied.returncode != 3 or "INTAKE_SKILL_CODEX_REQUIRED" not in denied.stderr:
             raise AssertionError(f"Unsupported live intake integration was not refused: {denied}")

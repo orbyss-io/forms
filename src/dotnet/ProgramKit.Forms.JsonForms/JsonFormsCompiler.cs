@@ -418,7 +418,10 @@ public sealed class JsonFormsCompiler : IFormCompiler
     /// <summary>Creates a canonical artifact using stable indentation and a SHA-256 content digest.</summary>
     private static FormArtifact Artifact(string mediaType, JsonNode content)
     {
-        var json = content.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+        // System.Text.Json follows the host newline for indented output. Artifacts are hashed and
+        // exchanged across operating systems, so preserve one explicit canonical representation.
+        var json = content.ToJsonString(new JsonSerializerOptions { WriteIndented = true })
+            .ReplaceLineEndings("\r\n");
         return new FormArtifact(mediaType, json, Hash(json));
     }
 
