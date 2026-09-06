@@ -153,4 +153,6 @@ reconfirmed.
 Keep the result proportional to the confirmed intake. Prefer compact tables over repeated prose,
 and do not document excluded capability categories one by one. After writing, report file paths,
 byte sizes, and decision counts only; do not print complete generated artifacts or repository-wide
-diffs.
+diffs. For a single-interface, dependency-free local application, target at most 8 KiB for
+`bootstrap-assessment.md` and 6 KiB for `decision-backlog.md`. Prefer one routed read batch, one
+artifact-write batch, and one validation batch; expand only for a specific diagnostic.

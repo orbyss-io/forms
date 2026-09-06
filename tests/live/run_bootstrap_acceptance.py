@@ -275,7 +275,10 @@ persistent safe-directory entry.
 
 Use UTF-8 for Python subprocess output. Read compact bootstrap stage briefs first; do not print
 complete evidence indexes, generated artifacts, or repository-wide diffs. Report concise counts,
-paths, and validation results.
+paths, and validation results. Do not enumerate the repository or inspect schemas and validator
+implementations when the installed skill or stage brief already supplies the contract. Prefer one
+targeted read batch, one write batch, and one validation batch unless a specific failure requires
+another pass.
 """
     destination = project / "AGENTS.md"
     if destination.is_file():
@@ -298,6 +301,30 @@ def load_monitor(path: Path) -> list[dict]:
     return records
 
 
+def load_codex_usage(path: Path) -> dict[str, int]:
+    totals = {
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_output_tokens": 0,
+    }
+    if not path.is_file():
+        return totals
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        usage = event.get("usage") if event.get("type") == "turn.completed" else None
+        if not isinstance(usage, dict):
+            continue
+        for key in totals:
+            value = usage.get(key, 0)
+            if isinstance(value, int) and value >= 0:
+                totals[key] += value
+    return totals
+
+
 def analyze_metrics(
     evidence: Path, run_id: str | None, workflow_duration: float | None = None
 ) -> dict:
@@ -305,6 +332,7 @@ def analyze_metrics(
     stdout_path = evidence / "workflow.stdout.log"
     stderr_text = stderr_path.read_text(encoding="utf-8", errors="replace") if stderr_path.is_file() else ""
     token_values = [int(value.replace(",", "")) for value in re.findall(r"tokens used\s*[\r\n]+\s*([0-9,]+)", stderr_text)]
+    intake_usage = load_codex_usage(evidence / "intake.stdout.log")
     intake_stderr_path = evidence / "intake.stderr.log"
     intake_stderr = (
         intake_stderr_path.read_text(encoding="utf-8", errors="replace")
@@ -315,6 +343,9 @@ def analyze_metrics(
         int(value.replace(",", ""))
         for value in re.findall(r"tokens used\s*[\r\n]+\s*([0-9,]+)", intake_stderr)
     ]
+    intake_total = intake_usage["input_tokens"] + intake_usage["output_tokens"]
+    if not intake_total:
+        intake_total = sum(intake_token_values)
     agent_stages = (
         "assessment",
         "research",
@@ -332,8 +363,8 @@ def analyze_metrics(
     }
     observed_agent_stages = [stage for stage in agent_stages if stage in observed_steps]
     stage_tokens = dict(zip(observed_agent_stages, token_values))
-    if intake_token_values:
-        stage_tokens = {"intake-skill": sum(intake_token_values), **stage_tokens}
+    if intake_total:
+        stage_tokens = {"intake-skill": intake_total, **stage_tokens}
     unattributed_tokens = token_values[len(observed_agent_stages) :]
     stage_durations: dict[str, float] = {}
     for index, record in enumerate(monitor[:-1]):
@@ -366,8 +397,10 @@ def analyze_metrics(
             label = path.relative_to(evidence / "project").as_posix()
             artifacts[label] = {"bytes": path.stat().st_size, "sha256": sha256(path)}
     return {
-        "agent_session_count": len(token_values) + len(intake_token_values),
-        "agent_tokens_total": sum(token_values) + sum(intake_token_values),
+        "agent_session_count": len(token_values) + (1 if intake_total else 0),
+        "agent_tokens_total": sum(token_values) + intake_total,
+        "bootstrap_agent_tokens_total": sum(token_values),
+        "intake_agent_usage": intake_usage,
         "agent_tokens_by_stage": stage_tokens,
         "unattributed_agent_tokens": unattributed_tokens,
         "stage_duration_seconds": stage_durations,
@@ -385,6 +418,14 @@ def performance_warnings(metrics: dict, budgets: dict) -> list[str]:
         warnings.append(
             f"Agent token total {metrics['agent_tokens_total']} exceeds advisory budget {total_budget}"
         )
+    stage_budgets = budgets.get("agent_tokens_by_stage", {})
+    if isinstance(stage_budgets, dict):
+        for stage, budget in stage_budgets.items():
+            actual = metrics.get("agent_tokens_by_stage", {}).get(stage)
+            if isinstance(budget, int) and isinstance(actual, int) and actual > budget:
+                warnings.append(
+                    f"Agent stage {stage} used {actual} tokens; advisory budget is {budget}"
+                )
     stderr_budget = budgets.get("workflow_stderr_bytes")
     if isinstance(stderr_budget, int) and metrics.get("workflow_stderr_bytes", 0) > stderr_budget:
         warnings.append(
@@ -467,7 +508,9 @@ def run_intake_skill(
         "complete initial description and explicit confirmation. Conduct the skill exactly as installed, "
         "create and validate all canonical intake artifacts, and finish with its required single-line "
         "bootstrap command. Do not run the bootstrap workflow. This is a disposable live-acceptance "
-        "repository; preserve concise evidence in the repository and do not merely describe the files."
+        "repository; preserve concise evidence in the repository and do not merely describe the files. "
+        "Follow the skill's compact authoring contract: do not enumerate the repository, open schemas, "
+        "or inspect Python implementations unless a specific validator diagnostic cannot be resolved."
     )
     command = [
         codex,
@@ -1413,6 +1456,20 @@ def write_report(
                 f"- Captured stderr: `{metrics.get('workflow_stderr_bytes', 0)} bytes`",
             ]
         )
+        stage_tokens = metrics.get("agent_tokens_by_stage", {})
+        if isinstance(stage_tokens, dict) and stage_tokens:
+            lines.append(
+                "- Tokens by stage: "
+                + ", ".join(f"`{name}={value}`" for name, value in stage_tokens.items())
+            )
+        intake_usage = metrics.get("intake_agent_usage", {})
+        if isinstance(intake_usage, dict) and intake_usage.get("input_tokens"):
+            lines.append(
+                "- Intake token detail: "
+                f"`input={intake_usage['input_tokens']}`, "
+                f"`cached-input={intake_usage['cached_input_tokens']}`, "
+                f"`output={intake_usage['output_tokens']}`"
+            )
     first_slice = result.get("first_slice")
     intake_skill = result.get("intake_skill")
     if isinstance(intake_skill, dict):

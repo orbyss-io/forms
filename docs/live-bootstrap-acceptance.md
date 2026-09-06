@@ -134,9 +134,11 @@ access the installed Codex CLI and its user-owned home. A run that fails immedia
 evidence and retry with external-process permission. Keep the inner `--sandbox workspace-write`
 setting unchanged—the outer launch permission is not a reason to weaken disposable workers.
 
-Each workflow stage receives a compact, hash-bound stage brief and a separate evidence index. Stage
-prompts read the compact brief first and query only relevant evidence instead of printing every
-prior artifact. Token usage, stage duration, stream size, and context size are included in the
+Each workflow stage receives a compact, hash-bound stage brief and a separate evidence index. The
+brief contains stage-specific intake and architecture projections rather than duplicating both
+canonical documents. Stage prompts query a source only for an omitted decisive fact and do not
+inspect schemas or validators to rediscover supplied contracts. Token usage by stage, intake JSON
+usage (including cached input), stage duration, stream size, and context size are included in the
 report. Their budgets are advisory: they expose regressions without converting a semantically
 correct bootstrap into a false failure.
 The clean scenario also tracks proportional byte targets for research, architecture, quality, and

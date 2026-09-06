@@ -31,10 +31,11 @@ Read the ratified `.specify/memory/constitution.md` in full. The constitution go
 ADRs, specifications, plans, tasks, implementation, and verification. Stop if the ratification
 record is missing, Draft, invalid, or stale, or if the constitution contains a placeholder or TODO.
 
-Also validate and read `.specify/governance/bootstrap-assessment-approval.json` and
-`docs/architecture/bootstrap-decisions.json`. The hash-bound assessment gate is the human authority
-for explicit intake choices, Program Kit defaults, derived defaults, disclosed acknowledgements,
-and recorded overrides. Do not reopen those choices as Proposed.
+The validator confirms `.specify/governance/bootstrap-assessment-approval.json` and
+`docs/architecture/bootstrap-decisions.json`. Use their compact records from the stage brief. Open
+one source only if a decisive field was omitted. The hash-bound assessment gate is the human
+authority for explicit intake choices, Program Kit defaults, derived defaults, disclosed
+acknowledgements, and recorded overrides. Do not reopen those choices as Proposed.
 
 ## Architecture bootstrap
 

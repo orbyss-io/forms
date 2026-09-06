@@ -7,6 +7,10 @@ Structurizr DSL projection, and a validated bootstrap intake contract. Intake is
 bootstrap-relevant uncertainty is answered, defaulted, assigned, or deferred; it does not require
 every future product decision to be made.
 
+Keep the intake proportional to the request. Do not inventory the repository or implementation
+internals to compensate for an already complete description. At authoring time use
+[intake-artifacts.md](intake-artifacts.md) instead of opening schemas or validator source.
+
 ## Question policy
 
 Begin with the user's natural description. Reflect the understood intent before asking questions.

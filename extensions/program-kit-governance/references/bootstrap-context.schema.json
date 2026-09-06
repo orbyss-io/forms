@@ -21,13 +21,13 @@
     "reading_policy"
   ],
   "properties": {
-    "schema_version": { "const": "2.0" },
+    "schema_version": { "const": "3.0" },
     "run_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
     "stage": { "enum": ["research", "architecture", "tooling", "roadmap", "readiness"] },
     "stage_focus": { "type": "string", "minLength": 1 },
     "bootstrap_intake": { "$ref": "#/$defs/file" },
-    "intake": { "$ref": "bootstrap-intake.schema.json" },
-    "architecture_map": { "$ref": "architecture-map.schema.json" },
+    "intake": { "$ref": "#/$defs/intake_projection" },
+    "architecture_map": { "$ref": "#/$defs/architecture_projection" },
     "authorities": { "type": "object", "additionalProperties": { "type": "object" } },
     "managed_profile_pins": {
       "type": "object",
@@ -145,6 +145,29 @@
         "sha256": { "$ref": "#/$defs/sha256" },
         "bytes": { "type": "integer", "minimum": 0 }
       }
+    },
+    "intake_projection": {
+      "type": "object",
+      "required": ["projection", "schema_version", "status", "project"],
+      "properties": {
+        "projection": { "const": "stage-summary" },
+        "schema_version": { "const": "1.0" },
+        "status": { "const": "confirmed" },
+        "project": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "architecture_projection": {
+      "type": "object",
+      "required": ["projection", "source", "schema_version", "model_id", "title"],
+      "properties": {
+        "projection": { "const": "stage-summary" },
+        "source": { "$ref": "#/$defs/file" },
+        "schema_version": { "const": "1.0" },
+        "model_id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
     },
     "string_list": {
       "type": "array",

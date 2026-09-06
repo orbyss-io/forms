@@ -127,6 +127,7 @@ def main() -> int:
             "references/bootstrap-intake.schema.json",
             "references/architecture-map.schema.json",
             "references/intake-method.md",
+            "references/intake-artifacts.md",
             "references/capability-index.json",
             "references/bootstrap-decisions.schema.json",
             "references/bootstrap-context.schema.json",
@@ -279,7 +280,14 @@ def main() -> int:
 
         extension_config = yaml.safe_load(
             (project / ".specify/extensions.yml").read_text(encoding="utf-8")
-        )
+            )
+        if "Do not enumerate the repository" not in installed_skill_text:
+            raise AssertionError("Installed bootstrap skill lost its bounded-discovery contract")
+        if not (
+            project
+            / ".specify/extensions/program-kit-governance/references/intake-artifacts.md"
+        ).is_file():
+            raise AssertionError("Installed bootstrap skill is missing its compact authoring contract")
         deployed_config = (
             project
             / ".specify/extensions/program-kit-governance/program-kit-governance-config.yml"

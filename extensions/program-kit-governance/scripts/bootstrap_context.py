@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 
-SCHEMA_VERSION = "2.0"
+SCHEMA_VERSION = "3.0"
 CONTEXT_DIRECTORY = Path(".specify/workflows/runs")
 INTAKE_PATH = Path("docs/architecture/bootstrap-intake.json")
 INTAKE_ARTIFACTS = (
@@ -95,6 +95,61 @@ STAGE_FOCUS = {
     "readiness": "Prove the first Ready entry has accepted authority, owned risks, and sufficient evidence.",
 }
 
+INTAKE_STAGE_FIELDS = {
+    "research": (
+        "quality_requirements", "choices", "capability_assessments", "open_items", "routing",
+    ),
+    "architecture": (
+        "facts", "scope", "actors", "journeys", "quality_requirements", "integrations",
+        "open_items", "candidate_slice_signals", "routing",
+    ),
+    "tooling": (
+        "scope", "quality_requirements", "open_items", "routing",
+    ),
+    "roadmap": (
+        "scope", "actors", "journeys", "open_items", "candidate_slice_signals",
+    ),
+    "readiness": (
+        "actors", "journeys", "open_items", "candidate_slice_signals",
+    ),
+}
+
+MAP_STAGE_FIELDS = {
+    "research": ("constraints", "elements", "relationships", "views"),
+    "architecture": (
+        "sources", "decisions", "documentation", "constraints", "elements", "relationships",
+        "views", "configuration", "extensions",
+    ),
+    "tooling": ("decisions", "constraints", "elements", "relationships"),
+    "roadmap": ("decisions", "constraints", "elements", "relationships", "views"),
+    "readiness": ("decisions", "constraints", "elements", "relationships", "views"),
+}
+
+MAP_RECORD_FIELDS = {
+    "sources": ("id", "path", "sha256", "format", "importer"),
+    "decisions": (
+        "id", "path", "sha256", "title", "date", "status", "scope", "owner", "supersedes",
+    ),
+    "documentation": ("id", "path", "sha256", "scope"),
+    "constraints": ("id", "statement", "status", "applies_to", "decision_refs"),
+    "elements": (
+        "id", "type", "name", "description", "status", "ownership", "technology",
+        "decision_refs", "properties",
+    ),
+    "relationships": (
+        "id", "source", "target", "description", "technology", "status",
+        "decision_refs", "properties",
+    ),
+    "views": (
+        "key", "type", "title", "scope", "elements", "relationships", "decision_refs",
+    ),
+    "extensions": ("id", "kind", "policy", "source"),
+}
+
+MAX_INDEX_HEADINGS = 24
+MAX_INDEX_SIGNALS = 8
+MAX_INDEX_SIGNAL_CHARS = 160
+
 GOVERNANCE_CONFIGS = (
     Path(".specify/extensions/program-kit-governance/program-kit-governance-config.yml"),
     Path(".specify/extensions/program-kit-governance/program-kit-governance-config.local.yml"),
@@ -160,10 +215,17 @@ OUTPUT_CONTRACTS = {
 
 ARTIFACT_BYTE_BUDGETS = {
     "docs/architecture/tooling-evaluation.md": 8 * 1024,
-    "docs/architecture/architecture.md": 12 * 1024,
+    "docs/architecture/README.md": 4 * 1024,
+    "docs/architecture/architecture.md": 10 * 1024,
     "docs/architecture/architecture-map.json": 256 * 1024,
     "docs/architecture/workspace.dsl": 256 * 1024,
-    "docs/architecture/quality-system.md": 12 * 1024,
+    "docs/architecture/quality-attributes.md": 6 * 1024,
+    "docs/architecture/technology-radar.md": 4 * 1024,
+    "docs/architecture/traceability.md": 6 * 1024,
+    "docs/architecture/decisions/README.md": 4 * 1024,
+    "docs/architecture/decisions/bootstrap-baseline.md": 6 * 1024,
+    "docs/architecture/quality-system.md": 8 * 1024,
+    "docs/architecture/specification-roadmap.md": 6 * 1024,
     "docs/architecture/readiness-report.md": 4 * 1024,
 }
 
@@ -437,17 +499,70 @@ def intake_record(project_root: Path, run_id: str) -> dict:
     }
 
 
+def intake_projection(intake: dict, stage: str) -> dict:
+    fields = INTAKE_STAGE_FIELDS[stage]
+    return {
+        "projection": "stage-summary",
+        "schema_version": intake["schema_version"],
+        "status": intake["status"],
+        "project": intake["project"],
+        **{field: intake[field] for field in fields},
+    }
+
+
+def _nonempty_projection(value: object) -> object:
+    if isinstance(value, dict):
+        return {
+            key: projected
+            for key, item in value.items()
+            if (projected := _nonempty_projection(item)) not in (None, "", [], {})
+        }
+    if isinstance(value, list):
+        return [
+            projected
+            for item in value
+            if (projected := _nonempty_projection(item)) not in (None, "", [], {})
+        ]
+    return value
+
+
+def architecture_projection(project_root: Path, architecture_map: dict, stage: str) -> dict:
+    path = project_root / "docs/architecture/architecture-map.json"
+    fields = MAP_STAGE_FIELDS[stage]
+    projected = {
+        "projection": "stage-summary",
+        "source": {
+            "path": "docs/architecture/architecture-map.json",
+            "sha256": sha256_file(path),
+            "bytes": path.stat().st_size,
+        },
+        "schema_version": architecture_map["schema_version"],
+        "model_id": architecture_map["model_id"],
+        "title": architecture_map["title"],
+        **{
+            field: [
+                {key: item[key] for key in MAP_RECORD_FIELDS[field] if key in item}
+                for item in architecture_map[field]
+            ]
+            if field in MAP_RECORD_FIELDS
+            else architecture_map[field]
+            for field in fields
+        },
+    }
+    return _nonempty_projection(projected)
+
+
 def markdown_index(text: str) -> tuple[list[dict], list[dict]]:
     headings: list[dict] = []
     signals: list[dict] = []
     for line_number, raw_line in enumerate(text.splitlines(), 1):
         line = raw_line.strip()
         match = HEADING.match(line)
-        if match and len(headings) < 64:
+        if match and len(headings) < MAX_INDEX_HEADINGS:
             headings.append({"line": line_number, "level": len(match.group(1)), "title": match.group(2)})
             continue
-        if line and SIGNAL.search(line) and len(signals) < 24:
-            signals.append({"line": line_number, "text": line[:320]})
+        if line and SIGNAL.search(line) and len(signals) < MAX_INDEX_SIGNALS:
+            signals.append({"line": line_number, "text": line[:MAX_INDEX_SIGNAL_CHARS]})
     return headings, signals
 
 
@@ -475,14 +590,28 @@ def artifact_record(
 
 def compact_authority(name: str, payload: dict) -> dict:
     if name == "assessment_decisions":
-        keys = (
-            "schema_version", "default_profile", "selected_profiles", "dotnet", "web",
-            "toolchain", "choices", "overrides", "acknowledgements", "unresolved", "deferred",
-        )
-        return {key: payload[key] for key in keys if key in payload}
+        result = {
+            key: payload[key]
+            for key in (
+                "schema_version", "default_profile", "selected_profiles", "dotnet", "web",
+                "toolchain", "unresolved", "deferred",
+            )
+            if key in payload
+        }
+        for key, fields in {
+            "choices": ("id", "decision", "source"),
+            "overrides": ("id", "decision"),
+            "acknowledgements": ("id", "summary"),
+        }.items():
+            if key in payload:
+                result[key] = [
+                    {field: item[field] for field in fields if field in item}
+                    for item in payload[key]
+                ]
+        return result
     keys = (
         "schema_version", "status", "constitution", "gate_verdict", "approval_mode",
-        "artifacts", "approval_source",
+        "approval_source",
     )
     return {key: payload[key] for key in keys if key in payload}
 
@@ -584,6 +713,10 @@ def evidence_path(run_directory: Path, stage: str) -> Path:
     return run_directory / "program-kit-context" / f"{stage}.evidence.json"
 
 
+def compact_json(value: dict) -> str:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":")) + "\n"
+
+
 def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path, dict, Path, dict]:
     run_directory = safe_run_directory(project_root, run_id)
     if not (run_directory / "inputs.json").is_file():
@@ -617,15 +750,15 @@ def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path,
         "artifacts": artifacts,
     }
     evidence_destination = evidence_path(run_directory, stage)
-    evidence_bytes = (json.dumps(evidence, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    evidence_bytes = compact_json(evidence).encode("utf-8")
     payload = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
         "stage": stage,
         "stage_focus": STAGE_FOCUS[stage],
         "bootstrap_intake": intake_record(project_root, run_id),
-        "intake": intake,
-        "architecture_map": architecture_map,
+        "intake": intake_projection(intake, stage),
+        "architecture_map": architecture_projection(project_root, architecture_map, stage),
         "authorities": authorities,
         "managed_profile_pins": managed_profile_pin_authority(
             project_root, authorities.get("assessment_decisions", {})
@@ -646,10 +779,13 @@ def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path,
             "allowed_sources": list(stage_artifacts),
             "rules": [
                 "Read this stage brief in full.",
-                "Do not print or read the evidence index in full; query one artifact and heading range at a time.",
+                "Treat intake and architecture_map as stage projections; query the canonical source only for an omitted decisive fact.",
+                "Do not print or read the evidence index in full; query one artifact and heading range or JSON field at a time.",
                 "Do not open an allowed source unless this brief lacks a fact required for the current output.",
+                "Do not inspect schema or validator implementation; use the supplied contract and validation commands.",
                 "Excluded intake routing surfaces are out of scope unless contradictory evidence is cited.",
-                "Report counts and paths after writes; do not print complete generated artifacts or repository-wide diffs.",
+                "Prefer one targeted source-read batch, one write batch, and one validation batch; expand only for a specific failure.",
+                "After writes report only paths, byte counts, status, and targeted diagnostics; never print full files or diffs.",
             ],
             "provenance": "The evidence index binds optional source sections to paths and SHA-256 values.",
         },
@@ -660,8 +796,8 @@ def create_documents(project_root: Path, run_id: str, stage: str) -> tuple[Path,
 def build_context(project_root: Path, run_id: str, stage: str) -> tuple[Path, dict]:
     destination, payload, evidence_destination, evidence = create_documents(project_root, run_id, stage)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    evidence_destination.write_text(json.dumps(evidence, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
-    destination.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    evidence_destination.write_text(compact_json(evidence), encoding="utf-8", newline="\n")
+    destination.write_text(compact_json(payload), encoding="utf-8", newline="\n")
     return destination, payload
 
 
