@@ -27,6 +27,7 @@ def main() -> int:
         "python tests/validate_forms_frontend_ci.py",
         "python tests/validate_forms_frontend.py --install",
         "python tests/validate_forms_frontend_packages.py",
+        "python tests/validate_forms_physical_acceptance.py",
     ):
         if required not in contract_job:
             raise AssertionError(f"Frontend contract CI is missing: {required}")
@@ -45,6 +46,10 @@ def main() -> int:
         '      - "src/typescript/**"',
         '      - "src/typescript/tests/forms-browser/**"',
         '      - "tests/validate_forms_frontend_ci.py"',
+        '      - "tests/serve_forms_physical_acceptance.py"',
+        '      - "tests/validate_forms_physical_acceptance.py"',
+        '      - "scripts/Start-FormsPhysicalAcceptance.ps1"',
+        '      - "docs/forms-physical-acceptance.md"',
     )
     for required in path_filters:
         if workflow.count(required) != 2:

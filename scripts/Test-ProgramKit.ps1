@@ -47,6 +47,9 @@ if ($LASTEXITCODE -ne 0) { throw 'UI browser and analytics acceptance failed.' }
 & $python (Join-Path $projectRoot 'tests\validate_forms_browser.py')
 if ($LASTEXITCODE -ne 0) { throw 'Forms wizard browser/device acceptance failed.' }
 
+& $python (Join-Path $projectRoot 'tests\validate_forms_physical_acceptance.py')
+if ($LASTEXITCODE -ne 0) { throw 'Forms physical-acceptance server or evidence validation failed.' }
+
 & $python (Join-Path $projectRoot 'tests\validate_web_discovery.py')
 if ($LASTEXITCODE -ne 0) { throw 'Shell-owned public discovery acceptance failed.' }
 

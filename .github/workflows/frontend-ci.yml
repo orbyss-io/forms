@@ -11,9 +11,14 @@ on:
       - "tests/fixtures/dotnet-registration-release.json"
       - "src/typescript/tests/forms-browser/**"
       - "tests/validate_forms_browser.py"
+      - "tests/serve_forms_physical_acceptance.py"
+      - "tests/validate_forms_physical_acceptance.py"
       - "tests/validate_forms_frontend.py"
       - "tests/validate_forms_frontend_ci.py"
       - "tests/validate_forms_frontend_packages.py"
+      - "scripts/Start-FormsPhysicalAcceptance.ps1"
+      - "docs/forms-physical-acceptance.md"
+      - "docs/templates/forms-physical-acceptance-report.md"
   pull_request:
     paths:
       - ".github/workflows/frontend-ci.yml"
@@ -23,9 +28,14 @@ on:
       - "tests/fixtures/dotnet-registration-release.json"
       - "src/typescript/tests/forms-browser/**"
       - "tests/validate_forms_browser.py"
+      - "tests/serve_forms_physical_acceptance.py"
+      - "tests/validate_forms_physical_acceptance.py"
       - "tests/validate_forms_frontend.py"
       - "tests/validate_forms_frontend_ci.py"
       - "tests/validate_forms_frontend_packages.py"
+      - "scripts/Start-FormsPhysicalAcceptance.ps1"
+      - "docs/forms-physical-acceptance.md"
+      - "docs/templates/forms-physical-acceptance-report.md"
   workflow_dispatch:
 
 permissions:
@@ -61,6 +71,9 @@ jobs:
 
       - name: Validate clean Forms frontend package installation
         run: python tests/validate_forms_frontend_packages.py
+
+      - name: Validate physical-acceptance server and evidence contract
+        run: python tests/validate_forms_physical_acceptance.py
 
   browser:
     name: Browser (${{ matrix.engine }})
