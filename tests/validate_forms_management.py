@@ -17,6 +17,51 @@ def references(project: Path, kind: str) -> set[str]:
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
+    # Physical review rejected the optional management UI, not the governed backend.
+    # Keep this list explicit so a future UI cleanup cannot silently remove drafts,
+    # validation/compilation, releases, localization administration, or MCP access.
+    required_backend_projects = (
+        "src/dotnet/ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj",
+        "src/dotnet/ProgramKit.Forms.Application/ProgramKit.Forms.Application.csproj",
+        "src/dotnet/ProgramKit.Forms.Core/ProgramKit.Forms.Core.csproj",
+        "src/dotnet/ProgramKit.Forms.JsonForms/ProgramKit.Forms.JsonForms.csproj",
+        "src/dotnet/ProgramKit.Forms.Storage.Abstractions/ProgramKit.Forms.Storage.Abstractions.csproj",
+        "src/dotnet/ProgramKit.Forms.Storage.InMemory/ProgramKit.Forms.Storage.InMemory.csproj",
+        "src/dotnet/ProgramKit.Forms.Web.Management/ProgramKit.Forms.Web.Management.csproj",
+        "src/dotnet/ProgramKit.Forms.Web.Runtime/ProgramKit.Forms.Web.Runtime.csproj",
+        "src/dotnet/ProgramKit.Forms.Management.Tool/ProgramKit.Forms.Management.Tool.csproj",
+        "src/dotnet/ProgramKit.Forms.Management.Mcp.AspNetCore/ProgramKit.Forms.Management.Mcp.AspNetCore.csproj",
+        "src/dotnet/ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj",
+        "src/dotnet/ProgramKit.Localization.Application/ProgramKit.Localization.Application.csproj",
+        "src/dotnet/ProgramKit.Localization.Core/ProgramKit.Localization.Core.csproj",
+        "src/dotnet/ProgramKit.Localization.Formats/ProgramKit.Localization.Formats.csproj",
+        "src/dotnet/ProgramKit.Localization.Storage.Abstractions/ProgramKit.Localization.Storage.Abstractions.csproj",
+        "src/dotnet/ProgramKit.Localization.Storage.InMemory/ProgramKit.Localization.Storage.InMemory.csproj",
+        "src/dotnet/ProgramKit.Localization.Web.Management/ProgramKit.Localization.Web.Management.csproj",
+        "src/dotnet/ProgramKit.Localization.Web.Runtime/ProgramKit.Localization.Web.Runtime.csproj",
+        "src/dotnet/ProgramKit.Localization.Tool/ProgramKit.Localization.Tool.csproj",
+        "src/dotnet/ProgramKit.Localization.Mcp.AspNetCore/ProgramKit.Localization.Mcp.AspNetCore.csproj",
+        "src/dotnet/ProgramKit.Mcp.AspNetCore/ProgramKit.Mcp.AspNetCore.csproj",
+    )
+    solution = (root / "ProgramKit.slnx").read_text(encoding="utf-8").replace("\\", "/")
+    for relative in required_backend_projects:
+        if not (root / relative).is_file():
+            raise AssertionError(f"Required management backend project was removed: {relative}")
+        if relative not in solution:
+            raise AssertionError(f"Required management backend project left the solution: {relative}")
+
+    required_contracts = {
+        "src/dotnet/ProgramKit.Forms.Abstractions/IFormAuthoring.cs": "ValidateAsync",
+        "src/dotnet/ProgramKit.Forms.Abstractions/IFormReleaseLifecycle.cs": "CompileAsync",
+        "src/dotnet/ProgramKit.Forms.Abstractions/IFormDraftOperations.cs": "SaveAsync",
+        "src/dotnet/ProgramKit.Forms.Management.Tool/FormManagementTools.cs": "forms.management.create",
+        "src/dotnet/ProgramKit.Localization.Tool/LocalizationManagementTools.cs": "localization.catalogs.create",
+    }
+    for relative, required in required_contracts.items():
+        source = (root / relative).read_text(encoding="utf-8")
+        if required not in source:
+            raise AssertionError(f"Required management backend contract is missing {required}: {relative}")
+
     graphs = {
         "src/dotnet/ProgramKit.Forms.Application/ProgramKit.Forms.Application.csproj": (
             set(),
