@@ -3,15 +3,13 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/react.tsbuildinfo",
+    "tsBuildInfoFile": "react.tsbuildinfo",
     "jsx": "react-jsx",
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "references": [
-    { "path": "../forms-actions" },
     { "path": "../forms-contracts" },
-    { "path": "../forms-jsonforms-runtime" },
-    { "path": "../forms-wizard" }
+    { "path": "../forms-jsonforms-runtime" }
   ]
 }

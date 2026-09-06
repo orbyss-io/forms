@@ -4,6 +4,13 @@ This release adds provider-neutral authentication and identity-administration pa
 adapter and advanced conformance suites. Components are `0.9.9`; runtime packages and the host image
 are `0.9.9-preview.1`.
 
+The frontend family contains twelve engine packages. It publishes contracts, precompiled
+validation/runtime integration, headless action/wizard/lookup logic, thin React/Vue/Angular
+bindings and optional semantic theme tokens. It publishes no Program Kit-authored form renderer,
+editor component, component CSS or management UI.
+The tag workflow publishes those packages to GitHub Packages under `@orbyss` using the `preview`
+dist-tag, after the complete read-only release job succeeds.
+
 Before tagging, run:
 
 ```powershell

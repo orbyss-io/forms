@@ -1,6 +1,17 @@
 {
   "name": "@orbyss/program-kit-ui-theme",
   "version": "0.9.9-preview.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orbyss-io/program-kit.git",
+    "directory": "src/typescript/packages/ui-theme"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public",
+    "tag": "preview"
+  },
   "type": "module",
   "sideEffects": ["./default.css"],
   "files": ["dist", "default.css"],

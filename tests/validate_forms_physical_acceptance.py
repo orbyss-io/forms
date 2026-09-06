@@ -105,7 +105,7 @@ def main() -> int:
             process.kill()
             process.wait(timeout=5)
 
-    print("Forms physical-acceptance launcher, evidence, CSP, and file-isolation contracts passed.")
+    print("Forms engine browser-fixture launcher, evidence, CSP, and file-isolation contracts passed.")
     return 0
 
 

@@ -15,13 +15,13 @@ public sealed class JsonFormsCompiler : IFormCompiler
     /// <summary>Identifies the media type of generated JSON Forms UI Schema artifacts.</summary>
     public const string UiSchemaMediaType = "application/vnd.jsonforms.uischema+json";
 
-    /// <summary>Identifies the default Program Kit wizard renderer contract.</summary>
+    /// <summary>Identifies the logical wizard renderer contract an application must supply.</summary>
     public const string WizardRendererId = "ProgramKit.Wizard";
 
-    /// <summary>Identifies the default Program Kit action-bar renderer contract.</summary>
+    /// <summary>Identifies the logical action-bar renderer contract an application must supply.</summary>
     public const string ActionBarRendererId = "ProgramKit.ActionBar";
 
-    /// <summary>Defines the compatible major version for built-in Program Kit renderers.</summary>
+    /// <summary>Defines the compatible contract version for application-supplied renderers.</summary>
     public const string BuiltInRendererVersionRange = "[1.0.0,2.0.0)";
 
     /// <summary>Holds the semantic validator applied before target compilation.</summary>
@@ -334,7 +334,7 @@ public sealed class JsonFormsCompiler : IFormCompiler
         return new JsonObject { ["effect"] = "SHOW", ["condition"] = condition };
     }
 
-    /// <summary>Extracts and deterministically orders installed and built-in renderer requirements.</summary>
+    /// <summary>Extracts and deterministically orders application renderer requirements.</summary>
     private static IEnumerable<FormRendererRequirement> ExtractRenderers(FormDefinition definition)
     {
         var renderers = definition.Fields

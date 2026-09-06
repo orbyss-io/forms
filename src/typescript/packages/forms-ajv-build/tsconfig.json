@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/ajv-build.tsbuildinfo"
+    "tsBuildInfoFile": "ajv-build.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "references": [

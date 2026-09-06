@@ -7,11 +7,11 @@ after the package set is complete. See `docs/frontend-package-publication.md`.
 
 ## Physical-review decision
 
-The form journey was accepted, subject to corrected inline validation presentation. The TypeScript
-form-modeler, schema-modeler and localization-management packages failed physical review and have
-been removed from the publishable family. Program Kit retains the backend contracts, validation,
-management APIs, storage ports and MCP operations; it does not ship a management UI. This decision
-supersedes historical management-UI progress notes in the original approved plan.
+The forms engine was accepted. The TypeScript form-modeler, schema-modeler,
+localization-management and Program Kit-authored form-component packages were removed from the
+publishable family after physical review. Program Kit retains the backend contracts, validation,
+management APIs, storage ports, MCP operations and headless frontend engine; it ships no management
+UI or form renderer components. This decision supersedes historical UI progress notes below.
 
 ## Implementation progress
 
@@ -29,21 +29,14 @@ As of 2026-09-06:
   digest-verified immutable filesystem release stores. AJV 2020-12 parity and hostile runtime
   artifact fixtures now exist in the isolated frontend workspace. Compiler-generated fixture
   exchange and bundled-helper browser acceptance remain part of the release-proof slice.
-- Slice 4 has its framework-neutral foundation and first framework binding: JSON-safe runtime
-  contracts, release-integrity and schema-bound checks, a renderer/action registry, AJV build-time
-  standalone compilation, a dependency-free editor contract, the CodeMirror 6 default editor
-  adapter, a separately installed exact-pinned Monaco adapter, and an exact-pinned React/JSON
-  Forms adapter using a precompiled-validator facade rather than browser code generation. JSON Forms
-  remains a peer boundary rather than a public contract. The React journey now has Chromium/WebKit
-  desktop, phone and tablet acceptance; Firefox remains an unconditional Linux CI gate because the
-  pinned local Windows browser bundle cannot launch. A compiler-emitted .NET release fixture is
-  consumed byte-for-byte by the TypeScript integrity/runtime path, including the strict allowlist
-  for Program Kit schema annotations. Vue and Angular runtime bindings now exist.
-- Slice 5 includes the portable wizard parser/state machine and React renderer: translated/icon
-  navigation, progress/status semantics, validation-gated movement, optional and conditional steps,
-  plus manifest-backed actions with safe failure handling. Trusted searchable lookups provide
-  paging, dependent filters, cancellation and label rehydration. React supplies low-rank semantic
-  native controls that remain overrideable by application renderers.
+- Slice 4 provides JSON-safe runtime contracts, release-integrity and schema-bound checks, a
+  renderer/action registry, AJV build-time standalone compilation, a dependency-free editor
+  contract and thin React/Vue/Angular JSON Forms bindings over the precompiled-validator facade.
+  Applications supply all renderer components, editor implementations and CSS. A compiler-emitted
+  .NET release fixture is consumed byte-for-byte by the TypeScript integrity/runtime path.
+- Slice 5 retains only headless capabilities: the portable wizard parser/state machine,
+  manifest-backed action controller and trusted searchable-lookup controller. Program Kit publishes
+  no wizard, action-bar, lookup or core-control renderer.
 - Slice 6 is complete on the server: locale/fallback validation, structured scopes, ICU-style
   placeholder/plural/select checks, exact/fallback immutable resolution, deterministic bundles,
   bounded CSV/JSON/XLSX/XLIFF/PO adapters, hash-bound imports and authenticated CShells/MCP
@@ -67,27 +60,24 @@ As of 2026-09-06:
   transport composes independently selected Forms and Localization contributors without Host
   behavior. Complete bounded in-memory adapters now drive the public-contract, management HTTP,
   runtime, and shared MCP probes.
-- Slice 8 includes the established UI experience harness, package-isolation architecture checks,
-  shell-portable frontend tests, real tarball inspection, a disposable consumer of all fifteen
-  packages, and read-only Chromium/Firefox/WebKit CI. Physical acceptance covers the form journey;
-  management UI prototypes were removed after review. No web behavior has been added to
-  `ProgramKit.Host`, and persistence technology remains consumer-owned.
+- Slice 8 includes package-isolation architecture checks, shell-portable frontend tests, real
+  tarball inspection, a disposable consumer of all twelve engine packages, and read-only
+  Chromium/Firefox/WebKit CI using a fixture-owned renderer. Program Kit-owned UI prototypes were
+  removed. No web behavior has been added to `ProgramKit.Host`, and persistence technology remains
+  consumer-owned.
 
 ## Fixed decisions
 
 - Program Kit owns framework-neutral form, localization, action, release and compatibility
-  contracts. JSON Forms, AJV, CodeMirror and Monaco are adapters, never public domain contracts.
-- Form-runtime theming is CSS-first and cross-framework: semantic custom properties define branding,
-  focus, shape and motion, while invalid controls retain inline errors and visible danger states.
-- CodeMirror 6 is the unconditional rich JSON editor default. Monaco is a separately installed
-  desktop enhancement behind the shared editor contract and must never become a transitive dependency of the default
-  authoring experience. Because CodeMirror uses dynamic layout style attributes, deployments that
-  prohibit all style attributes use the built-in native source editor; CSP is not weakened for an
-  editor dependency. Both rich adapters insert two-space indentation for Tab by default and expose
-  `Ctrl+M` as the focus-navigation toggle so the editor is not a keyboard trap.
-- Phone, tablet and desktop support is mandatory. Responsive layout, touch input, orientation,
-  browser-engine compatibility, enlarged-text reflow, RTL and reduced-motion behavior are release
-  acceptance, not consumer-specific polish.
+  contracts. JSON Forms and AJV remain adapter boundaries; renderer libraries and editors are
+  consumer choices.
+- The optional `ui-theme` package contains application-wide semantic tokens only. It is not a
+  component stylesheet.
+- `forms-editor-contracts` specifies safe mounting, diagnostics and keyboard behavior without
+  selecting CodeMirror, Monaco or another editor.
+- Program Kit tests its engine through fixture-owned renderers on Chromium, Firefox and WebKit.
+  Physical layout, touch, screen-reader and appearance acceptance belongs to the consuming
+  application and its selected renderer/design system.
 - Management and runtime boundaries are separate CShells features. The Host does not register form,
   localization, submission, editor or action middleware/endpoints.
 - In-memory persistence is the deterministic test/development reference. It is never represented as
@@ -128,9 +118,9 @@ The .NET boundary is split into:
 - Format adapters for CSV, XLSX, JSON, XLIFF 2.1 and PO. Remote imports are a separately enabled,
   SSRF-hardened connector rather than a core URL field.
 
-Frontend packages mirror those seams: contracts, JSON Forms adapter, renderer registry, governed
-actions, wizard, reusable CodeMirror editor, optional Monaco editor and the Program Kit design-system adapter. Framework adapters consume these
-packages; business applications do not import management-plane internals.
+Frontend packages mirror those seams: contracts, JSON Forms runtime integration, renderer registry,
+governed actions, wizard state, lookups, editor contracts, semantic theme tokens and thin framework
+bindings. Business applications supply renderers and do not import management-plane internals.
 
 ## Canonical models and release flow
 
@@ -158,21 +148,12 @@ Unicode/CLDR semantics. Locale identifiers use BCP 47. Language and direction me
 together. Source/default text keeps a form usable when localization is not installed, while a
 consumer may make locale completeness a publication policy.
 
-## Program Kit wizard renderer
+## Consumer-owned rendering contracts
 
-The built-in JSON Forms stepper remains a compatibility fallback only. The default Program Kit
-wizard is a custom `Categorization` renderer selected through a Program Kit variant and renderer
-manifest. Its stable contract includes:
-
-- top, side and compact/mobile navigation; custom line, segment and progress treatments;
-- registry-based icons, translated title/subtitle/status text and consumer design tokens;
-- current, visited, completed, warning, error, skipped, optional and disabled states;
-- linear, non-linear and visited-only navigation policies;
-- validation gates, first-error focus, conditional steps and stable navigation when steps appear or
-  disappear;
-- Back, Next, Save draft, Skip, Cancel and Finish action references with busy/error semantics;
-- resumable/deep-linked progress where policy allows it; and
-- keyboard, touch, screen-reader, RTL, forced-colors and reduced-motion behavior.
+Program Kit retains a framework-neutral wizard state machine for current, visited, completed,
+warning, error, skipped, optional and disabled states; linear, non-linear and visited-only
+navigation; validation gates; conditional steps; and resumable progress. It does not render that
+state. Applications map it to their selected stepper or design-system component.
 
 Navigation cannot invoke arbitrary code from schema data. Applications register typed action
 handlers; form releases reference allowlisted action identifiers and input/output contracts.
@@ -186,9 +167,8 @@ URL, credential or callback. An installed lookup provider owns typed search, cur
 dependent filters and stored-value label resolution. Protected or business data is retrieved through
 a server feature with authorization; direct browser providers are restricted to explicitly
 registered public CORS-safe sources. Submitted values are always revalidated server-side.
-The React renderer is optional and uses combobox/listbox semantics, native keyboard focus, text-only
-labels, live loading/failure status and an explicit load-more operation. Dependent filters are read
-only from declared rooted data JSON Pointers.
+Applications implement the combobox or other visual control and consume only the headless lookup
+state. Dependent filters are read only from declared rooted data JSON Pointers.
 
 ## Authoring and localization experience
 
@@ -214,23 +194,13 @@ other implementation. An integration feature composes the two when both are sele
 - Audit data excludes secrets and submitted sensitive values; observability uses stable form,
   release, scope and diagnostic identifiers.
 
-## Mandatory device and quality matrix
+## Engine quality matrix
 
-Core CI exercises Chromium, Firefox and WebKit. The pairwise matrix covers desktop, touch phone and
-touch tablet profiles; portrait and landscape; 320 CSS-pixel reflow with 200% root text; light,
-dark, forced-colors and reduced-motion modes; LTR and RTL; keyboard-only and touch navigation; and
-no unexpected page-level horizontal overflow. Critical form journeys run in each engine. Renderer
-state galleries cover every published control and wizard state.
-
-Playwright device profiles are repeatable compatibility evidence, not proof for physical hardware,
-virtual keyboards or assistive technologies. Release acceptance therefore also records manual
-screen-reader and representative physical phone/tablet journey results. Consumer applications rerun
-the same adapter suite against their actual framework, CSS system, browser support policy and CSP.
-
-Accessibility, localization, performance and security checks include WCAG 2.2 AA automation,
-focus/order/error announcements, touch target sizing, content expansion, locale formatting,
-pseudo-localization, bidirectional isolation, large-form budgets, dependency/CSP inspection,
-cross-engine validation parity and hostile-schema/import fixtures.
+Core CI exercises the bindings through fixture-owned renderers in Chromium, Firefox and WebKit.
+It verifies precompiled validation, hidden-to-visible validation-mode transitions, data changes,
+translation integration, strict CSP and dependency isolation. The fixture is evidence for the
+engine boundary only; it is not a published component or a substitute for acceptance of the
+consumer's selected UI library.
 
 ## Delivery slices
 
@@ -240,9 +210,9 @@ cross-engine validation parity and hostile-schema/import fixtures.
    concurrency/idempotency/audit contracts and architecture tests.
 3. **Compiler and storage**: JSON Forms compilation, translation manifests, compatibility analysis,
    immutable file-system stores and deterministic fixtures.
-4. **Runtime**: JSON Forms runtime adapter, renderer registry, CodeMirror default and separately
-   installable Monaco adapter.
-5. **Runtime composition**: custom controls/actions, trusted lookups and the Program Kit wizard.
+4. **Runtime**: JSON Forms runtime adapter, renderer registry, editor contract and thin framework
+   bindings requiring application-supplied renderers.
+5. **Runtime composition**: headless actions, trusted lookups and wizard state.
 6. **Localization**: backend management/runtime features, imports/exports, scopes, fallbacks,
    plural/select messages and forms integration.
 7. **Operational capabilities**: resumable drafts, optional submissions/attachments, MCP/tool

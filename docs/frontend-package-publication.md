@@ -6,16 +6,17 @@ Program Kit frontend packages will publish from the tagged GitHub Actions releas
 GitHub Packages at `npm.pkg.github.com` under the `@orbyss` scope. Consumers will install only the
 adapters they select. No manual package upload is part of the release procedure.
 
-The publication workflow remains intentionally disabled until the approved frontend package set is
-complete. When it is enabled, it must:
+The publication workflow is enabled for the approved twelve-package engine family. It:
 
-- derive every package version from the repository `VERSION` and require an exactly matching tag;
+- derives every package version from `RUNTIME_VERSION` (`0.9.9-preview.1`) while requiring the
+  release tag to match `VERSION` (`v0.9.9`);
 - authenticate with the workflow's narrowly scoped GitHub package permission, never a committed
   token;
 - run the clean locked install, build, tests, browser acceptance and package dry runs before publish;
-- publish immutable packages from the tagged commit, attach provenance where GitHub's npm registry
-  supports it, and fail rather than republish an existing version;
-- verify every published package by installing it into a clean consumer from GitHub Packages; and
+- publishes immutable packages from the tagged commit, attests the packed tarballs through GitHub
+  artifact attestations, and fails rather than republish an existing version;
+- verifies every published package by installing the whole exact-version family into a clean
+  consumer from GitHub Packages; and
 - treat a failed release pipeline as an unreleased version so a corrected commit replaces the failed
   tag, following the repository's existing release policy.
 
@@ -33,8 +34,9 @@ publish all packages in a changed family, skip every unchanged family, and publi
 docs-only release. Per-package publishing is deferred until independent versions and a tested
 dependency-closure planner exist.
 
-An optional future npmjs.com mirror requires a separate explicit decision. It is not part of the
-default publication topology.
+The packages use the `preview` dist-tag because frontend/runtime artifacts remain preview-versioned
+in this release. An optional future npmjs.com mirror requires a separate explicit decision. It is
+not part of the default publication topology.
 
 The repository-wide family selection and least-authority rules are defined in
 `docs/release-family-publication.md`.

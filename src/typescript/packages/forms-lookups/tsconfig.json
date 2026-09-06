@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/lookups.tsbuildinfo"
+    "tsBuildInfoFile": "lookups.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "references": [{ "path": "../forms-contracts" }]

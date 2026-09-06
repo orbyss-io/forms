@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss/program-kit-forms-ajv-build";
-import { codeMirrorJsonEditorAdapter, mountJsonEditor } from "@orbyss/program-kit-forms-codemirror";
 import { defaultRuntimeLimits } from "@orbyss/program-kit-forms-contracts";
 import { jsonEditorIndentationPolicy, normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss/program-kit-forms-editor-contracts";
 import {
@@ -14,17 +13,10 @@ import {
   prepareJsonFormsRuntime
 } from "@orbyss/program-kit-forms-jsonforms-runtime";
 import { FormLookupController, FormLookupRegistry } from "@orbyss/program-kit-forms-lookups";
-import { programKitSearchableSelectRendererEntry, programKitSearchableSelectTester } from "@orbyss/program-kit-forms-lookups-react";
 import { FormActionRegistry, RendererRegistry } from "@orbyss/program-kit-forms-renderer-registry";
 import { ProgramKitActionController, ProgramKitActionError, parseProgramKitActionBar } from "@orbyss/program-kit-forms-actions";
 import { ProgramKitWizardController, parseProgramKitWizard } from "@orbyss/program-kit-forms-wizard";
-import {
-  ProgramKitJsonForms,
-  ProgramKitWizardNavigation,
-  programKitActionBarTester,
-  programKitCoreRendererEntries,
-  programKitWizardTester
-} from "@orbyss/program-kit-forms-react";
+import { ProgramKitJsonForms } from "@orbyss/program-kit-forms-react";
 import { rankWith, uiTypeIs } from "@jsonforms/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -32,7 +24,6 @@ import { createSSRApp, defineComponent, h, markRaw } from "vue";
 import { renderToString } from "vue/server-renderer";
 import {
   ProgramKitJsonFormsVue,
-  programKitVueCoreRendererEntries,
   programKitVueFormsAdapterVersion
 } from "@orbyss/program-kit-forms-vue";
 import {
@@ -194,23 +185,6 @@ test("Vue binding renders a governed runtime through consumer-supplied renderers
   assert.equal(programKitVueFormsAdapterVersion, "1.0.0");
   assert.match(markup, /data-vue-runtime="ready"/);
   assert.match(markup, /Vue runtime ready/);
-});
-
-test("Vue binding supplies semantic core controls with overrideable low ranks", async () => {
-  const controlUiSchema = { type: "Control", scope: "#/properties/name" };
-  const runtime = {
-    schema,
-    uiSchema: controlUiSchema,
-    validate: compileBuildTimeValidator(schema),
-    translate: (_key, fallback) => fallback
-  };
-  const markup = await renderToString(createSSRApp({
-    render: () => h(ProgramKitJsonFormsVue, { runtime, data: { name: "Ada" } })
-  }));
-  assert.equal(programKitVueCoreRendererEntries.length, 6);
-  assert.match(markup, /class="pk-form-control"/);
-  assert.match(markup, /value="Ada"/);
-  assert.match(markup, /minlength="1"/);
 });
 
 test("TypeScript runtime consumes the exact release fixture emitted by the .NET compiler", async () => {
@@ -436,35 +410,6 @@ test("searchable lookups cancel superseded searches and hide unexpected provider
   await assert.rejects(() => new FormLookupController({ registry, dataSourceId: "catalog.slow", locale: "en" }).resolve(["x"]), error => error.message === "Options could not be loaded.");
 });
 
-test("React lookup adapter selects the custom component and renders a semantic combobox", () => {
-  const lookupUi = {
-    type: "Control",
-    scope: "#/properties/name",
-    label: "Product",
-    options: {
-      component: "ProgramKit.SearchableSelect",
-      componentVersion: "[1.0.0,2.0.0)",
-      componentOptions: { dataSourceId: "catalog.products", minimumCharacters: "2" }
-    }
-  };
-  const registry = new FormLookupRegistry([{
-    contract: { dataSourceId: "catalog.products", contractVersion: "1.0.0", displayName: "Products", execution: "server", supportsSearch: true, supportsPaging: true, filterKeys: [], maximumPageSize: 25 },
-    search: async () => ({ items: [] }),
-    resolve: async values => values.map(value => ({ value, label: String(value) }))
-  }]);
-  const runtime = { schema, uiSchema: lookupUi, validate: compileBuildTimeValidator(schema), translate: (_key, fallback) => fallback };
-  const markup = renderToStaticMarkup(createElement(ProgramKitJsonForms, {
-    runtime,
-    data: {},
-    renderers: [programKitSearchableSelectRendererEntry],
-    config: { programKitLookups: { registry, locale: "en" } }
-  }));
-  assert.equal(programKitSearchableSelectTester(lookupUi, schema, {}), 1100);
-  assert.match(markup, /role="combobox"/);
-  assert.match(markup, /aria-haspopup="listbox"/);
-  assert.match(markup, />Product \*</);
-});
-
 test("runtime fails closed for tampering, external references, and missing renderers", async () => {
   const emptyRenderers = new RendererRegistry([]);
   const actions = new FormActionRegistry({});
@@ -494,11 +439,8 @@ test("runtime refuses to render a release whose trusted action package is not in
   ), /Required action handler 'registration.submit' is not registered/);
 });
 
-test("default runtime bounds and JSON editor adapters stay independently consumable", () => {
+test("default runtime bounds and application-owned JSON editor contracts stay independently consumable", () => {
   assert.equal(defaultRuntimeLimits.maximumArtifactBytes, 1_048_576);
-  assert.equal(typeof mountJsonEditor, "function");
-  assert.equal(codeMirrorJsonEditorAdapter.id, "program-kit.codemirror-json");
-  assert.equal(codeMirrorJsonEditorAdapter.requiresWorkers, false);
   assert.deepEqual(jsonEditorIndentationPolicy, { insertSpaces: true, tabSize: 2, tabKeyIndents: true, focusNavigationToggle: "Ctrl+M" });
   assert.throws(() => requireJsonEditorOptions({ parent: {}, document: "{}", accessibleLabel: " " }), /accessible label/);
   assert.deepEqual(normalizeJsonEditorDiagnostics([
@@ -586,126 +528,25 @@ test("Program Kit wizard rejects malformed and duplicate categories", () => {
   }), /Duplicate wizard step/);
 });
 
-test("React binding supplies semantic core controls without preventing higher-ranked overrides", () => {
-  assert.equal(programKitCoreRendererEntries.length, 6);
-  const renderControl = (property, propertySchema, data, options = undefined) => {
-    const schema = { $schema: "https://json-schema.org/draft/2020-12/schema", type: "object", properties: { [property]: propertySchema } };
-    return renderToStaticMarkup(createElement(ProgramKitJsonForms, {
-      runtime: {
-        schema,
-        uiSchema: { type: "Control", scope: `#/properties/${property}`, label: property, ...(options === undefined ? {} : { options }) },
-        validate: () => [],
-        translate: (_key, fallback) => fallback
-      },
-      data: { [property]: data }
-    }));
-  };
-  const text = renderControl("email", { type: "string", format: "email", minLength: 3 }, "user@example.test", { autocomplete: "email", placeholder: "name@example.test" });
-  assert.match(text, /class="pk-form-control"/);
-  assert.match(text, /type="email"/);
-  assert.match(text, /autoComplete="email"/);
-  const multiline = renderControl("notes", { type: "string", maxLength: 500 }, "Line one", { multi: true, rows: 8 });
-  assert.match(multiline, /<textarea/);
-  assert.match(multiline, /rows="8"/);
-  const number = renderControl("quantity", { type: "integer", minimum: 1, maximum: 20 }, 2);
-  assert.match(number, /type="number"/);
-  assert.match(number, /step="1"/);
-  const boolean = renderControl("accepted", { type: "boolean" }, true);
-  assert.match(boolean, /type="checkbox"/);
-  assert.match(boolean, /checked=""/);
-  const choice = renderControl("plan", { type: "string", enum: ["starter", "professional"] }, "professional", { enumLabels: ["Starter", "Professional"] });
-  assert.match(choice, /<select/);
-  assert.match(choice, /Professional/);
-  const multiple = renderControl("roles", { type: "array", items: { type: "string", enum: ["reader", "writer"] } }, ["writer"]);
-  assert.match(multiple, /multiple=""/);
-});
-
-test("React binding selects the custom variant and renders semantic step navigation", () => {
-  const wizardUi = {
-    type: "Categorization",
-    id: "onboarding",
-    options: { variant: "program-kit-wizard", navigationPlacement: "adaptive", progressStyle: "progress" },
-    elements: [
-      { type: "Category", id: "account", label: "Account", options: { icon: { name: "user", bundle: "lucide" } }, elements: [] },
-      { type: "Category", id: "confirm", label: "Confirm", elements: [] }
-    ]
-  };
-  const definition = parseProgramKitWizard(wizardUi);
-  const controller = new ProgramKitWizardController(definition);
-  const markup = renderToStaticMarkup(createElement(ProgramKitWizardNavigation, {
-    definition,
-    snapshot: controller.snapshot(),
-    onSelect: () => {},
-    renderIcon: icon => createElement("svg", { "aria-hidden": true, "data-icon": icon.name })
-  }));
-
-  assert.equal(programKitWizardTester(wizardUi, schema, {}), 1000);
-  assert.match(markup, /<nav aria-label="Form steps"/);
-  assert.match(markup, /aria-current="step"/);
-  assert.match(markup, /data-placement="adaptive"/);
-  assert.match(markup, /data-status="upcoming"/);
-  assert.match(markup, /<progress aria-label="Form completion"/);
-  assert.match(markup, /data-icon="user"/);
-
+test("React binding delegates all rendering to the consuming application", () => {
+  const controlUiSchema = { type: "Control", scope: "#/properties/name" };
   const runtime = {
     schema,
-    uiSchema: wizardUi,
+    uiSchema: controlUiSchema,
     validate: compileBuildTimeValidator(schema),
     translate: (_key, fallback) => fallback
   };
-  const originalFunction = globalThis.Function;
-  const originalEval = globalThis.eval;
-  globalThis.Function = function forbiddenDynamicFunction() { throw new Error("Dynamic Function construction is forbidden."); };
-  globalThis.eval = function forbiddenEval() { throw new Error("eval is forbidden."); };
-  let boundMarkup;
-  try {
-    boundMarkup = renderToStaticMarkup(createElement(ProgramKitJsonForms, {
-      runtime,
-      data: { name: "Ada" },
-      renderers: [
-        { tester: rankWith(1, uiTypeIs("Category")), renderer: () => createElement("p", null, "Active category") }
-      ]
-    }));
-  } finally {
-    globalThis.Function = originalFunction;
-    globalThis.eval = originalEval;
-  }
-  assert.match(boundMarkup, /class="pk-form-wizard"/);
-  assert.match(boundMarkup, /Active category/);
-  assert.match(boundMarkup, /class="pk-form-wizard__actions"/);
-});
-
-test("React binding renders manifest-backed, localized action bars without schema callbacks", () => {
-  const actionUi = {
-    type: "ProgramKit.ActionBar",
-    id: "primary-actions",
-    options: { actions: ["save", "submit"] }
-  };
-  const runtime = {
-    schema,
-    uiSchema: actionUi,
-    validate: compileBuildTimeValidator(schema),
-    translate: (key, fallback) => key === "actions.submit" ? "Versturen" : fallback,
-    actions: [
-      { actionId: "save", handlerId: "save", kind: "saveDraft", label: { key: "actions.save", defaultText: "Save draft" }, requiresValidForm: false },
-      { actionId: "submit", handlerId: "submit", kind: "submit", label: { key: "actions.submit", defaultText: "Submit" }, requiresValidForm: true, icon: { name: "send", bundle: "lucide" } }
-    ],
-    dispatchAction: async () => ({ accepted: true })
-  };
+  const ConsumerRenderer = () => createElement("output", { "data-consumer-renderer": "ready" }, "Application renderer");
   const markup = renderToStaticMarkup(createElement(ProgramKitJsonForms, {
     runtime,
     data: { name: "Ada" },
-    config: {
-      programKitActions: {
-        renderIcon: icon => createElement("svg", { "aria-hidden": true, "data-icon": icon.name })
-      }
-    }
+    renderers: [{ tester: rankWith(1000, uiTypeIs("Control")), renderer: ConsumerRenderer }]
   }));
-
-  assert.equal(programKitActionBarTester(actionUi, schema, {}), 1000);
-  assert.match(markup, /class="pk-form-actions"/);
-  assert.match(markup, /data-action-id="save"/);
-  assert.match(markup, /Save draft/);
-  assert.match(markup, /Versturen/);
-  assert.match(markup, /data-icon="send"/);
+  assert.match(markup, /data-consumer-renderer="ready"/);
+  assert.match(markup, /Application renderer/);
+  assert.throws(() => renderToStaticMarkup(createElement(ProgramKitJsonForms, {
+    runtime,
+    data: { name: "Ada" },
+    renderers: []
+  })), /consumer-supplied JSON Forms renderers/);
 });

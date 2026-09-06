@@ -49,8 +49,8 @@ interface JsonFormsAngularChangeEvent {
 }
 
 /**
- * Standalone Angular boundary over JSON Forms. The package is Angular-partial-compiled and shares
- * the same build-time validation and bounded-condition policy as React and Vue.
+ * Thin standalone Angular boundary over JSON Forms. The package owns validation integration only;
+ * renderer components and styling are supplied by the consuming application.
  */
 @Component({
   selector: "program-kit-json-forms",
@@ -75,7 +75,7 @@ interface JsonFormsAngularChangeEvent {
 export class ProgramKitJsonFormsAngularComponent implements OnChanges {
   @Input({ required: true }) runtime!: ProgramKitJsonFormsAngularRuntime;
   @Input({ required: true }) data!: JsonValue;
-  @Input() renderers: JsonFormsRendererRegistryEntry[] = [];
+  @Input({ required: true }) renderers!: JsonFormsRendererRegistryEntry[];
   @Input() readonly = false;
   @Input() config: Readonly<Record<string, unknown>> = Object.freeze({});
   @Input() validationMode: ValidationMode = "ValidateAndHide";
@@ -86,6 +86,9 @@ export class ProgramKitJsonFormsAngularComponent implements OnChanges {
   i18n!: { readonly translate: JsonFormsTranslatorAdapter };
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (this.renderers.length === 0) {
+      throw new Error("Program Kit's Angular binding requires consumer-supplied JSON Forms renderers.");
+    }
     if (changes["runtime"] !== undefined) {
       this.ajv = createPrecompiledJsonFormsAjvFacade(this.runtime.schema, this.runtime.validate);
       this.uiSchema = this.runtime.uiSchema as unknown as UISchemaElement;

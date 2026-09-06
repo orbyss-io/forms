@@ -32,8 +32,7 @@ await build({
 await cp(resolve(import.meta.dirname, "index.html"), resolve(output, "index.html"));
 const fixtureStyles = await readFile(resolve(import.meta.dirname, "styles.css"), "utf8");
 const themeStyles = await readFile(resolve(workspace, "packages/ui-theme/default.css"), "utf8");
-const formStyles = await readFile(resolve(workspace, "packages/forms-react/styles.css"), "utf8");
-await writeFile(resolve(output, "styles.css"), `${themeStyles}\n${fixtureStyles}\n${formStyles}\n`);
+await writeFile(resolve(output, "styles.css"), `${themeStyles}\n${fixtureStyles}\n`);
 const bundle = await readFile(resolve(output, "app.js"), "utf8");
 await writeFile(resolve(output, "build-evidence.json"), JSON.stringify({
   schema: schema.$id,
@@ -41,4 +40,4 @@ await writeFile(resolve(output, "build-evidence.json"), JSON.stringify({
   dynamicCodeGeneration: false,
   sourceMaps: false
 }, null, 2));
-console.log("Forms browser fixture bundled with a precompiled validator.");
+console.log("Forms engine browser fixture bundled with a precompiled validator and fixture-owned renderer.");

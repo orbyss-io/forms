@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/frontend-ci.yml"
+      - ".github/workflows/publish-frontend.yml"
       - "eng/ProgramKit.Version.props"
       - "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/js_toolchain.py"
       - "src/typescript/**"
@@ -16,12 +17,14 @@ on:
       - "tests/validate_forms_frontend.py"
       - "tests/validate_forms_frontend_ci.py"
       - "tests/validate_forms_frontend_packages.py"
+      - "tests/validate_frontend_publication.py"
       - "scripts/Start-FormsPhysicalAcceptance.ps1"
       - "docs/forms-physical-acceptance.md"
       - "docs/templates/forms-physical-acceptance-report.md"
   pull_request:
     paths:
       - ".github/workflows/frontend-ci.yml"
+      - ".github/workflows/publish-frontend.yml"
       - "eng/ProgramKit.Version.props"
       - "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/js_toolchain.py"
       - "src/typescript/**"
@@ -33,6 +36,7 @@ on:
       - "tests/validate_forms_frontend.py"
       - "tests/validate_forms_frontend_ci.py"
       - "tests/validate_forms_frontend_packages.py"
+      - "tests/validate_frontend_publication.py"
       - "scripts/Start-FormsPhysicalAcceptance.ps1"
       - "docs/forms-physical-acceptance.md"
       - "docs/templates/forms-physical-acceptance-report.md"
@@ -66,7 +70,10 @@ jobs:
       - name: Validate non-publishing frontend CI contract
         run: python tests/validate_forms_frontend_ci.py
 
-      - name: Validate Forms frontend runtime, AJV parity, and CodeMirror default
+      - name: Validate tag-only frontend publication contract
+        run: python tests/validate_frontend_publication.py
+
+      - name: Validate Forms engine runtime, AJV parity, and thin framework bindings
         run: python tests/validate_forms_frontend.py --install
 
       - name: Validate clean Forms frontend package installation

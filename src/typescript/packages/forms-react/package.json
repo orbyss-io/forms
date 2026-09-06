@@ -1,24 +1,32 @@
 {
   "name": "@orbyss/program-kit-forms-react",
   "version": "0.9.9-preview.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orbyss-io/program-kit.git",
+    "directory": "src/typescript/packages/forms-react"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public",
+    "tag": "preview"
+  },
   "type": "module",
-  "sideEffects": ["./styles.css"],
-  "files": ["dist", "styles.css"],
+  "sideEffects": false,
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./styles.css": "./styles.css"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss/program-kit-forms-actions": "0.9.9-preview.1",
     "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
-    "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
-    "@orbyss/program-kit-forms-wizard": "0.9.9-preview.1"
+    "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1"
   },
   "peerDependencies": {
     "@jsonforms/core": "3.8.0",

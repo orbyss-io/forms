@@ -7,7 +7,7 @@ publication must not grant one family authority over another.
 
 | Family | Primary inputs | Initial publication unit |
 | --- | --- | --- |
-| Frontend npm | `src/typescript`, its browser fixtures and shared JS toolchain | all 15 exact-versioned `@orbyss` packages |
+| Frontend npm | `src/typescript`, its browser fixtures and shared JS toolchain | all 12 exact-versioned `@orbyss` engine packages |
 | Program Kit NuGet | `src/dotnet`, solution/build/package lock inputs | all packable projects sharing `ProgramKitVersion` |
 | Host container | Host Dockerfile plus the transitive .NET host graph and runtime version | one immutable multi-platform image |
 | Bootstrap assets | extensions, presets, workflows, catalogs and bundle build scripts | one versioned release-asset set |
@@ -43,6 +43,7 @@ possibly affected family.
 For a failed publication, the version remains unreleased. Repair the commit and replace the failed
 tag according to the repository release policy; do not create version drift merely to retry.
 
-The first frontend publication additionally requires the approved manual physical-device and
-assistive-technology evidence. Automated browser emulation is a prerequisite, not a substitute for
-that evidence.
+The first publication of a Program Kit-owned renderer or other visual component additionally
+requires approved manual physical-device and assistive-technology evidence. Engine-only bindings
+that publish no markup or CSS use the automated consumer-renderer browser matrix; the consuming
+application owns physical acceptance for its selected renderer and design system.

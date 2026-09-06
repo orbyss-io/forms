@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/registry.tsbuildinfo"
+    "tsBuildInfoFile": "registry.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "references": [

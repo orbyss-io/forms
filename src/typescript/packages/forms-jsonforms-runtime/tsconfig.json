@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/jsonforms-runtime.tsbuildinfo"
+    "tsBuildInfoFile": "jsonforms-runtime.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
   "references": [

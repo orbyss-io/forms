@@ -1,4 +1,4 @@
-# Forms and localization physical-acceptance report
+# Program Kit-owned component physical-acceptance report
 
 - Result: PASS / FAIL
 - Source commit:
@@ -21,10 +21,9 @@
 
 | Journey | Result | Observed evidence or issue reference |
 | --- | --- | --- |
-| Form errors, completion and submission |  |  |
-| Searchable choices and wizard navigation |  |  |
+| Component-owned primary journey |  |  |
+| Validation and error presentation |  |  |
 | LTR and RTL localization |  |  |
-| Inline validation message and invalid-field state |  |  |
 | Portrait, landscape and virtual keyboard |  |  |
 | 320 CSS px / 200% zoom reflow |  |  |
 | Keyboard-only and editor Tab behavior |  |  |

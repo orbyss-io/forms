@@ -54,16 +54,19 @@ jobs:
       - name: Validate UI experience and public content contracts
         run: python tests/validate_ui_experience.py
 
-      - name: Validate Forms frontend runtime, AJV parity, and CodeMirror default
+      - name: Validate Forms engine runtime, AJV parity, and thin framework bindings
         run: python tests/validate_forms_frontend.py --install
 
       - name: Validate clean Forms frontend package installation
         run: python tests/validate_forms_frontend_packages.py
 
+      - name: Validate tag-only frontend publication contract
+        run: python tests/validate_frontend_publication.py --tag "$GITHUB_REF_NAME"
+
       - name: Validate UI accessibility, keyboard and analytics in Chromium
         run: python tests/validate_ui_browser.py --install --install-browser
 
-      - name: Validate forms wizard across browser engines and device profiles
+      - name: Validate forms engine through consumer renderers across browser engines
         run: python tests/validate_forms_browser.py
 
       - name: Validate web security assurance evidence
@@ -219,6 +222,11 @@ jobs:
   publish-nuget:
     needs: release
     uses: ./.github/workflows/publish-nuget.yml
+    secrets: inherit
+
+  publish-frontend:
+    needs: release
+    uses: ./.github/workflows/publish-frontend.yml
     secrets: inherit
 
   publish-host-image:

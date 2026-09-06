@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "tsBuildInfoFile": "dist/editor-contracts.tsbuildinfo"
+    "tsBuildInfoFile": "editor-contracts.tsbuildinfo"
   },
   "include": ["src/**/*.ts"]
 }

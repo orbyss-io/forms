@@ -33,6 +33,7 @@ def main() -> int:
         raise AssertionError("The frontend workspace must use only the governed compiler and browser-acceptance pins at the root.")
 
     withdrawn = {
+        "forms-codemirror", "forms-lookups-react", "forms-monaco",
         "forms-modeler", "forms-modeler-angular", "forms-modeler-react", "forms-modeler-vue",
         "forms-schema-modeler", "forms-schema-modeler-angular", "forms-schema-modeler-react",
         "forms-schema-modeler-vue", "localization-management", "localization-management-angular",
@@ -48,14 +49,11 @@ def main() -> int:
         "@orbyss/program-kit-forms-renderer-registry",
         "@orbyss/program-kit-forms-jsonforms-runtime",
         "@orbyss/program-kit-forms-ajv-build",
-        "@orbyss/program-kit-forms-codemirror",
         "@orbyss/program-kit-forms-editor-contracts",
-        "@orbyss/program-kit-forms-monaco",
         "@orbyss/program-kit-forms-wizard",
         "@orbyss/program-kit-forms-actions",
         "@orbyss/program-kit-forms-angular",
         "@orbyss/program-kit-forms-lookups",
-        "@orbyss/program-kit-forms-lookups-react",
         "@orbyss/program-kit-forms-react",
         "@orbyss/program-kit-forms-vue",
         "@orbyss/program-kit-ui-theme",
@@ -79,31 +77,9 @@ def main() -> int:
     if editor_contracts.get("dependencies") or editor_contracts.get("peerDependencies") or editor_contracts.get("devDependencies"):
         raise AssertionError("The shared JSON editor contract must remain dependency-free.")
 
-    codemirror_dependencies = by_name["@orbyss/program-kit-forms-codemirror"]["dependencies"]
-    if codemirror_dependencies != {
-        "@codemirror/commands": "6.11.0",
-        "@codemirror/lang-json": "6.0.2",
-        "@codemirror/language": "6.12.4",
-        "@codemirror/lint": "6.9.7",
-        "@codemirror/view": "6.43.11",
-        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
-        "codemirror": "6.0.2",
-    }:
-        raise AssertionError("CodeMirror 6 must remain the default editor.")
-
-    monaco = by_name["@orbyss/program-kit-forms-monaco"]
-    if monaco.get("dependencies") != {"@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1"} \
-            or monaco.get("peerDependencies") != {"monaco-editor": "0.56.0"} \
-            or monaco.get("devDependencies") != {"monaco-editor": "0.56.0"}:
-        raise AssertionError("Monaco must remain a separately installed exact-pinned editor adapter.")
     editor_policy = (WORKSPACE / "packages/forms-editor-contracts/src/index.ts").read_text(encoding="utf-8")
-    codemirror_source = (WORKSPACE / "packages/forms-codemirror/src/index.ts").read_text(encoding="utf-8")
-    monaco_source = (WORKSPACE / "packages/forms-monaco/src/index.ts").read_text(encoding="utf-8")
-    if "tabSize: 2" not in editor_policy or "tabKeyIndents: true" not in editor_policy \
-            or "indentUnit.of" not in codemirror_source or "indentWithTab" not in codemirror_source \
-            or "tabFocusMode: !jsonEditorIndentationPolicy.tabKeyIndents" not in monaco_source \
-            or "detectIndentation: false" not in monaco_source:
-        raise AssertionError("CodeMirror and Monaco must share the governed two-space Tab indentation policy.")
+    if "tabSize: 2" not in editor_policy or "tabKeyIndents: true" not in editor_policy:
+        raise AssertionError("Application-owned editors must receive the governed two-space Tab indentation policy.")
 
     wizard_dependencies = by_name["@orbyss/program-kit-forms-wizard"]["dependencies"]
     if wizard_dependencies != {"@orbyss/program-kit-forms-contracts": "0.9.9-preview.1"}:
@@ -127,21 +103,10 @@ def main() -> int:
     if lookup_dependencies != {"@orbyss/program-kit-forms-contracts": "0.9.9-preview.1"}:
         raise AssertionError("Searchable lookups must remain framework-neutral and depend only on JSON-safe contracts.")
 
-    lookup_react = by_name["@orbyss/program-kit-forms-lookups-react"]
-    if lookup_react.get("dependencies") != {
-        "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
-        "@orbyss/program-kit-forms-lookups": "0.9.9-preview.1",
-    } or lookup_react.get("peerDependencies") != {
-        "@jsonforms/core": "3.8.0",
-        "@jsonforms/react": "3.8.0",
-        "react": "19.2.8",
-    } or lookup_react.get("devDependencies") != {"@types/react": "19.2.18"}:
-        raise AssertionError("The optional React lookup renderer crossed its governed package boundary.")
-
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
     if base_config["compilerOptions"].get("skipLibCheck") is not False:
         raise AssertionError("Library declaration checking must remain enabled for the frontend workspace.")
-    quarantined = {"forms-angular", "forms-react", "forms-lookups-react", "forms-vue"}
+    quarantined = {"forms-angular", "forms-react", "forms-vue"}
     for config_path in (WORKSPACE / "packages").glob("*/tsconfig.json"):
         config = json.loads(config_path.read_text(encoding="utf-8"))
         skipped = config.get("compilerOptions", {}).get("skipLibCheck", False)
@@ -150,12 +115,10 @@ def main() -> int:
 
     react_manifest = by_name["@orbyss/program-kit-forms-react"]
     if react_manifest.get("dependencies") != {
-        "@orbyss/program-kit-forms-actions": "0.9.9-preview.1",
         "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
         "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
-        "@orbyss/program-kit-forms-wizard": "0.9.9-preview.1",
     }:
-        raise AssertionError("The React binding must compose only the governed framework-neutral form packages.")
+        raise AssertionError("The thin React binding must depend only on governed runtime integration.")
     if react_manifest.get("peerDependencies") != {
         "@jsonforms/core": "3.8.0",
         "@jsonforms/react": "3.8.0",
@@ -168,8 +131,9 @@ def main() -> int:
         "react-dom": "19.2.8",
     }:
         raise AssertionError("The React binding must compile against the governed React type pin.")
-    if react_manifest.get("files") != ["dist", "styles.css"] or react_manifest.get("exports", {}).get("./styles.css") != "./styles.css":
-        raise AssertionError("The semantic React control baseline must remain an explicit optional CSS export.")
+    if react_manifest.get("files") != ["dist"] or react_manifest.get("sideEffects") is not False \
+            or "./styles.css" in react_manifest.get("exports", {}):
+        raise AssertionError("The thin React binding must not publish renderer components or CSS.")
 
     vue_manifest = by_name["@orbyss/program-kit-forms-vue"]
     if vue_manifest.get("dependencies") != {
@@ -181,8 +145,9 @@ def main() -> int:
         "vue": "3.5.42",
     } or vue_manifest.get("devDependencies") != {"vue": "3.5.42"}:
         raise AssertionError("The Vue binding crossed its governed framework-neutral runtime boundary.")
-    if vue_manifest.get("files") != ["dist", "styles.css"] or vue_manifest.get("exports", {}).get("./styles.css") != "./styles.css":
-        raise AssertionError("The semantic Vue control baseline must remain an explicit optional CSS export.")
+    if vue_manifest.get("files") != ["dist"] or vue_manifest.get("sideEffects") is not False \
+            or "./styles.css" in vue_manifest.get("exports", {}):
+        raise AssertionError("The thin Vue binding must not publish renderer components or CSS.")
 
     angular_manifest = by_name["@orbyss/program-kit-forms-angular"]
     if angular_manifest.get("dependencies") != {
@@ -204,9 +169,8 @@ def main() -> int:
 
     validation_presentation = {
         "packages/forms-react/src/index.tsx": (
-            'useState<ValidationMode>("ValidateAndHide")',
-            'if (action.requiresValidForm) revealValidation()',
-            'result.reason === "validation"',
+            'validationMode = "ValidateAndHide"',
+            "consumer-supplied JSON Forms renderers",
         ),
         "packages/forms-vue/src/index.ts": (
             'default: "ValidateAndHide"',
@@ -215,6 +179,8 @@ def main() -> int:
         "packages/forms-angular/src/index.ts": (
             '@Input() validationMode: ValidationMode = "ValidateAndHide"',
             '[validationMode]="validationMode"',
+            '@Input({ required: true }) renderers!',
+            "consumer-supplied JSON Forms renderers",
         ),
     }
     for relative, required_markers in validation_presentation.items():
@@ -223,19 +189,31 @@ def main() -> int:
             if marker not in source:
                 raise AssertionError(f"{relative} lost governed delayed validation presentation: {marker}")
 
+    for relative in ("packages/forms-react/src/index.tsx", "packages/forms-vue/src/index.ts"):
+        source = (WORKSPACE / relative).read_text(encoding="utf-8")
+        for forbidden in (
+            "withJsonFormsControlProps",
+            "ProgramKitWizard",
+            "ProgramKitActionBar",
+            "ProgramKit.SearchableSelect",
+            "pk-form-control",
+            "pk-form-wizard",
+            "pk-form-actions",
+        ):
+            if forbidden in source:
+                raise AssertionError(f"The thin framework binding contains a withdrawn renderer component: {relative}: {forbidden}")
+
     for manifest in manifests:
         if manifest.get("exports", {}).get("./styles.css") == "./styles.css" \
                 and manifest.get("sideEffects") != ["./styles.css"]:
             raise AssertionError(f"Explicit component CSS may be tree-shaken: {manifest['name']}")
-        if manifest["name"] == "@orbyss/program-kit-forms-monaco":
-            continue
         dependencies = {
             dependency
             for section in ("dependencies", "devDependencies", "peerDependencies")
             for dependency in manifest.get(section, {})
         }
         if any("monaco" in dependency.lower() for dependency in dependencies):
-            raise AssertionError(f"Monaco leaked outside its optional adapter: {manifest['name']}")
+            raise AssertionError(f"A withdrawn Monaco component dependency remains: {manifest['name']}")
 
     node, _ = js_toolchain.resolve_node(ROOT, package["engines"]["node"], "node", "auto")
     if node is None:
@@ -275,16 +253,15 @@ def main() -> int:
     locked_paths = lock.get("packages", {})
     if any(any(name in path for name in withdrawn) for path in locked_paths):
         raise AssertionError("The npm lockfile still contains a rejected management UI package.")
-    monaco_lock = lock.get("packages", {}).get("node_modules/monaco-editor", {})
-    if monaco_lock.get("version") != "0.56.0":
-        raise AssertionError("The optional Monaco adapter must resolve its exact governed peer version.")
+    if "node_modules/monaco-editor" in locked_paths or any("node_modules/@codemirror/" in path for path in locked_paths):
+        raise AssertionError("The npm lockfile still contains a withdrawn editor component dependency.")
 
     run(["test", "--ignore-scripts", "--no-audit", "--no-fund"])
     angular_output = (WORKSPACE / "packages/forms-angular/dist/index.js").read_text(encoding="utf-8")
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, theme tokens, JSON Forms runtime, AJV parity, renderer/actions, searchable lookups, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
+    print("Forms engine contracts, theme tokens, JSON Forms runtime, AJV parity, headless actions/lookups/wizard, editor contracts, and thin React/Vue/Angular bindings passed.")
     return 0
 
 

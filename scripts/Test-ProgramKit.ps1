@@ -36,8 +36,11 @@ if ($LASTEXITCODE -ne 0) { throw 'UI experience/discovery contract validation fa
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend_ci.py')
 if ($LASTEXITCODE -ne 0) { throw 'Non-publishing frontend CI contract validation failed.' }
 
+& $python (Join-Path $projectRoot 'tests\validate_frontend_publication.py')
+if ($LASTEXITCODE -ne 0) { throw 'Tag-only frontend publication contract validation failed.' }
+
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend.py') --install
-if ($LASTEXITCODE -ne 0) { throw 'Forms frontend runtime, AJV parity, or CodeMirror validation failed.' }
+if ($LASTEXITCODE -ne 0) { throw 'Forms engine runtime, AJV parity, or framework-binding validation failed.' }
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend_packages.py')
 if ($LASTEXITCODE -ne 0) { throw 'Forms frontend clean package installation validation failed.' }
 
