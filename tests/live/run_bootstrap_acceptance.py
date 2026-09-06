@@ -871,7 +871,7 @@ def install_candidate(
                     root,
                     "bundle",
                     "install",
-                    str(archives["bundle"]),
+                    str(packages / "bundle/bundle.yml"),
                     "--integration",
                     integration,
                     loopback_http_only=os.name == "nt",
