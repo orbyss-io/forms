@@ -52,8 +52,8 @@ def main() -> int:
         for path in sorted((WORKSPACE / "packages").glob("*/package.json"))
     ]
     names = sorted(manifest["name"] for manifest in manifests)
-    if len(names) != 15 or len(set(names)) != len(names):
-        raise AssertionError("The clean frontend consumer requires exactly fifteen unique packages.")
+    if len(names) != 16 or len(set(names)) != len(names):
+        raise AssertionError("The clean frontend consumer requires exactly sixteen unique packages.")
 
     artifacts = ROOT / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
@@ -105,23 +105,51 @@ def main() -> int:
             "--fetch-timeout=30000",
             "--package-lock=false",
             "@jsonforms/core@3.8.0",
+            "@jsonforms/angular@3.8.0",
             "@jsonforms/react@3.8.0",
             "@jsonforms/vue@3.8.0",
+            "@angular/common@22.1.5",
+            "@angular/core@22.1.5",
+            "@angular/forms@22.1.5",
             "react@19.2.8",
             "react-dom@19.2.8",
+            "rxjs@7.8.2",
             "vue@3.5.42",
             *(str(archive) for archive in archives),
         ]
         run(npm + install_arguments, consumer, environment)
+        node_names = [name for name in names if name != "@orbyss/program-kit-forms-angular"]
         module_probe = (
-            "const names=" + json.dumps(names) + ";"
+            "const names=" + json.dumps(node_names) + ";"
             "for(const name of names){const value=await import(name);"
             "if(Object.keys(value).length===0)throw new Error(`No public exports: ${name}`);}" 
             "console.log(`Imported ${names.length} Program Kit frontend packages.`);"
         )
         imported = run([str(node), "--input-type=module", "--eval", module_probe], consumer, environment)
-        if f"Imported {len(names)} Program Kit frontend packages." not in imported.stdout:
-            raise AssertionError("The clean frontend consumer did not import the complete package set.")
+        if f"Imported {len(node_names)} Program Kit frontend packages." not in imported.stdout:
+            raise AssertionError("The clean frontend consumer did not import every Node-loadable package.")
+
+        angular_entry = consumer / "angular-entry.js"
+        angular_entry.write_text(
+            'import { ProgramKitJsonFormsAngularComponent } from "@orbyss/program-kit-forms-angular";\n'
+            'console.log(ProgramKitJsonFormsAngularComponent);\n',
+            encoding="utf-8",
+        )
+        esbuild = WORKSPACE / "node_modules" / ".bin" / ("esbuild.cmd" if os.name == "nt" else "esbuild")
+        run([
+            str(esbuild),
+            str(angular_entry),
+            "--bundle",
+            "--platform=browser",
+            "--format=esm",
+            "--outfile=angular-bundle.js",
+            "--external:@angular/*",
+            "--external:@jsonforms/*",
+            "--external:rxjs",
+            "--log-level=error",
+        ], consumer, environment)
+        if not (consumer / "angular-bundle.js").is_file():
+            raise AssertionError("The clean frontend consumer did not resolve the Angular package for browser bundling.")
 
     print(f"Forms frontend clean pack/install/import isolation passed ({trust} toolchain).")
     return 0

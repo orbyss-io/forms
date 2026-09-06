@@ -46,6 +46,7 @@ import { createSSRApp, defineComponent, h, markRaw } from "vue";
 import { renderToString } from "vue/server-renderer";
 import {
   ProgramKitJsonFormsVue,
+  programKitVueCoreRendererEntries,
   programKitVueFormsAdapterVersion
 } from "@orbyss/program-kit-forms-vue";
 import {
@@ -264,6 +265,23 @@ test("Vue binding renders a governed runtime through consumer-supplied renderers
   assert.equal(programKitVueFormsAdapterVersion, "1.0.0");
   assert.match(markup, /data-vue-runtime="ready"/);
   assert.match(markup, /Vue runtime ready/);
+});
+
+test("Vue binding supplies semantic core controls with overrideable low ranks", async () => {
+  const controlUiSchema = { type: "Control", scope: "#/properties/name" };
+  const runtime = {
+    schema,
+    uiSchema: controlUiSchema,
+    validate: compileBuildTimeValidator(schema),
+    translate: (_key, fallback) => fallback
+  };
+  const markup = await renderToString(createSSRApp({
+    render: () => h(ProgramKitJsonFormsVue, { runtime, data: { name: "Ada" } })
+  }));
+  assert.equal(programKitVueCoreRendererEntries.length, 6);
+  assert.match(markup, /class="pk-form-control"/);
+  assert.match(markup, /value="Ada"/);
+  assert.match(markup, /minlength="1"/);
 });
 
 test("TypeScript runtime consumes the exact release fixture emitted by the .NET compiler", async () => {

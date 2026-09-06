@@ -64,7 +64,7 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains fifteen independently packable packages:
+It currently contains sixteen independently packable packages:
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -102,7 +102,12 @@ It currently contains fifteen independently packable packages:
   override them by rank; and
 - `@orbyss/program-kit-forms-vue`: the exact-pinned Vue 3/JSON Forms binding over the same shared
   precompiled-validation facade, accepting consumer-selected renderer sets and emitting typed,
-  framework-neutral data and validation changes; and
+  framework-neutral data and validation changes. It supplies the same low-rank semantic text,
+  multiline, numeric, Boolean, date/time, single-choice and multi-choice control baseline with an
+  explicitly imported stylesheet; and
+- `@orbyss/program-kit-forms-angular`: the exact-pinned Angular 22/JSON Forms standalone component,
+  partial-compiled with Angular's compatible TypeScript 6 compiler, over the shared precompiled
+  validator and typed framework-neutral change contract; and
 - `@orbyss/program-kit-localization-management`: dependency-free structured localization scopes,
   locale/value workflow state, audited optimistic/idempotent commands, undo/redo, ICU diagnostics
   and bounded windowed row projections; and
@@ -113,7 +118,7 @@ It currently contains fifteen independently packable packages:
 
 JSON Forms Core 3.8.0 is an exact peer dependency of the runtime boundary. The framework-neutral
 package intentionally exposes JSON values rather than upstream framework types; React, Vue and
-future Angular bindings own those types and renderer integration. AJV is build-time-only for runtime
+Angular bindings own those types and renderer integration. AJV is build-time-only for runtime
 artifacts. CodeMirror is the unconditional rich-editor default, while Monaco is absent from both
 manifests and the lockfile. CodeMirror's generated stylesheet accepts a caller-provided CSP nonce,
 but its editor layout also relies on dynamic style attributes. The React modeler therefore provides
@@ -122,11 +127,11 @@ attributes; the browser suite does not weaken CSP to accommodate an editor depen
 
 JSON Forms 3.8 still exposes the withdrawn `Symbol.observable` in its TypeScript-5.8-era store
 declarations, which TypeScript 7 rejects during third-party declaration checking. `skipLibCheck` is
-therefore quarantined to the JSON Forms React and Vue adapter projects only. The workspace default and
+therefore quarantined to the JSON Forms framework adapter projects only. The workspace default and
 all framework-neutral packages retain full declaration checking, and the validator rejects any
 additional quarantine.
 
-The React and Vue bindings host JSON Forms with a shared precompiled-validator facade. Root validation delegates
+The React, Vue and Angular bindings host JSON Forms with a shared precompiled-validator facade. Root validation delegates
 to the generated validator, and visibility conditions use a bounded interpreter for `const`, `enum`,
 JSON types, logical composition, required properties and property schemas. An unknown condition or
 renderer-requested subschema keyword fails closed instead of compiling code in the browser. The real
@@ -266,9 +271,9 @@ Verified commands and results:
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
   behavior, rendered React binding tests, and fourteen workspace package
   dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: fifteen real npm archives contained their
+- `python tests/validate_forms_frontend_packages.py`: sixteen real npm archives contained their
   declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
-  the archives with exact JSON Forms/React/Vue peers and imported every public package successfully.
+  the archives with exact JSON Forms/React/Vue/Angular peers and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and
   WebKit desktop/tablet profiles passed locally, including governed action execution, searchable
   lookup paging/selection/localized rehydration, strict-CSP modeler and localization management,

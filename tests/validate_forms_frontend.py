@@ -20,6 +20,8 @@ def main() -> int:
     parser.add_argument("--install", action="store_true")
     args = parser.parse_args()
     package = json.loads((WORKSPACE / "package.json").read_text(encoding="utf-8"))
+    if package.get("scripts", {}).get("build") != "tsc -b && npm run build --workspace=@orbyss/program-kit-forms-angular":
+        raise AssertionError("The frontend build must include Angular partial compilation after framework-neutral TypeScript builds.")
     if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs":
         raise AssertionError("The frontend unit command must be shell-glob independent on Windows and POSIX.")
     if package["devDependencies"] != {
@@ -39,6 +41,7 @@ def main() -> int:
         "@orbyss/program-kit-forms-codemirror",
         "@orbyss/program-kit-forms-wizard",
         "@orbyss/program-kit-forms-actions",
+        "@orbyss/program-kit-forms-angular",
         "@orbyss/program-kit-forms-modeler",
         "@orbyss/program-kit-forms-modeler-react",
         "@orbyss/program-kit-forms-lookups",
@@ -118,7 +121,7 @@ def main() -> int:
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
     if base_config["compilerOptions"].get("skipLibCheck") is not False:
         raise AssertionError("Library declaration checking must remain enabled for the frontend workspace.")
-    quarantined = {"forms-react", "forms-lookups-react", "forms-vue"}
+    quarantined = {"forms-angular", "forms-react", "forms-lookups-react", "forms-vue"}
     for config_path in (WORKSPACE / "packages").glob("*/tsconfig.json"):
         config = json.loads(config_path.read_text(encoding="utf-8"))
         skipped = config.get("compilerOptions", {}).get("skipLibCheck", False)
@@ -158,6 +161,26 @@ def main() -> int:
         "vue": "3.5.42",
     } or vue_manifest.get("devDependencies") != {"vue": "3.5.42"}:
         raise AssertionError("The Vue binding crossed its governed framework-neutral runtime boundary.")
+    if vue_manifest.get("files") != ["dist", "styles.css"] or vue_manifest.get("exports", {}).get("./styles.css") != "./styles.css":
+        raise AssertionError("The semantic Vue control baseline must remain an explicit optional CSS export.")
+
+    angular_manifest = by_name["@orbyss/program-kit-forms-angular"]
+    if angular_manifest.get("dependencies") != {
+        "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
+    } or angular_manifest.get("peerDependencies") != {
+        "@angular/common": "22.1.5",
+        "@angular/core": "22.1.5",
+        "@angular/forms": "22.1.5",
+        "@jsonforms/angular": "3.8.0",
+        "@jsonforms/core": "3.8.0",
+        "rxjs": "7.8.2",
+    } or angular_manifest.get("devDependencies") != {
+        "@angular/compiler": "22.1.5",
+        "@angular/compiler-cli": "22.1.5",
+        "typescript": "6.0.3",
+    }:
+        raise AssertionError("The Angular binding crossed its governed framework or compiler boundary.")
 
     all_dependency_names = {
         dependency
@@ -207,8 +230,11 @@ def main() -> int:
         raise AssertionError("Monaco leaked into the isolated default frontend lockfile.")
 
     run(["test", "--ignore-scripts", "--no-audit", "--no-fund"])
+    angular_output = (WORKSPACE / "packages/forms-angular/dist/index.js").read_text(encoding="utf-8")
+    if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
+        raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React bindings, wizard state, and CodeMirror default passed.")
+    print("Forms frontend contracts, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, and CodeMirror default passed.")
     return 0
 
 

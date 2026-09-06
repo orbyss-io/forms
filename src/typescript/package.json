@@ -11,7 +11,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && npm run build --workspace=@orbyss/program-kit-forms-angular",
     "test": "npm run build && node --test tests/runtime.test.mjs",
     "test:browser": "npm run build && node tests/forms-browser/build.mjs && node tests/forms-browser/browser.mjs",
     "check": "npm run test"
