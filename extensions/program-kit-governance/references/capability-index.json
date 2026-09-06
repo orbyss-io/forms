@@ -7,8 +7,11 @@
     {"id":"dotnet-host-runtime","coverage":"managed","reference":"references/default-adoption.md","signals":[".net","asp.net","c#","web api","worker"]},
     {"id":"authenticated-browser-bff","coverage":"managed","reference":"references/default-adoption.md","signals":["browser","react","spa","login","authentication"]},
     {"id":"browser-spa-pkce","coverage":"managed","reference":"references/default-adoption.md","signals":["static hosting","direct api","pkce","browser token"]},
+    {"id":"ui-experience","coverage":"managed","reference":"references/ui-experience-v1.md","signals":["ui","browser","branding","accessibility","public discovery"]},
     {"id":"programming-guardrails","coverage":"guided","reference":"references/programming-guardrails.md","signals":["code quality","testing","errors","concurrency"]},
     {"id":"tool-selection","coverage":"guided","reference":"references/tool-selection.md","signals":["tooling","ci","architecture as code","c4","structurizr"]},
+    {"id":"forms","coverage":"managed","reference":"references/modularity-and-contracts.md","signals":["json forms","forms","schema-driven ui","form modeler"]},
+    {"id":"localization","coverage":"managed","reference":"references/modularity-and-contracts.md","signals":["localization","translation","locale","multilingual"]},
     {"id":"domain-events","coverage":"managed","reference":"references/modularity-and-contracts.md","signals":["domain event","integration event","outbox","message"]},
     {"id":"openapi-contracts","coverage":"managed","reference":"references/tool-selection.md","signals":["openapi","api contract","typescript client","compatibility"]}
   ]

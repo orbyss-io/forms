@@ -1,0 +1,31 @@
+{
+  "name": "@orbyss/program-kit-forms-react",
+  "version": "0.9.9-preview.1",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@orbyss/program-kit-forms-actions": "0.9.9-preview.1",
+    "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
+    "@orbyss/program-kit-forms-wizard": "0.9.9-preview.1"
+  },
+  "peerDependencies": {
+    "@jsonforms/core": "3.8.0",
+    "@jsonforms/react": "3.8.0",
+    "react": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "react-dom": "19.2.8"
+  }
+}

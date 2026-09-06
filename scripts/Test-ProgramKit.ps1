@@ -30,6 +30,21 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Web security assurance validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_ui_experience.py')
+if ($LASTEXITCODE -ne 0) { throw 'UI experience/discovery contract validation failed.' }
+
+& $python (Join-Path $projectRoot 'tests\validate_forms_frontend.py') --install
+if ($LASTEXITCODE -ne 0) { throw 'Forms frontend runtime, AJV parity, or CodeMirror validation failed.' }
+
+& $python (Join-Path $projectRoot 'tests\validate_ui_browser.py') --install --install-browser
+if ($LASTEXITCODE -ne 0) { throw 'UI browser and analytics acceptance failed.' }
+
+& $python (Join-Path $projectRoot 'tests\validate_forms_browser.py')
+if ($LASTEXITCODE -ne 0) { throw 'Forms wizard browser/device acceptance failed.' }
+
+& $python (Join-Path $projectRoot 'tests\validate_web_discovery.py')
+if ($LASTEXITCODE -ne 0) { throw 'Shell-owned public discovery acceptance failed.' }
+
 & $python (Join-Path $projectRoot 'tests\validate_authentication_provider_boundary.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Provider-neutral authentication boundary validation failed.'
@@ -140,6 +155,21 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Keycloak Admin REST abstraction and adapter validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_forms_localization_contracts.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Forms and localization semantic-contract validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_forms_operations.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Form draft, submission, attachment, and MCP operation validation failed.'
+}
+
+& $python (Join-Path $projectRoot 'tests\validate_forms_management.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'Forms management, immutable runtime, and shared MCP validation failed.'
+}
+
 & $python (Join-Path $projectRoot 'tests\validate_codex_bootstrap.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Codex Desktop bootstrap validation failed.'
@@ -160,6 +190,9 @@ if (-not $SkipBuild) {
     if ($LASTEXITCODE -ne 0) {
         throw 'Clean-consumer bootstrap consistency validation failed.'
     }
+
+    & $python (Join-Path $projectRoot 'tests\validate_packaged_ui.py')
+    if ($LASTEXITCODE -ne 0) { throw 'Packaged UI clean-consumer generation failed.' }
 
     & $python (Join-Path $projectRoot 'tests\validate_release_install.py')
     if ($LASTEXITCODE -ne 0) {

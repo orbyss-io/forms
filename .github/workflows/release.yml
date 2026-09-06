@@ -43,6 +43,26 @@ jobs:
       - name: Validate Program Kit components
         run: python tests/validate_components.py
 
+      - name: Set up pinned UI acceptance Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24.20.0"
+
+      - name: Set up pinned UI acceptance npm
+        run: npm install --global npm@11.19.0 --ignore-scripts --no-audit --no-fund
+
+      - name: Validate UI experience and public content contracts
+        run: python tests/validate_ui_experience.py
+
+      - name: Validate Forms frontend runtime, AJV parity, and CodeMirror default
+        run: python tests/validate_forms_frontend.py --install
+
+      - name: Validate UI accessibility, keyboard and analytics in Chromium
+        run: python tests/validate_ui_browser.py --install --install-browser
+
+      - name: Validate forms wizard across browser engines and device profiles
+        run: python tests/validate_forms_browser.py
+
       - name: Validate web security assurance evidence
         run: python tests/validate_web_security_assurance.py
 
@@ -114,6 +134,9 @@ jobs:
       - name: Validate Keycloak Admin REST adapter boundaries
         run: python tests/validate_keycloak_admin.py
 
+      - name: Validate shell-owned public discovery endpoints
+        run: python tests/validate_web_discovery.py
+
       - name: Pack built-in .NET features for integration validation
         run: dotnet pack ProgramKit.slnx -c Release --no-build -p:PackageOutputPath="$PWD/artifacts/nuget"
 
@@ -137,6 +160,9 @@ jobs:
 
       - name: Build release assets
         run: python scripts/build_release.py
+
+      - name: Validate packaged UI in a clean consumer
+        run: python tests/validate_packaged_ui.py
 
       - name: Validate clean-consumer bootstrap consistency
         run: python tests/validate_bootstrap_consistency_e2e.py

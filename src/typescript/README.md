@@ -1,0 +1,46 @@
+# Program Kit frontend packages
+
+This isolated workspace contains framework-neutral frontend runtime packages. It is not injected
+into a consumer npm graph. Consumers install only the adapters they select.
+
+- `forms-contracts` contains JSON-safe release types.
+- `forms-renderer-registry` owns allowlisted renderer and action resolution.
+- `forms-jsonforms-runtime` verifies and prepares immutable releases for a framework binding.
+- `forms-ajv-build` validates JSON Schema 2020-12 during build/test; runtime consumers receive a
+  prebuilt validator and do not require unsafe dynamic code evaluation. Generated modules that
+  reference AJV runtime helpers must be bundled before browser delivery; raw generated source is not
+  itself the deployment artifact.
+- `forms-codemirror` is the unconditional default JSON editor adapter. Monaco is intentionally not a
+  dependency of this workspace slice. CodeMirror needs runtime layout style attributes; the React
+  modeler exposes a native strict-CSP editing mode for deployments whose policy prohibits them.
+- `forms-wizard` parses the compiled Program Kit `Categorization` variant and owns shared navigation,
+  validation, conditional-step, progress and status behavior for every framework renderer.
+- `forms-actions` parses action-bar references against immutable release requirements and owns
+  validation gates, authorization visibility, single-flight execution, cancellation and public-safe
+  failure state without automatic mutation retries.
+- `forms-modeler` owns the bounded provider-neutral authoring document, atomic multi-view commands,
+  optimistic sequence checks, idempotent command replay, undo/redo and graph projection shared by
+  the human tree, JSON and visual graph editors. Immutable action/component catalogs identify the
+  installed provider package and validate compatible value kinds, versions and typed option values.
+- `forms-modeler-react` is the optional responsive administration binding. It keeps the structure
+  tree, property inspector, CodeMirror JSON source and relationship graph on one governed modeler
+  session, with a field/layout palette, block canvas, application-owned preview, selection,
+  validation and undo/redo synchronized across views.
+- `forms-lookups` owns trusted searchable data-source contracts, bounded/cancellable queries,
+  paging, dependent filters, selected-label rehydration and public-safe loading state without
+  embedding URLs, credentials or executable fetch logic in form schemas.
+- `forms-lookups-react` is the optional JSON Forms/React searchable combobox renderer. It consumes
+  registered lookup contracts, native data-pointer filter bindings and text-only results; consumers
+  without remote choices do not inherit this package.
+- `forms-react` is the first framework binding. It registers the Program Kit wizard with JSON Forms,
+  renders semantic native navigation/progress/actions, evaluates conditional steps from JSON Forms
+  state and exposes stable class/data hooks to the consumer-selected design-system adapter.
+- `localization-management` mirrors the provider-neutral .NET localization semantics in a
+  dependency-free browser session: structured scopes/locales/value states, audited optimistic and
+  idempotent edits, undo/redo, ICU contract diagnostics, missing-value projection and bounded
+  windowed filters.
+- `localization-management-react` is the optional responsive management plane with inline editing,
+  locale/scope/form/state/text filters, lifecycle permission gates, structured message creation,
+  bounded import file/mapping submission, hash-bound preview review and a card reflow for phone and
+  enlarged-text layouts. Parsing, authorization, conflict resolution and mutation remain server
+  responsibilities.

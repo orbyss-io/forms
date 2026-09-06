@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provider-neutral form authoring, lifecycle, publication, query, and migration orchestration.</Description>
+    <PackageId>ProgramKit.Forms.Application</PackageId>
+    <PackageTags>program-kit;forms;application;lifecycle</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../ProgramKit.Forms.Storage.Abstractions/ProgramKit.Forms.Storage.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

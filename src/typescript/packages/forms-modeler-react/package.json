@@ -1,0 +1,18 @@
+{
+  "name": "@orbyss/program-kit-forms-modeler-react",
+  "version": "0.9.9-preview.1",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "styles.css"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./styles.css": "./styles.css"
+  },
+  "scripts": { "build": "tsc -p tsconfig.json" },
+  "dependencies": {
+    "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+    "@orbyss/program-kit-forms-modeler": "0.9.9-preview.1"
+  },
+  "peerDependencies": { "react": "19.2.8" },
+  "devDependencies": { "@types/react": "19.2.18" }
+}

@@ -1,0 +1,15 @@
+{
+  "reviewed":"2026-09-05",
+  "default":"lucide",
+  "rationale":"Consistent outline family, framework-neutral SVG support, permissive licensing, and strong package adoption signal; not a claim of universal market share.",
+  "window":{"start":"2026-08-23","end":"2026-08-29"},
+  "downloads":[
+    {"package":"lucide-react","count":97818518,"source":"https://api.npmjs.org/downloads/point/2026-08-23:2026-08-29/lucide-react"},
+    {"package":"@heroicons/react","count":4109387,"source":"https://api.npmjs.org/downloads/point/2026-08-23:2026-08-29/@heroicons/react"},
+    {"package":"@phosphor-icons/react","count":3435411,"source":"https://api.npmjs.org/downloads/point/2026-08-23:2026-08-29/@phosphor-icons/react"},
+    {"package":"@fortawesome/react-fontawesome","count":2314737,"source":"https://api.npmjs.org/downloads/point/2026-08-23:2026-08-29/@fortawesome/react-fontawesome"}
+  ],
+  "vendored":{"repository":"https://github.com/lucide-icons/lucide","commit":"94e4cb9d9db5907053ebf3636a97c45529cf776b","subset":["arrow-right","check","search","menu","x","log-in","log-out"],"license":"https://lucide.dev/license"},
+  "alternatives":["https://heroicons.com/","https://developers.google.com/fonts/docs/material_symbols","https://github.com/phosphor-icons/core","https://fontawesome.com/license/free"],
+  "acceptanceToolchain":{"node":"24.20.0","npm":"11.19.0","playwright":"1.62.1","axePlaywright":"4.13.0","tailwindCli":"4.3.3","tailwind":"4.3.3","resolution":"npm install --package-lock-only --ignore-scripts --no-audit --no-fund; successful in isolated acceptance directory with exact runtime and system CA trust","scriptsEnabled":false,"peerOverrides":false}
+}

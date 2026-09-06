@@ -1,0 +1,52 @@
+.pk-localization { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; inline-size: 100%; max-inline-size: 100%; min-inline-size: 0; }
+.pk-localization > * { min-inline-size: 0; }
+.pk-localization button, .pk-localization input, .pk-localization select, .pk-localization textarea { min-block-size: 44px; font: inherit; }
+.pk-localization__toolbar, .pk-localization__filters, .pk-localization__paging { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; min-inline-size: 0; max-inline-size: 100%; }
+.pk-localization__toolbar button, .pk-localization__paging button { padding-inline: 1rem; min-inline-size: 0; max-inline-size: 100%; overflow-wrap: anywhere; }
+.pk-localization__toolbar button { flex: 1 1 min(100%, 12rem); }
+.pk-localization__filters label { display: grid; gap: .25rem; flex: 1 1 min(100%, 11rem); min-inline-size: 0; }
+.pk-localization__filters input, .pk-localization__filters select { inline-size: 100%; min-inline-size: 0; }
+.pk-localization__table-wrap { max-inline-size: 100%; overflow-x: auto; border: 1px solid currentColor; border-radius: .75rem; }
+.pk-localization table { inline-size: 100%; border-collapse: collapse; }
+.pk-localization caption { padding: .75rem; font-weight: 700; text-align: start; }
+.pk-localization th, .pk-localization td { padding: .6rem; text-align: start; vertical-align: top; border-block-end: 1px solid currentColor; overflow-wrap: anywhere; }
+.pk-localization td textarea, .pk-localization td select { inline-size: 100%; min-inline-size: 10rem; }
+.pk-localization__scope { white-space: nowrap; }
+.pk-localization__diagnostics, .pk-localization__import { padding: .75rem; border-inline-start: .25rem solid currentColor; }
+.pk-localization__paging { justify-content: space-between; }
+.pk-localization__paging span { min-inline-size: 0; overflow-wrap: anywhere; }
+.pk-localization__empty { padding: 1rem; }
+.pk-localization__dialog { inline-size: min(44rem, calc(100% - 2rem)); max-inline-size: 100%; max-block-size: calc(100% - 2rem); padding: 0; border: 1px solid currentColor; border-radius: .75rem; color: inherit; background: Canvas; overflow: auto; }
+.pk-localization__dialog::backdrop { background: rgb(0 0 0 / 55%); }
+.pk-localization__dialog form { display: grid; gap: 1rem; padding: 1rem; min-inline-size: 0; }
+.pk-localization__dialog h2, .pk-localization__dialog fieldset { margin: 0; }
+.pk-localization__dialog-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.pk-localization__dialog-fields label, .pk-localization__argument label { display: grid; gap: .25rem; min-inline-size: 0; }
+.pk-localization__dialog-fields input, .pk-localization__dialog-fields select, .pk-localization__dialog-fields textarea, .pk-localization__argument input, .pk-localization__argument select { inline-size: 100%; min-inline-size: 0; }
+.pk-localization__dialog-wide { grid-column: 1 / -1; }
+.pk-localization__dialog fieldset { display: grid; gap: .75rem; min-inline-size: 0; }
+.pk-localization__argument { display: grid; grid-template-columns: minmax(0, 1fr) minmax(8rem, .6fr) auto auto; gap: .75rem; align-items: end; min-inline-size: 0; }
+.pk-localization__mapping { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: .75rem; align-items: end; min-inline-size: 0; }
+.pk-localization__mapping label { display: grid; gap: .25rem; min-inline-size: 0; }
+.pk-localization__mapping input { inline-size: 100%; min-inline-size: 0; }
+.pk-localization__argument-required { display: flex !important; align-items: center; min-block-size: 44px; }
+.pk-localization__argument-required input { inline-size: auto; }
+.pk-localization__dialog-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: .75rem; }
+.pk-localization__dialog-error { padding: .75rem; border-inline-start: .25rem solid currentColor; overflow-wrap: anywhere; }
+@media (max-width: 48rem) {
+  .pk-localization__toolbar, .pk-localization__filters, .pk-localization__paging { display: grid; grid-template-columns: minmax(0, 1fr); inline-size: 100%; }
+  .pk-localization__toolbar button, .pk-localization__paging button, .pk-localization__filters label { inline-size: 100%; }
+  .pk-localization__table-wrap { overflow: visible; border: 0; }
+  .pk-localization table, .pk-localization tbody, .pk-localization tr, .pk-localization td { display: block; inline-size: 100%; }
+  .pk-localization thead { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .pk-localization tr { margin-block-end: 1rem; padding: .5rem; border: 1px solid currentColor; border-radius: .75rem; }
+  .pk-localization td { display: grid; grid-template-columns: minmax(6rem, .4fr) minmax(0, 1fr); gap: .5rem; border: 0; }
+  .pk-localization td::before { content: attr(data-label); font-weight: 700; }
+  .pk-localization td textarea, .pk-localization td select { min-inline-size: 0; }
+  .pk-localization__dialog-fields, .pk-localization__argument, .pk-localization__mapping { grid-template-columns: minmax(0, 1fr); }
+  .pk-localization__dialog-wide { grid-column: auto; }
+  .pk-localization__dialog-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 28rem) { .pk-localization td { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .pk-localization *, .pk-localization *::before, .pk-localization *::after { transition-duration: 0s !important; animation-duration: 0s !important; } }
+@media (forced-colors: active) { .pk-localization__table-wrap, .pk-localization tr { border-color: CanvasText; } }

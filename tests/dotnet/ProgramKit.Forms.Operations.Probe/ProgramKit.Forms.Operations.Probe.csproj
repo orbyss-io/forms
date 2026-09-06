@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CShells.AspNetCore.Abstractions" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Submissions/ProgramKit.Forms.Submissions.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Core/ProgramKit.Forms.Core.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Storage.FileSystem/ProgramKit.Forms.Storage.FileSystem.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Tool/ProgramKit.Forms.Tool.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Mcp.AspNetCore/ProgramKit.Forms.Mcp.AspNetCore.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Mcp.AspNetCore/ProgramKit.Mcp.AspNetCore.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Web.Submissions/ProgramKit.Forms.Web.Submissions.csproj" />
+  </ItemGroup>
+</Project>

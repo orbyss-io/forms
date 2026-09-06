@@ -1,0 +1,77 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "programkit.forms.abstractions": {
+        "type": "Project"
+      },
+      "programkit.forms.core": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Forms.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.forms.jsonforms": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Forms.Abstractions": "[0.9.9-preview.1, )",
+          "ProgramKit.Forms.Core": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.forms.localization": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Forms.Abstractions": "[0.9.9-preview.1, )",
+          "ProgramKit.Localization.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.forms.storage.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Forms.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.forms.storage.filesystem": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Forms.Storage.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.localization.abstractions": {
+        "type": "Project"
+      },
+      "programkit.localization.application": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Localization.Abstractions": "[0.9.9-preview.1, )",
+          "ProgramKit.Localization.Core": "[0.9.9-preview.1, )",
+          "ProgramKit.Localization.Storage.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.localization.core": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Localization.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.localization.formats": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Localization.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.localization.storage.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Localization.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.localization.storage.filesystem": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Localization.Storage.Abstractions": "[0.9.9-preview.1, )"
+        }
+      }
+    }
+  }
+}

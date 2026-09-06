@@ -187,6 +187,10 @@ WEB_PACKAGE_LOCK = Path(
     ".specify/extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/eng/program-kit/web/package-lock.json"
 )
 TOOLCHAIN_OVERRIDE_ID = "managed-toolchain-version"
+UI_PACKAGE_MANIFEST = Path(
+    ".specify/extensions/program-kit-governance/templates/ui-experience/acceptance/package.json"
+)
+UI_PACKAGE_LOCK = UI_PACKAGE_MANIFEST.with_name("package-lock.json")
 
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
 SIGNAL = re.compile(
@@ -307,6 +311,22 @@ def managed_profile_pin_authority(project_root: Path, decisions: dict) -> dict:
         lock_source["profile"] = "dotnet-typescript-web"
         lock_source["verifies"] = WEB_PACKAGE_MANIFEST.as_posix()
         sources.append(lock_source)
+
+    if "ui-experience-v1" in profiles:
+        package = load_json(project_root / UI_PACKAGE_MANIFEST)
+        locked = load_json(project_root / UI_PACKAGE_LOCK).get("packages", {}).get("", {})
+        if package.get("devDependencies") != locked.get("devDependencies") or package.get("engines") != locked.get("engines"):
+            raise ContextError("UI acceptance package/lock graph mismatch")
+        selected = {**package["engines"], **package["devDependencies"]}
+        for name, value in selected.items():
+            if name in pins and pins[name] != value:
+                raise ContextError(f"UI acceptance conflicts with managed pin {name}")
+            pins[name] = value
+        for path in (UI_PACKAGE_MANIFEST, UI_PACKAGE_LOCK):
+            record = _source_record(project_root, path)
+            record["profile"] = "ui-experience-v1"
+            record["provides"] = list(selected)
+            sources.append(record)
 
     return {
         "precedence": "program-kit-managed-profile-before-local-environment-or-current-candidate",

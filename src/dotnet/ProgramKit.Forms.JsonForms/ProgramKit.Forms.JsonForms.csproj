@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Deterministic Program Kit form compilation to JSON Schema and JSON Forms UI Schema.</Description>
+    <PackageId>ProgramKit.Forms.JsonForms</PackageId>
+    <PackageTags>program-kit;forms;json-schema;json-forms;compiler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../ProgramKit.Forms.Core/ProgramKit.Forms.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,55 @@
+{
+  "id": { "value": "registration-v7" },
+  "candidate": {
+    "formId": { "value": "registration" },
+    "revision": { "value": 7 },
+    "dataSchema": {
+      "mediaType": "application/schema+json",
+      "content": "{\r\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n  \"$id\": \"urn:program-kit:forms:registration:7\",\r\n  \"title\": \"Registration\",\r\n  \"type\": \"object\",\r\n  \"properties\": {\r\n    \"name\": {\r\n      \"type\": \"string\",\r\n      \"title\": \"Name\",\r\n      \"x-i18n\": \"name\",\r\n      \"minLength\": 1,\r\n      \"maxLength\": 200\r\n    }\r\n  },\r\n  \"additionalProperties\": false,\r\n  \"required\": [\r\n    \"name\"\r\n  ]\r\n}",
+      "sha256": "e829717a74cc6b056c134502caa1bb43d1031a108c341e1d15d2b01c98a2bcb8"
+    },
+    "uiSchema": {
+      "mediaType": "application/vnd.jsonforms.uischema+json",
+      "content": "{\r\n  \"type\": \"Categorization\",\r\n  \"id\": \"registration\",\r\n  \"options\": {\r\n    \"variant\": \"program-kit-wizard\",\r\n    \"navigationPolicy\": \"visited\",\r\n    \"navigationPlacement\": \"adaptive\",\r\n    \"progressStyle\": \"progress\",\r\n    \"validateBeforeAdvance\": true,\r\n    \"saveProgress\": true,\r\n    \"deepLink\": false\r\n  },\r\n  \"elements\": [\r\n    {\r\n      \"type\": \"Category\",\r\n      \"id\": \"identity\",\r\n      \"label\": \"Identity\",\r\n      \"i18n\": \"steps.identity\",\r\n      \"options\": {\r\n        \"icon\": {\r\n          \"name\": \"user\",\r\n          \"bundle\": null\r\n        }\r\n      },\r\n      \"elements\": [\r\n        {\r\n          \"type\": \"Control\",\r\n          \"id\": \"name-control\",\r\n          \"scope\": \"#/properties/name\",\r\n          \"label\": \"Name\",\r\n          \"i18n\": \"name\"\r\n        },\r\n        {\r\n          \"type\": \"ProgramKit.ActionBar\",\r\n          \"id\": \"actions\",\r\n          \"options\": {\r\n            \"actions\": [\r\n              \"finish\"\r\n            ]\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+      "sha256": "d8ea16acd70c2bfc22850dccfdfc604149348501593e4765a28ebe2dcdf5e528"
+    },
+    "renderers": [
+      { "componentId": "ProgramKit.ActionBar", "versionRange": "[1.0.0,2.0.0)" },
+      { "componentId": "ProgramKit.Wizard", "versionRange": "[1.0.0,2.0.0)" }
+    ],
+    "translations": [
+      { "key": "actions.finish", "defaultText": "Finish", "sourceLocale": "en", "scope": "forms:registration", "context": null, "arguments": null },
+      { "key": "name", "defaultText": "Name", "sourceLocale": "en", "scope": "forms:registration", "context": null, "arguments": null },
+      { "key": "steps.identity", "defaultText": "Identity", "sourceLocale": "en", "scope": "forms:registration", "context": null, "arguments": null }
+    ],
+    "actions": [
+      {
+        "actionId": "finish",
+        "handlerId": "registration.submit",
+        "kind": 5,
+        "label": { "key": "actions.finish", "defaultText": "Finish", "context": null },
+        "requiresValidForm": true,
+        "icon": null
+      }
+    ],
+    "diagnostics": [],
+    "compiledAt": "1970-01-01T00:00:00+00:00",
+    "candidateSha256": "c4eeccb1618342a13a504059b28a6e3c648c5740c762824fda7223d9bc502522",
+    "fields": [
+      {
+        "id": "name",
+        "dataPath": "/name",
+        "valueKind": 0,
+        "required": true,
+        "label": { "key": "name", "defaultText": "Name", "context": null },
+        "description": null,
+        "constraints": { "minimum": null, "maximum": null, "minimumLength": 1, "maximumLength": 200, "minimumItems": null, "maximumItems": null, "pattern": null, "choices": null },
+        "component": null
+      }
+    ]
+  },
+  "publishedAt": "1970-01-01T00:00:00+00:00",
+  "publishedBy": { "id": "author-1", "kind": "user", "displayName": "Form Author" },
+  "evidence": ["compiler-contract"],
+  "retired": false
+}

@@ -18,6 +18,12 @@ trade away required evidence merely to reach a target.
 
 ## Rules
 
+For selected `ui-experience-v1`, read its profile and `ui-evidence-v1.json`. Preserve the distinction
+between standards, provider contracts, bounded empirical findings and experimental conventions.
+Use the versioned layout/token/icon/metadata defaults and the isolated pinned acceptance graph;
+research compatibility and deviations, not another universal frontend stack. Treat npm download
+counts as a dated adoption signal, not market share or proof of design quality.
+
 Use current research rather than memory for version-sensitive claims. Prefer official documentation, specifications, project release notes, and original research. Record source URL, publication or release date when available, access date, relevant version, maintenance signals, license, adoption cost, and trust/supply-chain considerations.
 
 Read and preserve `docs/architecture/bootstrap-decisions.json`. Research validates explicit intake

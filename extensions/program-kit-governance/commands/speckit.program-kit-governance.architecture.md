@@ -155,3 +155,11 @@ scientifically proven.
 Canonical `WEB-Cxx` identifiers retain the decision text and profile applicability from the managed
 evidence registry. Project-specific verification cases use another namespace, such as `WEB-Qxx`,
 and map explicitly to one or more canonical controls; they never redefine a `WEB-Cxx` identifier.
+
+For `ui-experience-v1`, include consumer-owned branding/content, generated semantic tokens and
+initial-render metadata, optional public discovery projection, and independent analytics adapters.
+Map each page's public/private/indexing intent; no private body may enter public build artifacts.
+Keep .NET endpoints in `ProgramKit.Web.Discovery` or consumer-owned IWebShellFeature adapters,
+never in ProgramKit.Host. Accepted frontend frameworks consume the same contracts through their
+own initial-render adapter. Do not duplicate route/head owners or replace Keycloak flows to share
+branding. SVG/logo/icon assets retain license and accessibility semantics.

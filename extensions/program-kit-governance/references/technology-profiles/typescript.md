@@ -1,5 +1,11 @@
 # TypeScript and web profile
 
+Adopt the independent `ui-experience-v1` profile for browser UI: consumer-owned branding and optional
+SVG logos, Lucide/custom icons, responsive archetypes, semantic tokens, safe initial-response
+metadata, page-level discovery intent, and opt-in analytics. Read `../ui-experience-v1.md` and its
+evidence register. Native CSS is the default adapter; accepted frontend/framework decisions remain
+authoritative. The isolated UI acceptance graph must not change the application's own npm graph.
+
 When TypeScript or a browser UI is detected, evaluate and normally enforce:
 
 - strict TypeScript mode and no implicit unsafe boundary casts;

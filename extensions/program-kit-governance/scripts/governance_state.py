@@ -700,10 +700,10 @@ def validate_bootstrap_decisions(upgrade_state: dict | None = None) -> dict:
         raise GovernanceStateError("Bootstrap decisions selected_profiles contains duplicates")
     normalized_profiles = {item.lower() for item in selected_profiles}
     toolchain = value.get("toolchain")
-    if "dotnet" in normalized_profiles:
+    if {"dotnet", "ui-experience-v1"} & normalized_profiles:
         if not isinstance(toolchain, dict):
             raise GovernanceStateError(
-                "A selected .NET profile requires a toolchain authority block"
+                "A selected .NET profile or UI profile requires a toolchain authority block"
             )
         expected_toolchain_fields = {"source", "pins", "override_reason"}
         if set(toolchain) != expected_toolchain_fields:
@@ -720,11 +720,13 @@ def validate_bootstrap_decisions(upgrade_state: dict | None = None) -> dict:
         browser_selected = bool(
             {"typescript-web", "browser-web"} & normalized_profiles
         )
-        required_pins = {"dotnet-sdk", "node"}
-        if browser_selected:
+        required_pins = {"dotnet-sdk", "node"} if "dotnet" in normalized_profiles else set()
+        if browser_selected and "dotnet" in normalized_profiles:
             required_pins.update(
                 {"node", "typescript", "@types/node", "@playwright/test"}
             )
+        if "ui-experience-v1" in normalized_profiles:
+            required_pins.update({"node", "npm", "@playwright/test", "@axe-core/playwright", "@tailwindcss/cli", "tailwindcss"})
         if (
             not isinstance(pins, dict)
             or set(pins) != required_pins
@@ -752,7 +754,7 @@ def validate_bootstrap_decisions(upgrade_state: dict | None = None) -> dict:
                 )
     elif toolchain is not None:
         raise GovernanceStateError(
-            "Bootstrap toolchain authority requires the selected .NET profile"
+            "Bootstrap toolchain authority requires a selected .NET or UI profile"
         )
     if "dotnet" in normalized_profiles:
         dotnet = value.get("dotnet")

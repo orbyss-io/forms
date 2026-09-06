@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Governed MCP tool methods for Program Kit form authoring and release management.</Description>
+    <PackageId>ProgramKit.Forms.Management.Tool</PackageId>
+    <PackageTags>program-kit;forms;management;mcp;tools</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <ProjectReference Include="../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../ProgramKit.Forms.Tool/ProgramKit.Forms.Tool.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

@@ -132,3 +132,10 @@ contract checks the mandatory governance sections and selected runtime profile; 
   do not require another tooling ADR unless the consumer proposes an override.
 
 Return a structured report of errors, warnings, new decisions, and required artifact updates. Errors block the lifecycle step. Never silently edit an Accepted ADR to make a conflict disappear.
+
+When `ui-experience-v1` sources exist, run `scripts/ui_profile.py check --target .` after UI
+implementation and before completion. Block generated drift, missing public/private boundaries,
+unlicensed/unsafe SVG imports, duplicated metadata/route owners and unapproved analytics. Require
+real consumer adapter/journey evidence in addition to the generated browser gallery. Public pages
+must expose semantic content and metadata in the initial response; do not substitute client-only
+head mutation or llms.txt for that contract.

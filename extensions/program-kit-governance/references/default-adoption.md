@@ -12,6 +12,11 @@ remain easy to supersede through an explicit intake override or a later Accepted
 
 ## Decision precedence
 
+Browser projects also adopt `ui-experience-v1`: independent brand/layout/CSS/page intent, optional
+SVG logo and default Lucide icons, WCAG 2.2 AA target, initial-render public metadata, private export
+exclusion, and no default analytics. These are reviewed baseline defaults, not new host middleware
+or a forced frontend framework. Override through the normal decision register.
+
 Classify every bootstrap choice by the first applicable source:
 
 1. **Explicit intake**: direct project intent such as "use PostgreSQL" or "Keycloak is the initial

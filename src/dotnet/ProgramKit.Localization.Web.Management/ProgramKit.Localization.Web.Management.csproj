@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Optional CShells localization management endpoints with governed import, export, lifecycle, and release-diff composition.</Description>
+    <PackageId>ProgramKit.Localization.Web.Management</PackageId>
+    <PackageTags>program-kit;localization;i18n;cshells;management</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.AspNetCore.Abstractions" PrivateAssets="all" />
+    <ProjectReference Include="../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

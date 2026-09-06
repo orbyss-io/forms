@@ -1,0 +1,22 @@
+{
+  "profile":"ui-experience-v1",
+  "archetype":"product-shell",
+  "navigation":"sidebar",
+  "density":"comfortable",
+  "scheme":"system",
+  "motion":"subtle",
+  "css":"native",
+  "analytics":{"provider":"none"},
+  "brand":{
+    "name":"Your product",
+    "primary":"#2457A7",
+    "secondary":"#21665A",
+    "fontStack":"system-ui, sans-serif",
+    "fontLicense":"System fonts; no font downloads",
+    "character":"balanced",
+    "shape":"rounded",
+    "icons":{"bundle":"lucide"}
+  },
+  "discovery":{"search":true,"training":false,"userFetch":true,"markdown":false,"llms":false},
+  "budgets":{"cssBytes":20000,"jsBytes":16000,"htmlBytes":50000}
+}

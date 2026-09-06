@@ -93,6 +93,11 @@ design from every downstream document. Report entry IDs, statuses, final byte co
 counts only; do
 not print the complete roadmap or repository-wide diffs.
 
+For `ui-experience-v1`, the first slice renders the consumer's brand, layout and a real user outcome.
+Login/logout supports that journey when needed; inherited authentication correctness is Program Kit
+contract evidence, not a substitute first product slice. Include page intent and initial metadata
+where public discovery matters, and verify the accepted framework adapter against the UI contract.
+
 For authorization journeys, distinguish a bodyless/no-effect access probe from a protected business
 effect. The former is Ready with managed endpoint `permission:<identity>` policy evidence and must
 not invent an inner service; the latter also owns a resource/state/effect authorization rule.

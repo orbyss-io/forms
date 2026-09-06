@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Replaceable atomic catalog and immutable-release storage ports for Program Kit localization.</Description>
+    <PackageId>ProgramKit.Localization.Storage.Abstractions</PackageId>
+    <PackageTags>program-kit;localization;storage;abstractions</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

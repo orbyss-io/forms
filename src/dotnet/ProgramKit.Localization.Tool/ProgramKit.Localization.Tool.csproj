@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Governed MCP tool methods for Program Kit localization management and runtime inspection.</Description>
+    <PackageId>ProgramKit.Localization.Tool</PackageId>
+    <PackageTags>program-kit;localization;mcp;tools</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <ProjectReference Include="../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

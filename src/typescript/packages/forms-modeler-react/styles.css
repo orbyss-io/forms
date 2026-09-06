@@ -1,0 +1,32 @@
+.pk-form-modeler { display: grid; gap: 1rem; min-inline-size: 0; }
+.pk-form-modeler__toolbar, .pk-form-modeler__tabs { display: flex; flex-wrap: wrap; gap: .5rem; }
+.pk-form-modeler button, .pk-form-modeler input, .pk-form-modeler select { min-block-size: 44px; font: inherit; }
+.pk-form-modeler__workspace { display: grid; grid-template-columns: minmax(12rem, .75fr) minmax(18rem, 2fr) minmax(16rem, 1fr); gap: 1rem; min-inline-size: 0; align-items: start; }
+.pk-form-modeler__design { display: grid; gap: 1rem; min-inline-size: 0; }
+.pk-form-modeler__palette, .pk-form-modeler__tree, .pk-form-modeler__canvas, .pk-form-modeler__preview { min-inline-size: 0; }
+.pk-form-modeler__palette section > div { display: grid; gap: .5rem; }
+.pk-form-modeler__palette button { inline-size: 100%; text-align: start; }
+.pk-form-modeler__tree ul { list-style: none; margin: 0; padding-inline-start: 1rem; }
+.pk-form-modeler__tree button { inline-size: 100%; text-align: start; }
+.pk-form-modeler__tree button[aria-current="true"] { font-weight: 700; }
+.pk-form-modeler__panel, .pk-form-modeler__inspector { min-inline-size: 0; }
+.pk-form-modeler__editor { min-block-size: 28rem; border: 1px solid currentColor; }
+.pk-form-modeler__editor--strict-csp { display: block; inline-size: 100%; resize: block; padding: .75rem; font: 400 .9rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; tab-size: 2; }
+.pk-form-modeler__graph-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: .75rem; }
+.pk-form-modeler__graph-node { border: 1px solid currentColor; border-radius: .75rem; padding: .75rem; }
+.pk-form-modeler__canvas { border: 1px solid currentColor; border-radius: .75rem; padding: .75rem; }
+.pk-form-modeler__canvas-block { display: grid; gap: .5rem; padding: .5rem; border-inline-start: .2rem solid currentColor; }
+.pk-form-modeler__canvas-block > button { display: flex; align-items: center; justify-content: space-between; gap: .5rem; inline-size: 100%; text-align: start; }
+.pk-form-modeler__canvas-children { display: grid; gap: .5rem; padding-inline-start: .75rem; }
+.pk-form-modeler__preview { padding: .75rem; border: 1px dashed currentColor; border-radius: .75rem; }
+.pk-form-modeler__graph-edges { inline-size: 100%; border-collapse: collapse; }
+.pk-form-modeler__graph-edges th, .pk-form-modeler__graph-edges td { padding: .5rem; text-align: start; border-block-end: 1px solid currentColor; overflow-wrap: anywhere; }
+.pk-form-modeler__field { display: grid; gap: .35rem; margin-block-end: .75rem; }
+.pk-form-modeler__field input { inline-size: 100%; }
+.pk-form-modeler__field select { inline-size: 100%; }
+.pk-form-modeler__component { margin-block: 1rem; padding-block: .75rem; border-block: 1px solid currentColor; }
+.pk-form-modeler__error { color: #a11919; }
+.pk-form-modeler__diagnostics { border-inline-start: .25rem solid #a11919; padding-inline-start: .75rem; }
+@media (max-width: 64rem) { .pk-form-modeler__workspace { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .pk-form-modeler *, .pk-form-modeler *::before, .pk-form-modeler *::after { transition-duration: 0s !important; animation-duration: 0s !important; } }
+@media (forced-colors: active) { .pk-form-modeler__graph-node, .pk-form-modeler__editor { border: 1px solid CanvasText; } }

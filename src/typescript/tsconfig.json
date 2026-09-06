@@ -1,0 +1,19 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/forms-contracts" },
+    { "path": "packages/forms-renderer-registry" },
+    { "path": "packages/forms-ajv-build" },
+    { "path": "packages/forms-jsonforms-runtime" },
+    { "path": "packages/forms-codemirror" },
+    { "path": "packages/forms-wizard" },
+    { "path": "packages/forms-actions" },
+    { "path": "packages/forms-modeler" },
+    { "path": "packages/forms-modeler-react" },
+    { "path": "packages/localization-management" },
+    { "path": "packages/localization-management-react" },
+    { "path": "packages/forms-lookups" },
+    { "path": "packages/forms-lookups-react" },
+    { "path": "packages/forms-react" }
+  ]
+}

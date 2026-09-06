@@ -45,6 +45,15 @@ jobs:
       - name: Build
         run: dotnet build ProgramKit.slnx -c Release --no-restore
 
+      - name: Validate forms and localization semantic contracts
+        run: python tests/validate_forms_localization_contracts.py
+
+      - name: Validate form operational capabilities
+        run: python tests/validate_forms_operations.py
+
+      - name: Validate Forms management and shared MCP composition
+        run: python tests/validate_forms_management.py
+
       - name: Validate BFF OIDC cookie policy
         run: python tests/validate_bff_cookie_options.py
 
@@ -68,6 +77,9 @@ jobs:
 
       - name: Validate Keycloak Admin REST adapter boundaries
         run: python tests/validate_keycloak_admin.py
+
+      - name: Validate shell-owned public discovery endpoints
+        run: python tests/validate_web_discovery.py
 
       - name: Import generated realms into pinned Keycloak
         run: python tests/validate_keycloak_realm_import.py

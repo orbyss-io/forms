@@ -25,6 +25,12 @@ must not silently demote or replace an approved default.
 
 ## Work
 
+For `ui-experience-v1`, inherit its deterministic generator/check, contrast, SVG safety, public
+metadata/privacy, pinned Playwright/axe gallery, consent/navigation and asset-budget gates. Add
+the actual consumer journey, screen-reader and deployment/field evidence separately. The generated
+gallery is not proof of product usability or WCAG conformance. Keep optional multi-model experiments
+local/user-invoked and report exact model/version/trials and scoring limitations.
+
 Create or update `docs/architecture/quality-system.md` containing:
 
 1. A capability matrix mapping each quality risk to prevention, static detection, test detection, runtime detection, owner, and evidence artifact.

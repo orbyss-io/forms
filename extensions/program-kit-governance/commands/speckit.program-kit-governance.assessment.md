@@ -150,6 +150,16 @@ architecture map, or C4 projection during assessment. If one is wrong, stop and 
 rerun the bootstrap front-door skill so the affected questions can be reopened and the artifacts
 reconfirmed.
 
+When a browser UI is in scope, also adopt `ui-experience-v1` from
+`references/ui-experience-v1.md` in selected_profiles and choice ID `ui-experience-profile`.
+Record independent layout, navigation, density, branding, CSS and page-intent choices with their
+sources. Branding optionally accepts SVG logo content or a logo URL, alt text, and a licensed icon
+family (Lucide default; custom SVGs supported). Do not require artwork before bootstrap can proceed.
+Preserve an accepted frontend framework; public initial-rendering and private-app intent are not
+inferred from framework names. Public discovery and analytics remain separate from authentication;
+analytics defaults to none, training to disallowed, and llms/Markdown to opt-in. Do not make claimed
+psychological laws or universal AI/search ranking promises into consumer requirements.
+
 Keep the result proportional to the confirmed intake. Prefer compact tables over repeated prose,
 and do not document excluded capability categories one by one. After writing, report file paths,
 byte sizes, and decision counts only; do not print complete generated artifacts or repository-wide

@@ -78,8 +78,8 @@ def main() -> int:
     command_names = {
         command["name"] for command in extension["provides"]["commands"]
     }
-    if len(command_names) != 12:
-        raise AssertionError(f"Extension exposes {len(command_names)} commands, expected 12")
+    if len(command_names) != 13:
+        raise AssertionError(f"Extension exposes {len(command_names)} commands, expected 13")
     extension_catalog = yaml.safe_load(
         (root / "catalogs/extensions.json").read_text(encoding="utf-8")
     )

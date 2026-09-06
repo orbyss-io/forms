@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Bounded CSV, JSON, XLSX, XLIFF 2.1, and PO localization import and export adapters.</Description>
+    <PackageId>ProgramKit.Localization.Formats</PackageId>
+    <PackageTags>program-kit;localization;i18n;csv;xlsx;xliff;po;json</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

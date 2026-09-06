@@ -415,6 +415,47 @@ gh attestation verify program-kit-0.9.9.zip --repo orbyss-io/program-kit
 Get-FileHash program-kit-0.9.9.zip -Algorithm SHA256
 ```
 
+## UI experience and public discovery
+
+Browser projects can adopt the versioned [UI experience profile](extensions/program-kit-governance/references/ui-experience-v1.md)
+through `/speckit.program-kit-governance.ui`. It separates layout, branding (including optional SVG
+logos and Lucide/custom icons), semantic tokens, CSS adapters, page intent, public metadata and
+consent-gated analytics. Generated native HTML is a reference renderer; accepted frontend frameworks
+retain ownership through an initial-render adapter. The optional `ProgramKit.Web.Discovery` NuGet
+feature serves an explicit public projection through CShells, without adding logic to the Host.
+
+Consumer-owned profile/content inputs generate reproducible, conflict-protected outputs. Core
+tests cover contrast, SVG safety, metadata/private-export boundaries, browser accessibility and
+keyboard/reflow behavior. [Evidence and implementation status](docs/ui-experience-plan.md) distinguish
+automated evidence from consumer journey, screen-reader and deployment acceptance.
+
+Forms and localization are split into provider-neutral .NET contracts, compiler, application
+orchestration, bridge and replaceable storage packages plus an isolated frontend workspace. The frontend boundary validates
+immutable artifacts before rendering, uses JSON Forms behind framework adapters, compiles AJV
+validators during the build, and provides CodeMirror 6 as the dependency-light default JSON editor;
+Monaco is not part of the default graph. Localization management and immutable runtime HTTP
+surfaces are independently selected CShells feature packages; neither adds middleware or behavior
+to `ProgramKit.Host`. See the
+[implementation plan](docs/forms-localization-implementation-plan.md) and
+[deterministic evidence](docs/forms-localization-evidence.md). Frontend packages will eventually be
+published under `@orbyss` through the tagged GitHub Packages release path described in the
+[publication decision](docs/frontend-package-publication.md); publishing remains disabled while the
+package set is under construction.
+
+Optional form operations now add resumable owner-scoped drafts, authoritative immutable
+submissions, quarantined/scanned attachments, governed release migration, streamed CShells endpoints,
+and eleven governed MCP tools
+over those same application services. The MCP route is a normal protected API surface: a selected
+authentication profile owns schemes and middleware, while the endpoint requires authorization and
+derives ownership from the validated principal. No form endpoint or MCP behavior lives in the Host.
+
+The governed administration plane now adds durable form authoring through immutable publication,
+separate retirement state, compatibility analysis, authenticated management endpoints, and
+cacheable runtime releases. One shared authenticated stateless MCP transport composes twelve Forms
+management tools, sixteen Localization management/runtime tools, and the optional eleven owner-scoped
+form-operation tools from independently selected CShell features. Tool contributors do not map
+middleware or endpoints, and every mutation derives its actor from the validated principal.
+
 ## License
 
 Program Kit is open source under the [MIT License](LICENSE).
