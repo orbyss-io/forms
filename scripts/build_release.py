@@ -15,6 +15,26 @@ import yaml
 
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 REPOSITORY = "https://github.com/orbyss-io/program-kit"
+MAX_BUNDLE_ENTRIES = 512
+BUNDLE_ROOT_FILES = {
+    "LICENSE",
+    "README.md",
+    "RUNTIME_VERSION",
+    "THIRD-PARTY-NOTICES.md",
+    "VERSION",
+    "bundle.yml",
+}
+BUNDLE_SOURCE_PREFIXES = (
+    "extensions/program-kit-governance/",
+    "extensions/program-kit-dotnet/",
+    "presets/program-kit-governance-preset/",
+    "workflows/program-kit-bootstrap/",
+)
+BUNDLE_RUNTIME_SCRIPTS = {
+    "scripts/invoke_specify.py",
+    "scripts/openapi_upgrade_reconciliation.py",
+    "scripts/upgrade_program_kit.py",
+}
 
 
 def load_yaml(path: Path) -> dict:
@@ -108,11 +128,22 @@ def repository_source_files(root: Path) -> list[Path]:
     )
 
 
+def bundle_source_files(root: Path) -> list[Path]:
+    """Return only install-time bundle assets; SDK sources publish through their own families."""
+    return [
+        relative
+        for relative in repository_source_files(root)
+        if relative.as_posix() in BUNDLE_ROOT_FILES
+        or relative.as_posix() in BUNDLE_RUNTIME_SCRIPTS
+        or relative.as_posix().startswith(BUNDLE_SOURCE_PREFIXES)
+    ]
+
+
 def build_bundle_from_source(root: Path, output: Path) -> None:
     """Build the composite bundle from source files, never local caches or build output."""
     with tempfile.TemporaryDirectory(prefix="program-kit-release-source-") as directory:
         staging = Path(directory)
-        for relative in repository_source_files(root):
+        for relative in bundle_source_files(root):
             destination = staging / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(root / relative, destination)
@@ -248,6 +279,13 @@ def main() -> int:
     build_bundle_from_source(root, output)
     if not expected[4].is_file():
         raise FileNotFoundError(f"Spec Kit did not create {expected[4]}")
+    with zipfile.ZipFile(expected[4], "r") as archive:
+        entry_count = len(archive.namelist())
+    if entry_count > MAX_BUNDLE_ENTRIES:
+        raise ValueError(
+            f"Program Kit bundle contains {entry_count} entries; Spec Kit permits at most "
+            f"{MAX_BUNDLE_ENTRIES}."
+        )
     shutil.copyfile(root / "Initialize-ProgramKit.cmd", expected[5])
     shutil.copyfile(root / "Initialize-ProgramKit.sh", expected[6])
 

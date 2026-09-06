@@ -107,6 +107,32 @@ def main() -> int:
                     f"{forbidden_entries}"
                 )
 
+    with zipfile.ZipFile(bundle_zip, "r") as archive:
+        names = archive.namelist()
+        if len(names) > 512:
+            raise AssertionError(
+                f"Program Kit bundle exceeds Spec Kit's 512-entry safety limit: {len(names)}"
+            )
+        forbidden_prefixes = (".github/", "docs/", "src/", "test/", "tests/")
+        leaked = [name for name in names if name.startswith(forbidden_prefixes)]
+        if leaked:
+            raise AssertionError(
+                f"Program Kit install bundle contains repository-only source: {leaked[:10]}"
+            )
+        required_runtime = {
+            "bundle.yml",
+            "VERSION",
+            "RUNTIME_VERSION",
+            "scripts/upgrade_program_kit.py",
+            "scripts/invoke_specify.py",
+            "scripts/openapi_upgrade_reconciliation.py",
+        }
+        missing_runtime = required_runtime.difference(names)
+        if missing_runtime:
+            raise AssertionError(
+                f"Program Kit install bundle is missing runtime assets: {sorted(missing_runtime)}"
+            )
+
     with tempfile.TemporaryDirectory(prefix="program-kit-release-test-") as directory:
         project = Path(directory)
         extracted_extension = project / "release-extension"
