@@ -327,3 +327,10 @@ Verified commands and results:
 
 The deterministic validator runs in `.github/workflows/dotnet-ci.yml` after the Release build and in
 `scripts/Test-ProgramKit.ps1`. No paid live bootstrap acceptance was requested or run.
+
+The non-publishing, path-filtered `.github/workflows/frontend-ci.yml` has repository-read permission only. Frontend
+contracts and all twenty-seven clean package archives run in a dedicated job, while Chromium,
+Firefox and WebKit each provision their own pinned Playwright browser and Linux dependencies in a
+fail-independent matrix. `tests/validate_forms_frontend_ci.py` rejects package-write permission,
+publication commands, missing engines, or accidental collapse back into the general serial job.
+The same CI-architecture check runs from `scripts/Test-ProgramKit.ps1` before local frontend tests.

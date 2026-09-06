@@ -33,6 +33,9 @@ if ($LASTEXITCODE -ne 0) {
 & $python (Join-Path $projectRoot 'tests\validate_ui_experience.py')
 if ($LASTEXITCODE -ne 0) { throw 'UI experience/discovery contract validation failed.' }
 
+& $python (Join-Path $projectRoot 'tests\validate_forms_frontend_ci.py')
+if ($LASTEXITCODE -ne 0) { throw 'Non-publishing frontend CI contract validation failed.' }
+
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend.py') --install
 if ($LASTEXITCODE -ne 0) { throw 'Forms frontend runtime, AJV parity, or CodeMirror validation failed.' }
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend_packages.py')

@@ -19,5 +19,22 @@ complete. When it is enabled, it must:
 - treat a failed release pipeline as an unreleased version so a corrected commit replaces the failed
   tag, following the repository's existing release policy.
 
+CI and publication use different change-selection rules. Branch and pull-request frontend CI is a
+separate workflow with native path filters. GitHub does not evaluate path filters for tag pushes, so
+publication must instead compare the tagged commit with the last successfully published commit for
+each independently released family. A deterministic release plan records the selected families and
+their artifact hashes before any write permission is granted.
+
+The publication units are the complete synchronized dependency families: frontend npm packages,
+Program Kit NuGet packages, the host container image, and bootstrap/release assets. Because frontend
+packages use exact internal versions and .NET projects share `ProgramKitVersion`, a change to one
+member can require its family-wide dependent closure. The safe initial policy is therefore to
+publish all packages in a changed family, skip every unchanged family, and publish nothing for a
+docs-only release. Per-package publishing is deferred until independent versions and a tested
+dependency-closure planner exist.
+
 An optional future npmjs.com mirror requires a separate explicit decision. It is not part of the
 default publication topology.
+
+The repository-wide family selection and least-authority rules are defined in
+`docs/release-family-publication.md`.

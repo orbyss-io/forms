@@ -38,17 +38,8 @@ jobs:
       - name: Validate UI experience and public content contracts
         run: python tests/validate_ui_experience.py
 
-      - name: Validate Forms frontend runtime, AJV parity, and CodeMirror default
-        run: python tests/validate_forms_frontend.py --install
-
-      - name: Validate clean Forms frontend package installation
-        run: python tests/validate_forms_frontend_packages.py
-
       - name: Validate UI accessibility, keyboard and analytics in Chromium
         run: python tests/validate_ui_browser.py --install --install-browser
-
-      - name: Validate forms wizard across browser engines and device profiles
-        run: python tests/validate_forms_browser.py
 
       - name: Validate web security assurance evidence
         run: python tests/validate_web_security_assurance.py

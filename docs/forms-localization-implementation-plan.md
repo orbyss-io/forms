@@ -113,12 +113,14 @@ As of 2026-09-06:
   behavior. Complete bounded in-memory adapters now drive the public-contract, management HTTP,
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
-  shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all twenty-seven packages with their exact framework peers. The
+  shell-portable frontend test entry point, real tarball payload inspection, a disposable clean
+  consumer that installs and imports all twenty-seven packages with their exact framework peers,
+  and a read-only Linux CI split with dedicated contract/package validation plus independent
+  Chromium, Firefox and WebKit matrix results. The
   Vue runtime binding shares the CSP-safe precompiled validation seam, and the first Vue management
   planes reuse the provider-neutral schema and form modeler sessions. The tagged GitHub Packages
-  publication step, physical-device/manual assistive evidence and the already-recorded local
-  Firefox limitation remain. No web behavior has been added
+  publication step and physical-device/manual assistive evidence remain; the Windows Firefox
+  limitation is covered by its required Linux CI matrix entry. No web behavior has been added
   to `ProgramKit.Host`. Production EF Core, SQLite, migration, and object-storage choices are
   deliberately deferred to consumers rather than becoming Program Kit defaults.
 
