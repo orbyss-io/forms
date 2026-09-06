@@ -45,11 +45,19 @@ try
 
     await RequireThrowsAsync<InvalidOperationException>(() => replayService.ReplaceAsync(definition with { Revision = new FormRevision(2) }, Mutation("stale", created.Version.Value, actor, 5)).AsTask(), "stale form replacement was accepted");
 
+    var inMemoryReleaseStore = new InMemoryFormReleaseStore();
+    var inMemoryForms = new DefaultFormCatalogService(new InMemoryFormDefinitionStore(), inMemoryReleaseStore, inMemoryReleaseStore, validator, compiler);
+    var inMemoryCreated = await inMemoryForms.CreateAsync(definition, Mutation("memory-create", null, actor, 1));
+    var inMemoryReview = await inMemoryForms.SubmitForReviewAsync(definition.Id, definition.Revision, ["browser:chromium", "contract:ajv"], Mutation("memory-review", inMemoryCreated.Version.Value, actor, 2));
+    var inMemoryApproval = await inMemoryForms.ApproveAsync(definition.Id, definition.Revision, Mutation("memory-approve", inMemoryReview.Version.Value, new FormAuditActor("reviewer-1", "user"), 3));
+    var inMemoryPublished = await inMemoryForms.PublishAsync(definition.Id, definition.Revision, Mutation("memory-publish", inMemoryApproval.Version.Value, new FormAuditActor("publisher-1", "user"), 4));
+    Require(inMemoryPublished.Value.Candidate.CandidateSha256 == published.Value.Candidate.CandidateSha256, "in-memory and filesystem compilation diverged");
+
     var localizationValidator = new LocalizationCatalogValidator();
     var importAdapter = new JsonLocalizationImportAdapter();
-    var localizationReleaseStore = new FileSystemLocalizationReleaseStore(new FileSystemLocalizationReleaseStoreOptions(Path.Combine(root, "localization-releases")));
+    var localizationReleaseStore = new InMemoryLocalizationReleaseStore();
     var localization = new DefaultLocalizationCatalogService(
-        new FileSystemLocalizationCatalogStore(new FileSystemLocalizationCatalogStoreOptions(Path.Combine(root, "localization-catalogs"))),
+        new InMemoryLocalizationCatalogStore(),
         localizationReleaseStore,
         localizationReleaseStore,
         localizationValidator,
@@ -60,9 +68,9 @@ try
     builder.Logging.ClearProviders();
     builder.Services.AddAuthentication("probe").AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>("probe", _ => { });
     builder.Services.AddAuthorization();
-    builder.Services.AddSingleton<IFormAuthoring>(replayService);
-    builder.Services.AddSingleton<IFormCatalogQueries>(replayService);
-    builder.Services.AddSingleton<IFormReleaseLifecycle>(replayService);
+    builder.Services.AddSingleton<IFormAuthoring>(inMemoryForms);
+    builder.Services.AddSingleton<IFormCatalogQueries>(inMemoryForms);
+    builder.Services.AddSingleton<IFormReleaseLifecycle>(inMemoryForms);
     builder.Services.AddSingleton<IFormCompatibilityAnalyzer, DefaultFormCompatibilityAnalyzer>();
     builder.Services.AddSingleton<ILocalizationCatalogManagement>(localization);
     builder.Services.AddSingleton<ILocalizationCatalogQueries>(localization);
@@ -108,7 +116,7 @@ try
 
         client.DefaultRequestHeaders.Add("X-Test-Auth", "true");
         using var managed = await client.GetAsync("/_program-kit/forms/forms/registration");
-        Require(managed.StatusCode == HttpStatusCode.OK && (await managed.Content.ReadFromJsonAsync<FormDefinitionDocument>())?.Version == published.Version, "authenticated form management query failed");
+        Require(managed.StatusCode == HttpStatusCode.OK && (await managed.Content.ReadFromJsonAsync<FormDefinitionDocument>())?.Version == inMemoryPublished.Version, "authenticated form management query failed");
 
         var transport = new HttpClientTransport(new HttpClientTransportOptions
         {

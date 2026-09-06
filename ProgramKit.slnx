@@ -26,6 +26,7 @@
     <Project Path="src/dotnet/ProgramKit.Forms.Web.Runtime/ProgramKit.Forms.Web.Runtime.csproj" />
     <Project Path="src/dotnet/ProgramKit.Forms.Storage.Abstractions/ProgramKit.Forms.Storage.Abstractions.csproj" />
     <Project Path="src/dotnet/ProgramKit.Forms.Storage.FileSystem/ProgramKit.Forms.Storage.FileSystem.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Forms.Storage.InMemory/ProgramKit.Forms.Storage.InMemory.csproj" />
     <Project Path="src/dotnet/ProgramKit.Host/ProgramKit.Host.csproj" />
     <Project Path="src/dotnet/ProgramKit.Identity.Admin.Abstractions/ProgramKit.Identity.Admin.Abstractions.csproj" />
     <Project Path="src/dotnet/ProgramKit.Identity.Keycloak.Admin/ProgramKit.Identity.Keycloak.Admin.csproj" />
@@ -37,6 +38,7 @@
     <Project Path="src/dotnet/ProgramKit.Localization.Mcp.AspNetCore/ProgramKit.Localization.Mcp.AspNetCore.csproj" />
     <Project Path="src/dotnet/ProgramKit.Localization.Storage.Abstractions/ProgramKit.Localization.Storage.Abstractions.csproj" />
     <Project Path="src/dotnet/ProgramKit.Localization.Storage.FileSystem/ProgramKit.Localization.Storage.FileSystem.csproj" />
+    <Project Path="src/dotnet/ProgramKit.Localization.Storage.InMemory/ProgramKit.Localization.Storage.InMemory.csproj" />
     <Project Path="src/dotnet/ProgramKit.Localization.Web.Management/ProgramKit.Localization.Web.Management.csproj" />
     <Project Path="src/dotnet/ProgramKit.Localization.Web.Runtime/ProgramKit.Localization.Web.Runtime.csproj" />
     <Project Path="src/dotnet/ProgramKit.Mcp.AspNetCore/ProgramKit.Mcp.AspNetCore.csproj" />
@@ -54,6 +56,7 @@
     <Project Path="tests/dotnet/ProgramKit.Forms.Localization.Contracts.Probe/ProgramKit.Forms.Localization.Contracts.Probe.csproj" />
     <Project Path="tests/dotnet/ProgramKit.Forms.Operations.Probe/ProgramKit.Forms.Operations.Probe.csproj" />
     <Project Path="tests/dotnet/ProgramKit.Localization.Web.Probe/ProgramKit.Localization.Web.Probe.csproj" />
+    <Project Path="tests/dotnet/ProgramKit.Storage.InMemory.Probe/ProgramKit.Storage.InMemory.Probe.csproj" />
     <Project Path="tests/dotnet/ProgramKit.Web.Discovery.Probe/ProgramKit.Web.Discovery.Probe.csproj" />
     <Project Path="tests/dotnet/ProgramKit.Authentication.BffCookie.Probe/ProgramKit.Authentication.BffCookie.Probe.csproj" />
     <Project Path="tests/dotnet/ProgramKit.Authentication.ClientCredentials.Probe/ProgramKit.Authentication.ClientCredentials.Probe.csproj" />

@@ -91,10 +91,13 @@ As of 2026-09-06:
   retirement sidecars, compatibility queries, authenticated management endpoints, cacheable
   runtime endpoints, and twelve governed management MCP tools. The shared endpoint-only MCP
   transport composes independently selected Forms and Localization contributors without Host
-  behavior. EF Core/object-storage provider adapters remain.
+  behavior. Complete bounded in-memory adapters now drive the public-contract, management HTTP,
+  runtime, and shared MCP probes.
 - Slice 8 remains pending except for the already-established UI experience harness and
   package-isolation checks. Slices 4 and 5 remain incomplete only where described above. No web
-  behavior has been added to `ProgramKit.Host`.
+  behavior has been added to `ProgramKit.Host`. Production EF Core, SQLite, migration, and
+  object-storage choices are deliberately deferred to consumers rather than becoming Program Kit
+  defaults.
 
 ## Fixed decisions
 
@@ -110,6 +113,9 @@ As of 2026-09-06:
   acceptance, not consumer-specific polish.
 - Management and runtime boundaries are separate CShells features. The Host does not register form,
   localization, submission, editor or action middleware/endpoints.
+- In-memory persistence is the deterministic test/development reference. It is never represented as
+  durable. Filesystem persistence is an explicit adapter. Program Kit does not select a production
+  database, ORM, migration system, or object-storage provider for consumers.
 - Every mutation uses optimistic concurrency, an idempotency key and audit metadata. Published form
   and localization releases are immutable.
 - Server-side validation and authorization remain authoritative. Schemas, UI schemas, translations,
@@ -127,8 +133,9 @@ The .NET boundary is split into:
   publication, bounded queries and retirement orchestration over replaceable stores.
 - `ProgramKit.Forms.JsonForms`: compilation to JSON Schema/JSON Forms UI Schema, AJV parity fixtures
   and translation-requirement extraction.
-- `ProgramKit.Forms.Storage.Abstractions`, `.FileSystem` and `.EntityFrameworkCore`: replaceable
-  repositories without leaking persistence models.
+- `ProgramKit.Forms.Storage.Abstractions`, `.InMemory` and `.FileSystem`: narrow consumer-owned
+  persistence ports, a complete non-durable test/development reference, and an explicit filesystem
+  adapter without leaking persistence models into application contracts.
 - `ProgramKit.Forms.Web.Management` and `.Web.Runtime`: independently selected CShells features.
 - `ProgramKit.Forms.Submissions`: optional drafts, resumability, attachments and submission
   lifecycle, including compatibility-aware migration through explicitly registered trusted
@@ -270,7 +277,7 @@ cross-engine validation parity and hostile-schema/import fixtures.
 6. **Localization**: management/runtime features, grid workflow, imports/exports, scopes, fallbacks,
    plural/select messages and forms integration.
 7. **Operational capabilities**: resumable drafts, optional submissions/attachments, MCP/tool
-   surfaces, EF Core stores and provider adapters.
+   surfaces, complete in-memory reference persistence, and consumer-owned provider contracts.
 8. **Release proof**: clean pack/install probes, cross-engine/device suites, security fixtures,
    upgrade/migration tests, evidence and consumer documentation.
 

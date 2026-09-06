@@ -26,6 +26,7 @@
     <PackageVersion Include="ProgramKit.Forms.Web.Runtime" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Forms.Storage.Abstractions" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Forms.Storage.FileSystem" Version="0.9.9-preview.1" />
+    <PackageVersion Include="ProgramKit.Forms.Storage.InMemory" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Identity.Admin.Abstractions" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Identity.Keycloak.Admin" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Localization.Abstractions" Version="0.9.9-preview.1" />
@@ -36,6 +37,7 @@
     <PackageVersion Include="ProgramKit.Localization.Mcp.AspNetCore" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Localization.Storage.Abstractions" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Localization.Storage.FileSystem" Version="0.9.9-preview.1" />
+    <PackageVersion Include="ProgramKit.Localization.Storage.InMemory" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Localization.Web.Management" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Localization.Web.Runtime" Version="0.9.9-preview.1" />
     <PackageVersion Include="ProgramKit.Mcp.AspNetCore" Version="0.9.9-preview.1" />

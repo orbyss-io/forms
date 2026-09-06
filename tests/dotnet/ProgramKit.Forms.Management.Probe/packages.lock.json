@@ -81,6 +81,12 @@
           "ProgramKit.Forms.Storage.Abstractions": "[0.9.9-preview.1, )"
         }
       },
+      "programkit.forms.storage.inmemory": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Forms.Storage.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
       "programkit.forms.tool": {
         "type": "Project",
         "dependencies": {
@@ -91,14 +97,12 @@
       "programkit.forms.web.management": {
         "type": "Project",
         "dependencies": {
-          "CShells.AspNetCore.Abstractions": "[0.0.29-preview.147, )",
           "ProgramKit.Forms.Abstractions": "[0.9.9-preview.1, )"
         }
       },
       "programkit.forms.web.runtime": {
         "type": "Project",
         "dependencies": {
-          "CShells.AspNetCore.Abstractions": "[0.0.29-preview.147, )",
           "ProgramKit.Forms.Abstractions": "[0.9.9-preview.1, )"
         }
       },
@@ -140,6 +144,12 @@
         }
       },
       "programkit.localization.storage.filesystem": {
+        "type": "Project",
+        "dependencies": {
+          "ProgramKit.Localization.Storage.Abstractions": "[0.9.9-preview.1, )"
+        }
+      },
+      "programkit.localization.storage.inmemory": {
         "type": "Project",
         "dependencies": {
           "ProgramKit.Localization.Storage.Abstractions": "[0.9.9-preview.1, )"

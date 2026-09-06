@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Storage.InMemory/ProgramKit.Forms.Storage.InMemory.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Localization.Storage.InMemory/ProgramKit.Localization.Storage.InMemory.csproj" />
+  </ItemGroup>
+</Project>

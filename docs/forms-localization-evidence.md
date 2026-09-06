@@ -47,6 +47,12 @@ Evidence date: 2026-09-06
   enforce opaque optimistic versions, and reject inconsistent internal metadata. Identifiers are
   hashed into filenames; payload envelopes are SHA-256 verified; exact release writes replay
   idempotently and conflicting overwrites fail closed.
+- `ProgramKit.Forms.Storage.InMemory` implements every Forms persistence port, including attachment
+  quarantine/content, while `ProgramKit.Localization.Storage.InMemory` implements all catalog and
+  release ports. Both enforce bounds, detached copies, opaque optimistic versions, audit history,
+  exact process-local replay, immutable release writes, and separate retirement state. They are the
+  non-durable test/development reference and introduce no ORM, database, migration, cloud SDK, or
+  web dependency.
 
 The semantic, core, compiler, format, storage and bridge packages do not reference ASP.NET Core,
 Entity Framework Core, CShells, CodeMirror, Monaco, AJV, or a JavaScript runtime. Each endpoint
@@ -217,7 +223,14 @@ service reconstruction, deterministic compilation, evidence-bound review, approv
 stale-write rejection, separate retirement, envelope-tamper rejection, runtime ETags and conditional
 `304` responses. Its loopback host proves anonymous management and MCP calls receive `401`, then
 uses the official MCP client to discover all twelve Forms management and sixteen Localization tools
-on one shared route and invoke tools from both contributors.
+on one shared route and invoke tools from both contributors. The loopback management/runtime/MCP
+host uses the in-memory adapters while the same probe retains independent filesystem restart and
+tamper evidence.
+
+`tests/dotnet/ProgramKit.Storage.InMemory.Probe` exercises all in-memory stores through public
+contracts: detached state, exact and conflicting replay, stale concurrency, bounded enumeration,
+audit, immutable overwrite rejection, separate retirement, draft/submission and attachment metadata,
+quarantine/promotion/content integrity/deletion, and Forms/Localization parity.
 
 The MCP adapter uses the official `ModelContextProtocol` and `ModelContextProtocol.AspNetCore` 2.2.0
 packages. Streamable HTTP is stateless and endpoint-only. Authentication remains normal Program Kit
@@ -228,7 +241,7 @@ imposes its antiforgery protocol on MCP POSTs; bearer is the normal remote MCP c
 
 Verified commands and results:
 
-- `dotnet build ProgramKit.slnx -c Release --no-restore`: 62 projects, 0 warnings, 0 errors.
+- `dotnet build ProgramKit.slnx -c Release --no-restore`: 65 projects, 0 warnings, 0 errors.
 - `dotnet pack ProgramKit.slnx -c Release --no-build --no-restore`: all new package projects packed;
   warnings were limited to the intentionally non-packable Host and probe projects.
 - `python tests/validate_forms_localization_contracts.py`: passed.
@@ -236,6 +249,8 @@ Verified commands and results:
   isolation, governed migration, endpoint-only composition and authenticated MCP loopback passed.
 - `python tests/validate_forms_management.py`: Forms application/storage, endpoint isolation,
   shared MCP contributor composition and authenticated official-client loopback passed.
+- `python tests/validate_inmemory_storage.py`: complete dependency-free in-memory Forms and
+  Localization persistence contract probe passed.
 - `python tests/validate_forms_frontend.py --renew-lock --install`: strict TypeScript build, AJV parity and
   standalone-CSP checks, artifact/renderer/action/translation security tests, CodeMirror default
   checks, wizard/action navigation and state, modeler transactions/React administration/graph

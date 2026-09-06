@@ -170,6 +170,11 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Forms management, immutable runtime, and shared MCP validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_inmemory_storage.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'In-memory Forms and Localization persistence validation failed.'
+}
+
 & $python (Join-Path $projectRoot 'tests\validate_codex_bootstrap.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Codex Desktop bootstrap validation failed.'

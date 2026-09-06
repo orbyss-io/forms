@@ -6,6 +6,7 @@
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Core/ProgramKit.Forms.Core.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.JsonForms/ProgramKit.Forms.JsonForms.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Storage.FileSystem/ProgramKit.Forms.Storage.FileSystem.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Storage.InMemory/ProgramKit.Forms.Storage.InMemory.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Web.Management/ProgramKit.Forms.Web.Management.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Web.Runtime/ProgramKit.Forms.Web.Runtime.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Forms.Management.Mcp.AspNetCore/ProgramKit.Forms.Management.Mcp.AspNetCore.csproj" />
@@ -13,6 +14,7 @@
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Localization.Core/ProgramKit.Localization.Core.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Localization.Formats/ProgramKit.Localization.Formats.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Localization.Storage.FileSystem/ProgramKit.Localization.Storage.FileSystem.csproj" />
+    <ProjectReference Include="../../../src/dotnet/ProgramKit.Localization.Storage.InMemory/ProgramKit.Localization.Storage.InMemory.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Localization.Mcp.AspNetCore/ProgramKit.Localization.Mcp.AspNetCore.csproj" />
     <ProjectReference Include="../../../src/dotnet/ProgramKit.Mcp.AspNetCore/ProgramKit.Mcp.AspNetCore.csproj" />
   </ItemGroup>

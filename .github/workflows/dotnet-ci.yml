@@ -54,6 +54,9 @@ jobs:
       - name: Validate Forms management and shared MCP composition
         run: python tests/validate_forms_management.py
 
+      - name: Validate in-memory Forms and Localization persistence
+        run: python tests/validate_inmemory_storage.py
+
       - name: Validate BFF OIDC cookie policy
         run: python tests/validate_bff_cookie_options.py
 

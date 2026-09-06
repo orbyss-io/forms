@@ -442,6 +442,12 @@ published under `@orbyss` through the tagged GitHub Packages release path descri
 [publication decision](docs/frontend-package-publication.md); publishing remains disabled while the
 package set is under construction.
 
+Complete bounded in-memory storage packages support deterministic UI, API, MCP, and application
+tests without selecting a consumer database. They are intentionally non-durable. Program Kit does
+not impose EF Core, SQLite, database migrations, or an object-storage SDK; production persistence
+remains behind the narrow Forms and Localization storage ports. The filesystem packages are
+explicit optional adapters, not a production default.
+
 Optional form operations now add resumable owner-scoped drafts, authoritative immutable
 submissions, quarantined/scanned attachments, governed release migration, streamed CShells endpoints,
 and eleven governed MCP tools
