@@ -12,18 +12,9 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ProgramKitJsonForms } from "@orbyss/program-kit-forms-react";
 import { FormLookupRegistry } from "@orbyss/program-kit-forms-lookups";
 import { programKitSearchableSelectRendererEntry } from "@orbyss/program-kit-forms-lookups-react";
-import { FormModelerActionCatalog, FormModelerComponentCatalog, FormModelerSession, type FormModelerDocument } from "@orbyss/program-kit-forms-modeler";
-import { ProgramKitFormModeler } from "@orbyss/program-kit-forms-modeler-react";
-import { ProgramKitFormModelerVue } from "@orbyss/program-kit-forms-modeler-vue";
-import { SchemaModelerSession } from "@orbyss/program-kit-forms-schema-modeler";
-import { ProgramKitSchemaModeler } from "@orbyss/program-kit-forms-schema-modeler-react";
-import { LocalizationManagementSession } from "@orbyss/program-kit-localization-management";
-import { ProgramKitLocalizationManagement } from "@orbyss/program-kit-localization-management-react";
-import { ProgramKitLocalizationManagementVue } from "@orbyss/program-kit-localization-management-vue";
 import type { FormActionRequirement, JsonValue, RuntimeValidationIssue } from "@orbyss/program-kit-forms-contracts";
 import { schema } from "./schema.mjs";
 import { validate as validateGenerated } from "program-kit:validator";
-import { createApp as createVueApp, h as vueH, markRaw as markVueRaw, ref as vueRef } from "vue";
 
 interface GeneratedError {
   readonly instancePath: string;
@@ -154,86 +145,6 @@ const actionRequirements = [
   }
 ] as const satisfies readonly FormActionRequirement[];
 
-const modelerDocument = {
-  id: "registration",
-  revision: 1,
-  name: "Registration",
-  sourceLocale: "en",
-  fields: [{
-    id: "name",
-    dataPath: "/name",
-    valueKind: "string" as const,
-    required: true,
-    label: { key: "fields.name", defaultText: "Name" },
-    constraints: { minimumLength: 1, maximumLength: 200 }
-  }],
-  layout: {
-    id: "registration-layout",
-    kind: "verticalLayout" as const,
-    elements: [{ id: "name-control", kind: "control" as const, fieldId: "name", elements: [] }]
-  },
-  actions: [{
-    id: "submit",
-    kind: "submit" as const,
-    label: { key: "actions.submit", defaultText: "Submit" },
-    handlerId: "registration.submit",
-    requiresValidForm: true
-  }]
-};
-
-const schemaModelerDocument = {
-  id: "customer-schema",
-  revision: 1,
-  schemaId: "urn:program-kit:schema:customer:1",
-  title: "Customer",
-  rootNodeId: "root",
-  nodes: [
-    { id: "root", parentId: null, propertyName: null, order: 0, valueKind: "object" as const, required: false, additionalProperties: false },
-    { id: "name", parentId: "root", propertyName: "name", order: 0, valueKind: "string" as const, required: true, minimumLength: 1 }
-  ]
-};
-
-const modelerActionCatalog = new FormModelerActionCatalog([{
-  handlerId: "registration.submit",
-  contractVersion: "1.0.0",
-  displayName: "Submit registration",
-  execution: "server",
-  supportedKinds: ["submit"],
-  providerPackage: "@orbyss/program-kit-registration-actions",
-  requiredPermissions: ["registration:submit"]
-}]);
-
-const modelerComponentCatalog = new FormModelerComponentCatalog([{
-  componentId: "ProgramKit.SearchableSelect",
-  contractVersion: "1.0.0",
-  versionRange: "[1.0.0,2.0.0)",
-  displayName: "Searchable select",
-  description: "Searches a trusted registered data source.",
-  category: "Choices",
-  supportedValueKinds: ["string"],
-  providerPackage: "@orbyss/program-kit-forms-lookups-react",
-  options: [
-    { key: "dataSourceId", displayName: "Data source", kind: "string", required: true },
-    { key: "pageSize", displayName: "Page size", kind: "integer", required: false, defaultValue: "25" }
-  ]
-}]);
-
-const localizationDocument = {
-  id: "application-copy", revision: 3, version: "catalog-v3", name: "Application copy", sourceLocale: "en", state: "draft" as const,
-  locales: [
-    { languageTag: "en", direction: "leftToRight" as const, requiredForPublication: true },
-    { languageTag: "nl", direction: "leftToRight" as const, fallbackLanguageTag: "en", requiredForPublication: true },
-    { languageTag: "ar", direction: "rightToLeft" as const, fallbackLanguageTag: "en", requiredForPublication: false }
-  ],
-  messages: [{
-    key: "fields.name", scope: { kind: "form" as const, resourceId: "registration" }, sourcePattern: "Name", arguments: [],
-    values: [{ languageTag: "nl", pattern: "Naam", state: "reviewed" as const, provenance: "human" }]
-  }, {
-    key: "items.count", scope: { kind: "application" as const }, sourcePattern: "{count, plural, one {# item} other {# items}}",
-    arguments: [{ name: "count", type: "integer" as const, required: true }], values: []
-  }]
-};
-
 const lookupRegistry = new FormLookupRegistry([{
   contract: {
     dataSourceId: "catalog.plans",
@@ -322,11 +233,6 @@ function App(): ReactNode {
   const [finished, setFinished] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
   const [activeStep, setActiveStep] = useState("profile");
-  const [modelerSequence, setModelerSequence] = useState(0);
-  const [localizationAction, setLocalizationAction] = useState("");
-  const modelerSession = useMemo(() => new FormModelerSession(modelerDocument), []);
-  const schemaModelerSession = useMemo(() => new SchemaModelerSession(schemaModelerDocument), []);
-  const localizationSession = useMemo(() => new LocalizationManagementSession(localizationDocument), []);
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
@@ -387,52 +293,6 @@ function App(): ReactNode {
       <p aria-live="polite" className="fixture-action-result">{actionMessage}</p>
       <p aria-live="polite" className="fixture-finished">{finished ? "Journey completed" : ""}</p>
       <output aria-hidden="true" className="fixture-form-data" hidden>{JSON.stringify(data)}</output>
-      <section aria-labelledby="modeler-heading" className="fixture-modeler">
-        <h2 id="modeler-heading">Form modeler acceptance</h2>
-        <p aria-live="polite" className="fixture-modeler-sequence">Modeler sequence: {modelerSequence}</p>
-        <ProgramKitFormModeler
-          actionCatalog={modelerActionCatalog}
-          componentCatalog={modelerComponentCatalog}
-          classNames={{ toolbar: "fixture-themed-toolbar", canvas: "fixture-themed-canvas" }}
-          editorMode="strictCsp"
-          onChange={snapshot => setModelerSequence(snapshot.sequence)}
-          onCommit={() => {}}
-          renderPreview={document => <p>Trusted preview: {document.fields.map(field => field.label.defaultText).join(", ")}</p>}
-          session={modelerSession}
-        />
-      </section>
-      <section aria-labelledby="schema-modeler-heading" className="fixture-modeler">
-        <h2 id="schema-modeler-heading">Schema modeler acceptance</h2>
-        <ProgramKitSchemaModeler
-          classNames={{ canvas: "fixture-themed-schema-canvas" }}
-          editorMode="strictCsp"
-          onCommit={() => {}}
-          session={schemaModelerSession}
-        />
-      </section>
-      <section aria-labelledby="localization-heading" className="fixture-modeler">
-        <h2 id="localization-heading">Localization management acceptance</h2>
-        <ProgramKitLocalizationManagement
-          actor={{ id: "fixture-editor", kind: "human", displayName: "Fixture editor" }}
-          capabilities={{ edit: true, add: true, import: true, export: true, review: true, approve: true, publish: true }}
-          classNames={{ table: "fixture-themed-table", importReview: "fixture-themed-import" }}
-          forms={[{ id: "registration", name: "Registration" }]}
-          importPreview={{ previewId: "preview-1", contentSha256: "abc", basedOnRevision: 3, mergePolicy: "preserveExisting", changes: [{ key: "fields.email", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "E-mail" }], diagnostics: [] }}
-          onAddRequested={() => setLocalizationAction("add-requested")}
-          onApplyImport={() => setLocalizationAction("import-applied")}
-          onExportRequested={() => setLocalizationAction("export-requested")}
-          onImportRequested={() => setLocalizationAction("import-requested")}
-          onPreviewImport={async submission => {
-            if (submission.fileName !== "registration.csv" || new TextDecoder().decode(submission.content) !== "key,source,nl\nfields.email,Email,E-mail") throw new Error("upload contract changed");
-            setLocalizationAction(`import-previewed:${submission.format}:${submission.mapping.locale ?? "none"}`);
-            return { previewId: "uploaded-preview", contentSha256: "fixture-upload", basedOnRevision: 3, mergePolicy: submission.mergePolicy, changes: [{ key: "fields.email", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "E-mail" }], diagnostics: [] };
-          }}
-          onLifecycleAction={action => setLocalizationAction(action)}
-          pageSize={2}
-          session={localizationSession}
-        />
-        <p aria-live="polite" className="fixture-localization-action">{localizationAction}</p>
-      </section>
     </main>
   );
 }
@@ -440,46 +300,3 @@ function App(): ReactNode {
 const root = document.getElementById("root");
 if (root === null) throw new Error("Fixture root is missing.");
 createRoot(root).render(<App />);
-
-const vueRoot = document.getElementById("vue-root");
-if (vueRoot === null) throw new Error("Vue fixture root is missing.");
-const vueModelerSession = markVueRaw(new FormModelerSession(modelerDocument));
-const vueLocalizationSession = markVueRaw(new LocalizationManagementSession(localizationDocument));
-const vueLocalizationAction = vueRef("");
-createVueApp({
-  render: () => vueH("div", [
-    vueH("section", { "aria-labelledby": "vue-modeler-heading", class: "fixture-modeler" }, [
-      vueH("h2", { id: "vue-modeler-heading" }, "Vue form modeler acceptance"),
-      vueH(ProgramKitFormModelerVue, {
-        session: vueModelerSession,
-        actionCatalog: modelerActionCatalog,
-        componentCatalog: modelerComponentCatalog,
-        className: "pk-form-modeler-vue-fixture",
-        classNames: { canvas: "fixture-themed-vue-canvas" },
-        editorMode: "strictCsp",
-        renderPreview: (document: FormModelerDocument) => vueH("p", `Trusted Vue preview: ${document.fields.map(field => field.label.defaultText).join(", ")}`),
-        onCommit: () => {}
-      })
-    ]),
-    vueH("section", { "aria-labelledby": "vue-localization-heading", class: "fixture-modeler" }, [
-      vueH("h2", { id: "vue-localization-heading" }, "Vue localization management acceptance"),
-      vueH(ProgramKitLocalizationManagementVue, {
-        session: vueLocalizationSession,
-        actor: { id: "fixture-vue-editor", kind: "human", displayName: "Vue fixture editor" },
-        capabilities: { edit: true, add: true, import: true, export: true, review: true, approve: true, publish: true },
-        forms: [{ id: "registration", name: "Registration" }],
-        pageSize: 2,
-        className: "pk-localization-vue-fixture",
-        classNames: { table: "fixture-themed-vue-table" },
-        importPreview: { previewId: "vue-preview-1", contentSha256: "abc", basedOnRevision: 3, mergePolicy: "preserveExisting", changes: [{ key: "fields.email", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "E-mail" }], diagnostics: [] },
-        previewImport: async (submission: { fileName: string; format: string; mapping: Readonly<Record<string, string>>; content: Uint8Array; mergePolicy: "addOnly" | "preserveExisting" | "replaceImported" | "replaceScope" }) => {
-          if (submission.fileName !== "registration.csv" || new TextDecoder().decode(submission.content) !== "key,source,nl\nfields.phone,Phone,Telefoon") throw new Error("Vue upload contract changed");
-          vueLocalizationAction.value = `import-previewed:${submission.format}:${submission.mapping.locale ?? "none"}`;
-          return { previewId: "vue-uploaded-preview", contentSha256: "fixture-vue-upload", basedOnRevision: 3, mergePolicy: submission.mergePolicy, changes: [{ key: "fields.phone", languageTag: "nl", scope: { kind: "form", resourceId: "registration" }, kind: "add", importedPattern: "Telefoon" }], diagnostics: [] };
-        },
-        onApplyImport: (previewId: string) => { vueLocalizationAction.value = `import-applied:${previewId}`; }
-      }),
-      vueH("p", { class: "fixture-vue-localization-action", "aria-live": "polite" }, vueLocalizationAction.value)
-    ])
-  ])
-}).mount(vueRoot);

@@ -22,6 +22,7 @@ import type {
   RuntimeValidationIssue
 } from "@orbyss/program-kit-forms-contracts";
 import {
+  createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
   type JsonFormsCompatibleValidationError
@@ -264,6 +265,7 @@ export const ProgramKitJsonFormsVue = defineComponent({
       props.runtime.schema,
       props.runtime.validate
     ));
+    const translator = computed(() => createJsonFormsTranslatorAdapter(props.runtime.translate));
     return () => h(JsonForms, {
       ajv: ajv.value as never,
       data: props.data,
@@ -272,7 +274,7 @@ export const ProgramKitJsonFormsVue = defineComponent({
       uischema: props.runtime.uiSchema as unknown as UISchemaElement,
       readonly: props.readonly,
       i18n: {
-        translate: (key: string, fallback?: string) => props.runtime.translate(key, fallback ?? "")
+        translate: translator.value
       },
       ...(props.cells === undefined ? {} : { cells: [...props.cells] }),
       ...(props.config === undefined ? {} : { config: props.config }),

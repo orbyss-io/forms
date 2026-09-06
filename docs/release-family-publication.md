@@ -7,7 +7,7 @@ publication must not grant one family authority over another.
 
 | Family | Primary inputs | Initial publication unit |
 | --- | --- | --- |
-| Frontend npm | `src/typescript`, its browser fixtures and shared JS toolchain | all 27 exact-versioned `@orbyss` packages |
+| Frontend npm | `src/typescript`, its browser fixtures and shared JS toolchain | all 15 exact-versioned `@orbyss` packages |
 | Program Kit NuGet | `src/dotnet`, solution/build/package lock inputs | all packable projects sharing `ProgramKitVersion` |
 | Host container | Host Dockerfile plus the transitive .NET host graph and runtime version | one immutable multi-platform image |
 | Bootstrap assets | extensions, presets, workflows, catalogs and bundle build scripts | one versioned release-asset set |

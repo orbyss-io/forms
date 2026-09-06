@@ -1,48 +1,35 @@
-# Program Kit UI theming
+# Program Kit form-runtime theming
 
-Program Kit management behavior is independent of its presentation. Consumers can use the default
-theme, override semantic tokens inside their own branded scope, target stable slots, add classes to
-specific regions, or render the accessible structure without any Program Kit baseline classes.
+The published UI surface is the form journey. The rejected form-modeler, schema-modeler and
+localization-management prototypes are not part of the package family.
 
 ## Default theme
 
-Import the theme once, followed by only the component styles that the application uses:
+Import the theme once, followed by the framework adapter stylesheet used by the application:
 
 ```ts
 import "@orbyss/program-kit-ui-theme/default.css";
-import "@orbyss/program-kit-forms-modeler-react/styles.css";
-// Vue consumers import the equivalent Vue package stylesheet instead:
-// import "@orbyss/program-kit-forms-modeler-vue/styles.css";
-// Angular consumers import the equivalent Angular package stylesheet instead:
-// import "@orbyss/program-kit-forms-modeler-angular/styles.css";
-import "@orbyss/program-kit-forms-schema-modeler-react/styles.css";
-// Vue consumers import the equivalent Vue package stylesheet instead:
-// import "@orbyss/program-kit-forms-schema-modeler-vue/styles.css";
-// import "@orbyss/program-kit-forms-schema-modeler-angular/styles.css"; // Angular
-import "@orbyss/program-kit-localization-management-react/styles.css";
-// Vue consumers import the equivalent Vue package stylesheet instead:
-// import "@orbyss/program-kit-localization-management-vue/styles.css";
-// import "@orbyss/program-kit-localization-management-angular/styles.css"; // Angular
+import "@orbyss/program-kit-forms-react/styles.css";
+// Vue consumers use: @orbyss/program-kit-forms-vue/styles.css
 ```
 
-Scope the built-in light, dark or operating-system-responsive theme to an application region:
+Scope the light, dark or operating-system-responsive theme to an application region:
 
 ```html
 <main data-pk-theme="auto">
-  <!-- Program Kit and application components -->
+  <!-- Program Kit form journey -->
 </main>
 ```
 
-The default theme uses the `program-kit.theme` cascade layer and component baselines use
-`program-kit.components`. Normal unlayered consumer CSS therefore overrides them without
-specificity escalation or `!important`.
+The default theme uses the `program-kit.theme` cascade layer. Unlayered consumer CSS can override
+it without specificity escalation or `!important`.
 
 ## Brand tokens
 
-Tokens are semantic rather than component-specific. A consumer can replace some or all of them:
+Tokens are semantic rather than application-specific:
 
 ```css
-.acme-admin {
+.acme-app {
   --pk-color-canvas: #f7f9fc;
   --pk-color-surface: #fff;
   --pk-color-surface-muted: #edf2f8;
@@ -56,42 +43,15 @@ Tokens are semantic rather than component-specific. A consumer can replace some 
   --pk-font-family: Inter, system-ui, sans-serif;
   --pk-control-radius: .25rem;
   --pk-panel-radius: 1rem;
-  --pk-shadow-panel: 0 .5rem 1.5rem rgb(23 32 51 / 12%);
 }
 ```
 
+The form adapter exposes stable `pk-form-control`, `pk-form-wizard` and `pk-form-actions`
+classes. Consumer styles may target those classes or wrap the journey in a branded scope. Invalid
+controls expose `aria-invalid="true"`, an inline error relationship through `aria-describedby`,
+and a visible danger-state outline.
+
 Focus visibility, minimum target size, forced-colors behavior, reduced motion, logical directions
-and responsive reflow remain accessibility requirements. Branding must not remove those behaviors.
-
-## Slots and classes
-
-Every significant management region exposes a stable namespaced `data-pk-slot`, for example
-`form-modeler.toolbar`, `schema-modeler.canvas` or `localization-management.table`. These are the portable CSS contract used
-by React, Vue and Angular bindings.
-
-React bindings additionally accept typed `classNames` maps:
-
-```tsx
-<ProgramKitFormModeler
-  className="acme-admin"
-  classNames={{ toolbar: "acme-toolbar", canvas: "acme-builder-canvas" }}
-  session={session}
-/>
-```
-
-Use `unstyled` when the application owns every visual rule. This removes Program Kit baseline
-classes for that instance while retaining semantic markup, ARIA behavior and `data-pk-slot`
-selectors:
-
-```tsx
-<ProgramKitLocalizationManagement
-  actor={actor}
-  className="acme-localization"
-  session={session}
-  unstyled
-/>
-```
-
-Consumers can therefore integrate Tailwind, Bootstrap, Material or a private design system without
-forking Program Kit behavior. Token and slot additions are compatible changes; removing or changing
-the meaning of a published token or slot requires a major contract change.
+and responsive reflow remain required. Branding must not remove these behaviors. Consumers may
+integrate Tailwind, Bootstrap, Material or a private design system while retaining the semantic
+markup and accessibility states.

@@ -97,6 +97,29 @@ export interface PrecompiledJsonFormsAjvFacade {
   readonly validate: (schema: unknown, data: unknown) => boolean;
 }
 
+const missingTranslationSentinel = "\u0000program-kit:missing-jsonforms-translation\u0000";
+
+export interface JsonFormsTranslatorAdapter {
+  <D extends string | undefined>(
+    key: string,
+    fallback?: D
+  ): D extends string ? string : string | undefined;
+}
+
+/**
+ * Preserves JSON Forms' missing-translation signal. JSON Forms probes error-specific keys with no
+ * fallback; converting that probe to an empty string suppresses its built-in validation message.
+ */
+export function createJsonFormsTranslatorAdapter(
+  translate: ProgramKitTranslator
+): JsonFormsTranslatorAdapter {
+  return ((key: string, fallback?: string) => {
+    if (fallback !== undefined) return translate(key, fallback);
+    const translated = translate(key, missingTranslationSentinel);
+    return translated === missingTranslationSentinel ? undefined : translated;
+  }) as JsonFormsTranslatorAdapter;
+}
+
 /**
  * Shared JSON Forms validation facade for every framework adapter. Root validation delegates to
  * build-time output; rule conditions use a deliberately small interpreter and never compile code

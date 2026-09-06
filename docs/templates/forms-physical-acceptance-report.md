@@ -24,10 +24,7 @@
 | Form errors, completion and submission |  |  |
 | Searchable choices and wizard navigation |  |  |
 | LTR and RTL localization |  |  |
-| Form visual/JSON/graph management |  |  |
-| Schema visual/JSON/graph management |  |  |
-| Localization edit/import/filter/ICU |  |  |
-| Vue form and localization parity |  |  |
+| Inline validation message and invalid-field state |  |  |
 | Portrait, landscape and virtual keyboard |  |  |
 | 320 CSS px / 200% zoom reflow |  |  |
 | Keyboard-only and editor Tab behavior |  |  |

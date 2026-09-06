@@ -5,6 +5,14 @@ Status: approved on 2026-09-06. This plan does not authorize publication or remo
 Frontend publication is fixed to GitHub Packages under `@orbyss`; the workflow will be enabled only
 after the package set is complete. See `docs/frontend-package-publication.md`.
 
+## Physical-review decision
+
+The form journey was accepted, subject to corrected inline validation presentation. The TypeScript
+form-modeler, schema-modeler and localization-management packages failed physical review and have
+been removed from the publishable family. Program Kit retains the backend contracts, validation,
+management APIs, storage ports and MCP operations; it does not ship a management UI. This decision
+supersedes historical management-UI progress notes in the original approved plan.
+
 ## Implementation progress
 
 As of 2026-09-06:
@@ -30,69 +38,16 @@ As of 2026-09-06:
   desktop, phone and tablet acceptance; Firefox remains an unconditional Linux CI gate because the
   pinned local Windows browser bundle cannot launch. A compiler-emitted .NET release fixture is
   consumed byte-for-byte by the TypeScript integrity/runtime path, including the strict allowlist
-  for Program Kit schema annotations. Vue and Angular runtime bindings now exist, and the form,
-  schema and localization management planes have React, Vue and Angular bindings over the same
-  governed framework-neutral sessions.
-- Slice 5 now includes the portable wizard parser/state machine and React renderer: translated/icon
+  for Program Kit schema annotations. Vue and Angular runtime bindings now exist.
+- Slice 5 includes the portable wizard parser/state machine and React renderer: translated/icon
   navigation, progress/status semantics, validation-gated movement, optional and conditional steps,
-  and application-owned completion callbacks. The provider-neutral action manifest, ordered action
-  bar contract, framework-neutral controller and React renderer now add validation gates, trusted
-  availability policy, single-flight execution, cancellation, public-safe failures and localized
-  labels/icons. The dependency-free modeler core now provides a bounded provider-neutral document,
-  atomic optimistic/idempotent commands, undo/redo and synchronized JSON/tree/graph projections.
-  Its action catalog tells authors which trusted feature package or local contract supplies each
-  handler. A framework-neutral searchable-lookup registry/controller now provides trusted source
-  IDs, paging, dependent filters, cancellation, label rehydration and public-safe failures. React
-  now has a separately installed semantic searchable-combobox renderer with paging and localized
-  selected-label rehydration. The first responsive React modeler administration package now keeps
-  its tree, field inspector, CodeMirror/native strict-CSP JSON source and relationship graph on the
-  same optimistic session, with browser-tested selection, validation and undo. Its built-in palette
-  atomically creates fields and matching controls, the block canvas remains synchronized, and a
-  trusted application callback supplies live preview without executable document data. Installed
-  component packages contribute immutable typed authoring contracts; their compatible value kinds,
-  version range and allowlisted options appear in the inspector and invalid bindings block commit.
-  Pointer drag/reparenting, Alt+Arrow and explicit touch/keyboard move controls now share the same
-  validated optimistic move command; provider-neutral target discovery excludes cycles and leaf
-  elements. The React adapter now also supplies a low-rank semantic core renderer suite for text,
-  multiline text, number/integer, Boolean, date/time string input, single choice and multi-choice.
-  Specialized and application renderers retain priority. A separate dependency-free schema modeler
-  now owns a bounded JSON Schema 2020-12 subset, atomic optimistic/idempotent commands, undo/redo,
-  strict import/compilation and tree/graph projections. Its themed React plane synchronizes palette,
-  structure tree, block canvas, inspector, JSON Schema source and graph while sharing the same
-  CodeMirror/Monaco adapter contract. A Vue schema-modeler plane now renders the same governed
-  session, semantic structure, stable theme slots, strict-CSP fallback and injected editor seam.
-  The Vue form modeler now also reuses its framework-neutral session, catalogs and editor adapters,
-  with palette/tree/canvas/inspector/preview/JSON/graph views and explicit touch/keyboard movement.
-  Vue localization management now supplies the same scoped filtering, bounded paging, optimistic
-  editing, lifecycle gates, ICU message authoring and hash-bound import-preview workflow. Angular
-  standalone form-modeler, schema-modeler and localization-management components now provide the
-  same governed operations, strict-CSP editor fallback and cross-framework theme contract. They are
-  Angular-partial-compiled libraries and retain application-owned preview and integration ports.
-- Slice 6 is complete: locale/fallback validation, structured scopes, ICU-style
-  placeholder/plural/select checks, exact/fallback immutable resolution and deterministic bundles.
-  The explicit Forms-to-Localization bridge adds missing catalog messages, preserves reviewed
-  values and rejects conflicting source contracts. A dependency-free frontend management session
-  now adds audited optimistic/idempotent inline mutations, undo/redo, ICU diagnostics and bounded
-  locale/scope/form/state/missing/text projections. Its responsive React plane provides windowed
-  inline editing, lifecycle permission gates and hash-bound import-preview review across the same
-  strict-CSP browser/device matrix. Dependency-free CSV, JSON, XLSX, XLIFF 2.1 and PO adapters now
-  support bounded deterministic import/export and feed a hash-bound preview/apply coordinator.
-  Deterministic immutable-release diff contracts cover locale policy plus scoped message changes.
-  The React plane now includes a responsive add-message dialog for structured scope, source text,
-  context, description and typed ICU arguments; successful messages enter the missing-locale grid
-  through the same audited session. Its bounded upload dialog now selects CSV, XLSX, JSON, XLIFF
-  2.1 or PO, captures declarative semantic-column and locale mappings, merge policy and structured
-  scope, and delegates bytes only to the trusted preview port. Independently selected CShells
-  endpoint features now expose the authenticated management plane and cacheable immutable runtime
-  plane without adding middleware or response policy to the Host. Provider-neutral application
-  orchestration now closes the server path across catalog creation/replacement, bounded queries,
-  hash-bound imports, review, approval, deterministic publication and retirement. Replaceable
-  storage ports and the filesystem adapter add atomic optimistic writes, durable idempotency replay,
-  append-only claim-attributed audit history, bounded enumeration/documents, verified payloads and
-  separate retirement sidecars so immutable release content is never overwritten.
-  Sixteen explicit closed-world Localization MCP tools now expose bounded queries, validation,
-  hash-bound import preview/apply, deterministic export, lifecycle, release diff, and immutable
-  runtime inspection through those same application services.
+  plus manifest-backed actions with safe failure handling. Trusted searchable lookups provide
+  paging, dependent filters, cancellation and label rehydration. React supplies low-rank semantic
+  native controls that remain overrideable by application renderers.
+- Slice 6 is complete on the server: locale/fallback validation, structured scopes, ICU-style
+  placeholder/plural/select checks, exact/fallback immutable resolution, deterministic bundles,
+  bounded CSV/JSON/XLSX/XLIFF/PO adapters, hash-bound imports and authenticated CShells/MCP
+  management surfaces. No frontend localization-management package is shipped.
 - Slice 7 now has its provider-neutral operational core and filesystem proof: owner-scoped
   resumable drafts, canonical bounded JSON, partial-save versus authoritative-submit validation,
   exact immutable-release binding, clean-attachment snapshots, withdrawal and separately
@@ -112,26 +67,18 @@ As of 2026-09-06:
   transport composes independently selected Forms and Localization contributors without Host
   behavior. Complete bounded in-memory adapters now drive the public-contract, management HTTP,
   runtime, and shared MCP probes.
-- Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
-  shell-portable frontend test entry point, real tarball payload inspection, a disposable clean
-  consumer that installs and imports all twenty-seven packages with their exact framework peers,
-  and a read-only Linux CI split with dedicated contract/package validation plus independent
-  Chromium, Firefox and WebKit matrix results. The
-  Vue runtime binding shares the CSP-safe precompiled validation seam, and the first Vue management
-  planes reuse the provider-neutral schema and form modeler sessions. The tagged GitHub Packages
-  publication step and physical-device/manual assistive evidence remain; the Windows Firefox
-  limitation is covered by its required Linux CI matrix entry. No web behavior has been added
-  to `ProgramKit.Host`. Production EF Core, SQLite, migration, and object-storage choices are
-  deliberately deferred to consumers rather than becoming Program Kit defaults.
+- Slice 8 includes the established UI experience harness, package-isolation architecture checks,
+  shell-portable frontend tests, real tarball inspection, a disposable consumer of all fifteen
+  packages, and read-only Chromium/Firefox/WebKit CI. Physical acceptance covers the form journey;
+  management UI prototypes were removed after review. No web behavior has been added to
+  `ProgramKit.Host`, and persistence technology remains consumer-owned.
 
 ## Fixed decisions
 
 - Program Kit owns framework-neutral form, localization, action, release and compatibility
   contracts. JSON Forms, AJV, CodeMirror and Monaco are adapters, never public domain contracts.
-- Management theming is CSS-first and cross-framework: semantic custom properties define branding,
-  spacing, typography, density, focus, shape, shadow and motion; stable `data-pk-slot` attributes
-  and typed class maps allow targeted composition; optional component styles live in a low-priority
-  cascade layer; and an unstyled mode preserves accessible markup without Program Kit classes.
+- Form-runtime theming is CSS-first and cross-framework: semantic custom properties define branding,
+  focus, shape and motion, while invalid controls retain inline errors and visible danger states.
 - CodeMirror 6 is the unconditional rich JSON editor default. Monaco is a separately installed
   desktop enhancement behind the shared editor contract and must never become a transitive dependency of the default
   authoring experience. Because CodeMirror uses dynamic layout style attributes, deployments that
@@ -182,8 +129,7 @@ The .NET boundary is split into:
   SSRF-hardened connector rather than a core URL field.
 
 Frontend packages mirror those seams: contracts, JSON Forms adapter, renderer registry, governed
-actions, wizard, CodeMirror editor, optional Monaco editor, form modeler, schema modeler,
-localization management and the Program Kit design-system adapter. Framework adapters consume these
+actions, wizard, reusable CodeMirror editor, optional Monaco editor and the Program Kit design-system adapter. Framework adapters consume these
 packages; business applications do not import management-plane internals.
 
 ## Canonical models and release flow
@@ -246,16 +192,9 @@ only from declared rooted data JSON Pointers.
 
 ## Authoring and localization experience
 
-The form modeler provides a palette, layout canvas, property inspector, renderer/action binding,
-live preview and synchronized human-tree, JSON and graph views. The JSON view defaults to CodeMirror
-and shares parse, schema, completion and diagnostic services with optional Monaco. Switching editors
-does not change the document or validation result.
-
-The localization plane provides a virtualized inline-edit table with locale, scope, form, status,
-missing-value and text filters; add/import/export actions; dry-run import mapping; conflict and merge
-policies; placeholder/plural validation; source/target comparison; review/approval; immutable
-publication; release diff; and missing/unused/duplicate key reports. Machine or AI suggestions, when
-an adapter is installed, enter an explicit unreviewed state and are never silently published.
+Program Kit supplies backend form/localization management contracts, validation, import/export,
+review, publication, runtime and MCP capabilities. Consumers build any human administration UI in
+their own design system. Program Kit does not publish a modeler or localization-management UI.
 
 Forms integrate through narrow query ports: localization can resolve form display names for its
 filter, and forms can request completeness/preview information. Neither core package references the
@@ -280,8 +219,8 @@ other implementation. An integration feature composes the two when both are sele
 Core CI exercises Chromium, Firefox and WebKit. The pairwise matrix covers desktop, touch phone and
 touch tablet profiles; portrait and landscape; 320 CSS-pixel reflow with 200% root text; light,
 dark, forced-colors and reduced-motion modes; LTR and RTL; keyboard-only and touch navigation; and
-no unexpected page-level horizontal overflow. Critical form and localization journeys run in each
-engine. Renderer state galleries cover every control and wizard state.
+no unexpected page-level horizontal overflow. Critical form journeys run in each engine. Renderer
+state galleries cover every published control and wizard state.
 
 Playwright device profiles are repeatable compatibility evidence, not proof for physical hardware,
 virtual keyboards or assistive technologies. Release acceptance therefore also records manual
@@ -303,8 +242,8 @@ cross-engine validation parity and hostile-schema/import fixtures.
    immutable file-system stores and deterministic fixtures.
 4. **Runtime**: JSON Forms runtime adapter, renderer registry, CodeMirror default and separately
    installable Monaco adapter.
-5. **Authoring**: schema/form modelers, custom controls/actions and the Program Kit wizard.
-6. **Localization**: management/runtime features, grid workflow, imports/exports, scopes, fallbacks,
+5. **Runtime composition**: custom controls/actions, trusted lookups and the Program Kit wizard.
+6. **Localization**: backend management/runtime features, imports/exports, scopes, fallbacks,
    plural/select messages and forms integration.
 7. **Operational capabilities**: resumable drafts, optional submissions/attachments, MCP/tool
    surfaces, complete in-memory reference persistence, and consumer-owned provider contracts.

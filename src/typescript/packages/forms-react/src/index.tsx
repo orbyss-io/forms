@@ -57,6 +57,7 @@ import {
   type WizardValidationIssue
 } from "@orbyss/program-kit-forms-wizard";
 import {
+  createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
   type JsonFormsCompatibleValidationError
@@ -120,12 +121,13 @@ export function ProgramKitJsonForms({
     () => [programKitWizardRendererEntry, programKitActionBarRendererEntry, ...programKitCoreRendererEntries, ...renderers],
     [renderers]
   );
+  const translator = useMemo(() => createJsonFormsTranslatorAdapter(runtime.translate), [runtime.translate]);
   return (
     <ProgramKitFormsRuntimeContext.Provider value={runtime}>
       <JsonForms
         ajv={ajv}
         data={data}
-        i18n={{ translate: (key, fallback) => runtime.translate(key, fallback ?? "") }}
+        i18n={{ translate: translator }}
         renderers={rendererEntries}
         schema={runtime.schema}
         uischema={runtime.uiSchema as unknown as UISchemaElement}

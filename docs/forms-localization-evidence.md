@@ -64,7 +64,10 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains twenty-seven independently packable packages:
+It contains fifteen independently packable packages. The form-modeler, schema-modeler and
+localization-management UI prototypes failed physical review and were removed from the publishable
+family; the .NET management contracts, APIs and MCP tools remain supported.
+
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -87,35 +90,6 @@ It currently contains twenty-seven independently packable packages:
 - `@orbyss/program-kit-forms-actions`: the framework-neutral manifest-backed action-bar parser and
   controller with validation gates, trusted availability policy, single-flight dispatch,
   cancellation and public-safe failures; and
-- `@orbyss/program-kit-forms-modeler`: the dependency-free provider-neutral authoring document and
-  bounded transactional session with optimistic sequence checks, conflict-safe command replay,
-  undo/redo, synchronized JSON serialization and graph projection, plus immutable component/action
-  catalogs that expose installed package ownership and validate typed allowlisted bindings; and
-- `@orbyss/program-kit-forms-modeler-react`: the optional responsive administration binding with a
-  synchronized structure tree, property inspector, CodeMirror JSON source, strict-CSP native source
-  fallback, field/layout palette, pointer drag targets, touch/keyboard reorder and reparent controls,
-  block canvas, application-owned live preview and relationship graph. Its root and significant
-  visual regions support consumer classes, stable slots and a per-instance unstyled mode; and
-- `@orbyss/program-kit-forms-modeler-vue`: the optional Vue administration binding over the same
-  optimistic modeler session, component/action catalogs and editor contract, with palette, tree,
-  canvas, inspector, application-owned preview, JSON and graph views plus pointer and explicit
-  touch/keyboard movement; and
-- `@orbyss/program-kit-forms-modeler-angular`: the optional Angular 22 standalone administration
-  component over that same session and catalogs, with palette, tree, canvas, inspector,
-  application-owned `TemplateRef` preview, JSON and graph views, explicit movement controls and the
-  injected CodeMirror/Monaco editor contract; and
-- `@orbyss/program-kit-forms-schema-modeler`: the dependency-free safe JSON Schema 2020-12
-  authoring subset with bounded validation, strict import/compilation, atomic optimistic and
-  idempotent edits, undo/redo, tree ordering and graph projection; and
-- `@orbyss/program-kit-forms-schema-modeler-react`: the optional themed management plane that keeps
-  palette, structure tree, block canvas, property inspector, JSON Schema editor and relationship
-  graph synchronized through the shared editor contract; and
-- `@orbyss/program-kit-forms-schema-modeler-vue`: the equivalent optional Vue management plane,
-  rendering the same governed session with stable theme slots, consumer classes, unstyled mode,
-  strict-CSP source editing and the injected CodeMirror/Monaco adapter seam; and
-- `@orbyss/program-kit-forms-schema-modeler-angular`: the equivalent Angular 22 standalone
-  management component, partial-compiled with strict templates over the shared bounded schema
-  session, editor seam and portable theme slots; and
 - `@orbyss/program-kit-forms-lookups`: trusted searchable source contracts and a framework-neutral
   controller for bounded search, cursor paging, declared dependent filters, cancellation, selected
   label rehydration and public-safe provider failures; and
@@ -135,31 +109,13 @@ It currently contains twenty-seven independently packable packages:
   explicitly imported stylesheet; and
 - `@orbyss/program-kit-forms-angular`: the exact-pinned Angular 22/JSON Forms standalone component,
   partial-compiled with Angular's compatible TypeScript 6 compiler, over the shared precompiled
-  validator and typed framework-neutral change contract; and
-- `@orbyss/program-kit-localization-management`: dependency-free structured localization scopes,
-  locale/value workflow state, audited optimistic/idempotent commands, undo/redo, ICU diagnostics
-  and bounded windowed row projections; and
-- `@orbyss/program-kit-localization-management-react`: the optional responsive inline-edit grid,
-  locale/scope/form/state/missing/text filters, lifecycle permission gates and hash-bound import
-  preview surface, plus a validated add-message dialog for structured scope and typed ICU arguments
-  and a bounded file/mapping dialog for CSV, XLSX, JSON, XLIFF 2.1 and PO preview submissions. Its
-  table, filters, toolbar, dialogs, rows and import review expose the same theme slots and unstyled
-  integration mode; and
-- `@orbyss/program-kit-localization-management-vue`: the equivalent Vue management plane over the
-  same audited session, including scoped filters, bounded paging, inline values/states, lifecycle
-  gates, ICU message creation, bounded file submission and reviewed import application; and
-- `@orbyss/program-kit-localization-management-angular`: the equivalent Angular 22 standalone
-  management component with those audited filters, edits, lifecycle gates, ICU authoring and
-  hash-bound import-preview operations over application-owned ports.
-
+  validator and typed framework-neutral change contract.
 JSON Forms Core 3.8.0 is an exact peer dependency of the runtime boundary. The framework-neutral
 package intentionally exposes JSON values rather than upstream framework types; React, Vue and
 Angular bindings own those types and renderer integration. AJV is build-time-only for runtime
-artifacts. CodeMirror is the unconditional rich-editor default, while Monaco occurs only in its
-separately selected adapter and cannot enter a default consumer dependency graph. CodeMirror's generated stylesheet accepts a caller-provided CSP nonce,
-but its editor layout also relies on dynamic style attributes. The React modeler therefore provides
-an explicit native source-editing mode for the stricter Program Kit policy that prohibits all style
-attributes; the browser suite does not weaken CSP to accommodate an editor dependency.
+artifacts. CodeMirror remains the default reusable JSON-editor adapter, while Monaco occurs only in its
+separately selected adapter and cannot enter a default consumer dependency graph. Neither editor is
+pulled into the form-runtime adapters.
 
 JSON Forms 3.8 still exposes the withdrawn `Symbol.observable` in its TypeScript-5.8-era store
 declarations, which TypeScript 7 rejects during third-party declaration checking. `skipLibCheck` is
@@ -192,23 +148,10 @@ inline style, `eval` and dynamic `Function` construction. Playwright 1.62.1 and 
   the trusted application port and replace unexpected exception details with a generic public error;
 - asynchronous searchable choices page through a registered source, select through native
   combobox/listbox semantics and rehydrate the chosen label after an RTL locale switch;
-- the responsive modeler synchronizes inspector changes into its tree and JSON source, rejects an
-  invalid replacement document, restores edits through undo, exposes trusted action-package
-  ownership, atomically adds a field/control from its palette, renders an application-owned preview,
-  validates typed installed renderer options before commit, reorders/reparents through pointer or
-  touch/keyboard-safe controls, rejects cyclic/leaf targets and projects relationships into the graph;
-- the schema modeler adds typed nodes from its palette, synchronizes property edits into JSON Schema
-  and graph projections, rejects unknown or misplaced schema keywords and exposes the same typed
-  theme-slot contract under strict CSP;
 - semantic text, multiline, integer, Boolean, single-choice and multi-choice renderers preserve
   typed values and remain lower-ranked than the installed searchable-lookup renderer;
-- localization rows filter by structured form scope and target locale, missing Arabic values edit
-  with RTL direction, audited changes enter undo history, completed rows leave the missing-only
-  projection, a typed-argument ICU message can be added through the responsive dialog, and a
-  reviewed hash-bound import preview invokes only its trusted application port, while bounded file
-  bytes, format, merge policy, structured scope and declarative column mappings pass through the
-  upload dialog without browser parsing or executable schema data;
-- validation blocks forward movement and maps errors to the owning step;
+- validation renders an inline message and `aria-invalid` danger state at the owning control,
+  blocks forward movement and maps errors to the owning step;
 - conditional and optional steps appear, skip and complete correctly;
 - a live English-to-Arabic switch preserves the active step, applies RTL and translates navigation;
 - Home/End and direction-aware arrow navigation use native buttons and stable focus targets;
@@ -304,22 +247,14 @@ Verified commands and results:
   shared MCP contributor composition and authenticated official-client loopback passed.
 - `python tests/validate_inmemory_storage.py`: complete dependency-free in-memory Forms and
   Localization persistence contract probe passed.
-- `python tests/validate_forms_frontend.py --renew-lock --install`: strict TypeScript build, AJV parity and
-  standalone-CSP checks, artifact/renderer/action/translation security tests, CodeMirror default
-  checks, wizard/action navigation and state, modeler transactions/React administration/graph
-  projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
-  behavior, rendered React/Vue binding tests, Angular shared-session/component tests, strict Angular
-  partial compilation, and twenty-seven workspace package
-  dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: twenty-seven real npm archives contained their
-  declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
-  the archives with exact JSON Forms/React/Vue/Angular peers, bundled all four Angular public
-  components in a clean consumer, and imported every public package successfully.
-- `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and
-  WebKit desktop/tablet profiles passed locally, including governed action execution, searchable
-  lookup paging/selection/localized rehydration, React and Vue form-modeler synchronization,
-  strict-CSP form/schema modelers, React and Vue localization add/import workflows, responsive
-  card-table reflow and safe-error acceptance.
+- `python tests/validate_forms_frontend.py --renew-lock --install`: strict TypeScript build, AJV parity,
+  translation/error bridging, standalone-CSP checks, wizard/actions/lookups, React/Vue runtime tests,
+  Angular partial compilation and fifteen workspace-package dry-run packs passed.
+- `python tests/validate_forms_frontend_packages.py`: fifteen real npm archives installed into a
+  disposable consumer with exact peers; all public packages imported or bundled successfully.
+- `python tests/validate_forms_browser.py --engines chromium,webkit`: the form journey passed six
+  desktop/phone/tablet emulation profiles, including inline validation, governed actions, searchable
+  lookups, RTL, accessibility, strict CSP and responsive reflow.
 - `python tests/validate_dotnet_build_contract.py`: restricted-profile restore/build contract passed.
 - `python tests/validate_dotnet_runtime.py`: runtime versions and package locks coherent.
 - `python tests/validate_release_install.py`: packaged component and bundle clean-install test passed.
@@ -329,7 +264,7 @@ The deterministic validator runs in `.github/workflows/dotnet-ci.yml` after the 
 `scripts/Test-ProgramKit.ps1`. No paid live bootstrap acceptance was requested or run.
 
 The non-publishing, path-filtered `.github/workflows/frontend-ci.yml` has repository-read permission only. Frontend
-contracts and all twenty-seven clean package archives run in a dedicated job, while Chromium,
+contracts and all fifteen clean package archives run in a dedicated job, while Chromium,
 Firefox and WebKit each provision their own pinned Playwright browser and Linux dependencies in a
 fail-independent matrix. `tests/validate_forms_frontend_ci.py` rejects package-write permission,
 publication commands, missing engines, or accidental collapse back into the general serial job.

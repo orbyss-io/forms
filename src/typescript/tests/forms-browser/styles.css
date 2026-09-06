@@ -15,7 +15,6 @@ button, input { font: inherit; min-block-size: 44px; }
 button { cursor: pointer; }
 button:focus-visible, input:focus-visible { outline: 3px solid CanvasText; outline-offset: 3px; }
 main { inline-size: min(100% - 2rem, 72rem); margin-inline: auto; padding-block: 2rem; }
-#vue-root { inline-size: min(100% - 2rem, 72rem); margin-inline: auto; padding-block-end: 2rem; }
 .fixture-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .fixture-header > *, .fixture-eyebrow, h1 { min-inline-size: 0; max-inline-size: 100%; overflow-wrap: anywhere; }
 .fixture-eyebrow { color: var(--pk-accent); font-weight: 750; margin: 0; }
@@ -59,16 +58,8 @@ h1 { font-size: clamp(1.75rem, 5vw, 3rem); margin-block: .25rem 1rem; }
 .pk-form-wizard__actions button { border: 1px solid var(--pk-border); border-radius: 999px; padding-inline: 1.25rem; background: var(--pk-surface); color: inherit; }
 .pk-form-wizard__next, .pk-form-wizard__finish { background: var(--pk-accent) !important; color: white !important; }
 .fixture-action-result, .fixture-finished { min-block-size: 1.5rem; font-weight: 750; }
-.fixture-modeler { --pk-panel-radius: 13px; min-inline-size: 0; max-inline-size: 100%; margin-block-start: 3rem; padding: clamp(1rem, 3vw, 2rem); background: var(--pk-surface); border: 1px solid var(--pk-border); border-radius: 1.25rem; box-shadow: 0 1rem 3rem rgb(35 25 80 / 12%); overflow-wrap: anywhere; }
-.fixture-modeler h2 { overflow-wrap: anywhere; }
-.pk-form-modeler__toolbar button, .pk-form-modeler__tabs button, .pk-form-modeler__tree button, .pk-form-modeler__panel > button { border: 1px solid var(--pk-border); border-radius: .65rem; padding-inline: .8rem; background: var(--pk-surface); color: inherit; }
-.pk-form-modeler__tabs button[aria-selected="true"], .pk-form-modeler__tree button[aria-current="true"], .pk-form-modeler__graph-node[aria-pressed="true"] { background: var(--pk-accent); color: white; }
-.pk-form-modeler__inspector { border: 1px solid var(--pk-border); border-radius: .85rem; padding: 1rem; }
-.pk-form-modeler__inspector input[type="text"] { border: 1px solid var(--pk-border); border-radius: .65rem; padding-inline: .8rem; background: var(--pk-surface); color: inherit; }
-.pk-form-modeler__editor { background: var(--pk-surface); color: var(--pk-text); }
 @media (max-width: 32rem) {
   main { inline-size: min(100% - 1rem, 72rem); padding-block: .5rem; }
-  #vue-root { inline-size: min(100% - 1rem, 72rem); }
   .pk-form-wizard { border-radius: .8rem; }
   .pk-form-wizard__steps { grid-template-columns: 1fr; }
   .pk-form-wizard__actions button { flex: 1 1 8rem; }

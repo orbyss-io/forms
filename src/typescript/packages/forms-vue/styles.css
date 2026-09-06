@@ -4,9 +4,11 @@
 .pk-form-control__input > input, .pk-form-control__input > select, .pk-form-control__input > textarea { inline-size: 100%; min-block-size: 44px; padding: .65rem .75rem; border: 1px solid currentColor; border-radius: .5rem; background: Canvas; color: CanvasText; font: inherit; }
 .pk-form-control__input > select[multiple] { min-block-size: 8rem; }
 .pk-form-control__input > textarea { resize: block; }
+.pk-form-control__input > [aria-invalid="true"] { border-color: var(--pk-color-danger, #a11919); outline: 2px solid var(--pk-color-danger, #a11919); outline-offset: 1px; }
 .pk-form-control__boolean { display: flex; align-items: center; gap: .65rem; min-block-size: 44px; }
 .pk-form-control__boolean input { inline-size: 1.25rem; block-size: 1.25rem; }
+.pk-form-control__boolean input[aria-invalid="true"] { outline: 2px solid var(--pk-color-danger, #a11919); outline-offset: 2px; }
 .pk-form-control__description, .pk-form-control__error { margin: 0; overflow-wrap: anywhere; }
 .pk-form-control__error { color: #a11919; }
-@media (forced-colors: active) { .pk-form-control__input > input, .pk-form-control__input > select, .pk-form-control__input > textarea { border-color: CanvasText; } }
+@media (forced-colors: active) { .pk-form-control__input > input, .pk-form-control__input > select, .pk-form-control__input > textarea { border-color: CanvasText; } .pk-form-control__input > [aria-invalid="true"], .pk-form-control__boolean input[aria-invalid="true"] { border-color: Mark; outline-color: Mark; } }
 @media (prefers-reduced-motion: reduce) { .pk-form-control *, .pk-form-control *::before, .pk-form-control *::after { transition-duration: 0s !important; animation-duration: 0s !important; } }

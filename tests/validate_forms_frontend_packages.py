@@ -52,8 +52,8 @@ def main() -> int:
         for path in sorted((WORKSPACE / "packages").glob("*/package.json"))
     ]
     names = sorted(manifest["name"] for manifest in manifests)
-    if len(names) != 27 or len(set(names)) != len(names):
-        raise AssertionError("The clean frontend consumer requires exactly twenty-seven unique packages.")
+    if len(names) != 15 or len(set(names)) != len(names):
+        raise AssertionError("The clean frontend consumer requires exactly fifteen unique packages.")
 
     artifacts = ROOT / "artifacts"
     artifacts.mkdir(parents=True, exist_ok=True)
@@ -124,9 +124,6 @@ def main() -> int:
         run(npm + install_arguments, consumer, environment)
         node_names = [name for name in names if name not in {
             "@orbyss/program-kit-forms-angular",
-            "@orbyss/program-kit-forms-modeler-angular",
-            "@orbyss/program-kit-forms-schema-modeler-angular",
-            "@orbyss/program-kit-localization-management-angular",
             "@orbyss/program-kit-forms-monaco",
         }]
         module_probe = (
@@ -142,10 +139,7 @@ def main() -> int:
         angular_entry = consumer / "angular-entry.js"
         angular_entry.write_text(
             'import { ProgramKitJsonFormsAngularComponent } from "@orbyss/program-kit-forms-angular";\n'
-            'import { ProgramKitFormModelerAngularComponent } from "@orbyss/program-kit-forms-modeler-angular";\n'
-            'import { ProgramKitSchemaModelerAngularComponent } from "@orbyss/program-kit-forms-schema-modeler-angular";\n'
-            'import { ProgramKitLocalizationManagementAngularComponent } from "@orbyss/program-kit-localization-management-angular";\n'
-            'console.log(ProgramKitJsonFormsAngularComponent, ProgramKitFormModelerAngularComponent, ProgramKitSchemaModelerAngularComponent, ProgramKitLocalizationManagementAngularComponent);\n',
+            'console.log(ProgramKitJsonFormsAngularComponent);\n',
             encoding="utf-8",
         )
         esbuild = WORKSPACE / "node_modules" / ".bin" / ("esbuild.cmd" if os.name == "nt" else "esbuild")

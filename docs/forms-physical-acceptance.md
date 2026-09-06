@@ -51,23 +51,21 @@ Use realistic data without personal or secret information.
    each step, use searchable choices, move backward and forward, and submit successfully.
 2. Change locale and direction. Confirm labels, errors, step navigation, values and alignment remain
    understandable in both LTR and RTL.
-3. In form management, edit the visual model, undo/redo, add/move/reparent controls, switch to JSON,
-   provoke and repair a validation error, inspect the graph and verify the preview follows the model.
-4. In schema management, add/edit fields, switch among visual, JSON and graph views, and verify an
-   invalid schema cannot silently replace the valid model.
-5. In localization management, filter and edit inline, add a translation, preview an import, inspect
-   ICU content and verify scope/locale/direction filters.
-6. Repeat the form and localization journeys in the Vue showcase section. Angular adapters are
-   covered by compilation, runtime and isolated-package tests; this showcase does not claim a
-   second visual implementation for Angular.
-7. Confirm there is no unexpected page-level horizontal scrolling at a 320 CSS-pixel viewport or
+3. Confirm each invalid field renders an inline message, exposes `aria-invalid="true"`, and has a
+   visible danger-state outline in normal and high-contrast modes. Correcting the value must remove
+   the field error.
+4. Confirm there is no unexpected page-level horizontal scrolling at a 320 CSS-pixel viewport or
    200% zoom, focus is never hidden, touch targets are usable, and content is not clipped by the
    virtual keyboard.
-8. With keyboard only, traverse every interactive element, operate dialogs/tables/editors, and
-   confirm Tab indents inside CodeMirror/Monaco JSON editors while the documented escape command
-   returns focus to the page.
-9. With a screen reader, confirm landmarks, headings, labels, descriptions, validation errors,
-   status changes, table headers and step changes are announced meaningfully.
+5. With keyboard only, traverse every interactive element and complete the form journey without a
+   pointer.
+6. With a screen reader, confirm landmarks, headings, labels, descriptions, validation errors,
+   status changes and step changes are announced meaningfully.
+
+The prototyped form-modeler, schema-modeler and localization-management UIs were rejected during
+physical review and removed from the publishable frontend family. This run deliberately does not
+request or claim acceptance evidence for those components. Backend form/localization management
+contracts and APIs remain separately tested.
 
 Any journey that fails on an available, in-scope device blocks publication. Repair the product or
 document an explicitly approved, time-bounded exception; then rerun the affected journey and attach

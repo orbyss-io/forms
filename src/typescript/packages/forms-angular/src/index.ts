@@ -20,8 +20,10 @@ import type {
   RuntimeValidationIssue
 } from "@orbyss/program-kit-forms-contracts";
 import {
+  createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
+  type JsonFormsTranslatorAdapter,
   type JsonFormsCompatibleValidationError,
   type PrecompiledJsonFormsAjvFacade
 } from "@orbyss/program-kit-forms-jsonforms-runtime";
@@ -78,14 +80,14 @@ export class ProgramKitJsonFormsAngularComponent implements OnChanges {
 
   ajv!: PrecompiledJsonFormsAjvFacade;
   uiSchema!: UISchemaElement;
-  i18n!: { readonly translate: (key: string, fallback?: string) => string };
+  i18n!: { readonly translate: JsonFormsTranslatorAdapter };
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["runtime"] !== undefined) {
       this.ajv = createPrecompiledJsonFormsAjvFacade(this.runtime.schema, this.runtime.validate);
       this.uiSchema = this.runtime.uiSchema as unknown as UISchemaElement;
       this.i18n = Object.freeze({
-        translate: (key: string, fallback?: string) => this.runtime.translate(key, fallback ?? "")
+        translate: createJsonFormsTranslatorAdapter(this.runtime.translate)
       });
     }
   }
