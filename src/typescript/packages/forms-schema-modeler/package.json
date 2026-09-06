@@ -1,0 +1,14 @@
+{
+  "name": "@orbyss/program-kit-forms-schema-modeler",
+  "version": "0.9.9-preview.1",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": { "build": "tsc -p tsconfig.json" }
+}

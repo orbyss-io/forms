@@ -46,6 +46,8 @@ def main() -> int:
         "@orbyss/program-kit-forms-angular",
         "@orbyss/program-kit-forms-modeler",
         "@orbyss/program-kit-forms-modeler-react",
+        "@orbyss/program-kit-forms-schema-modeler",
+        "@orbyss/program-kit-forms-schema-modeler-react",
         "@orbyss/program-kit-forms-lookups",
         "@orbyss/program-kit-forms-lookups-react",
         "@orbyss/program-kit-forms-react",
@@ -75,8 +77,11 @@ def main() -> int:
 
     codemirror_dependencies = by_name["@orbyss/program-kit-forms-codemirror"]["dependencies"]
     if codemirror_dependencies != {
+        "@codemirror/commands": "6.11.0",
         "@codemirror/lang-json": "6.0.2",
+        "@codemirror/language": "6.12.4",
         "@codemirror/lint": "6.9.7",
+        "@codemirror/view": "6.43.11",
         "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
         "codemirror": "6.0.2",
     }:
@@ -87,6 +92,14 @@ def main() -> int:
             or monaco.get("peerDependencies") != {"monaco-editor": "0.56.0"} \
             or monaco.get("devDependencies") != {"monaco-editor": "0.56.0"}:
         raise AssertionError("Monaco must remain a separately installed exact-pinned editor adapter.")
+    editor_policy = (WORKSPACE / "packages/forms-editor-contracts/src/index.ts").read_text(encoding="utf-8")
+    codemirror_source = (WORKSPACE / "packages/forms-codemirror/src/index.ts").read_text(encoding="utf-8")
+    monaco_source = (WORKSPACE / "packages/forms-monaco/src/index.ts").read_text(encoding="utf-8")
+    if "tabSize: 2" not in editor_policy or "tabKeyIndents: true" not in editor_policy \
+            or "indentUnit.of" not in codemirror_source or "indentWithTab" not in codemirror_source \
+            or "tabFocusMode: !jsonEditorIndentationPolicy.tabKeyIndents" not in monaco_source \
+            or "detectIndentation: false" not in monaco_source:
+        raise AssertionError("CodeMirror and Monaco must share the governed two-space Tab indentation policy.")
 
     wizard_dependencies = by_name["@orbyss/program-kit-forms-wizard"]["dependencies"]
     if wizard_dependencies != {"@orbyss/program-kit-forms-contracts": "0.9.9-preview.1"}:
@@ -110,6 +123,19 @@ def main() -> int:
         "react": "19.2.8",
     } or modeler_react.get("devDependencies") != {"@types/react": "19.2.18"}:
         raise AssertionError("The React modeler must compose only the governed modeler and default editor packages.")
+
+    schema_modeler = by_name["@orbyss/program-kit-forms-schema-modeler"]
+    if schema_modeler.get("dependencies") or schema_modeler.get("peerDependencies") or schema_modeler.get("devDependencies"):
+        raise AssertionError("The provider-neutral schema modeler must remain dependency-free.")
+    schema_modeler_react = by_name["@orbyss/program-kit-forms-schema-modeler-react"]
+    if schema_modeler_react.get("dependencies") != {
+        "@orbyss/program-kit-forms-codemirror": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-editor-contracts": "0.9.9-preview.1",
+        "@orbyss/program-kit-forms-schema-modeler": "0.9.9-preview.1",
+        "@orbyss/program-kit-ui-theme": "0.9.9-preview.1",
+    } or schema_modeler_react.get("peerDependencies") != {"react": "19.2.8"} \
+            or schema_modeler_react.get("devDependencies") != {"@types/react": "19.2.18"}:
+        raise AssertionError("The React schema modeler crossed its governed framework-neutral boundary.")
 
     localization_management = by_name["@orbyss/program-kit-localization-management"]
     if localization_management.get("dependencies") or localization_management.get("peerDependencies"):
@@ -136,6 +162,7 @@ def main() -> int:
         raise AssertionError("The default theme must remain scoped and cascade-layered.")
     for stylesheet in (
         WORKSPACE / "packages/forms-modeler-react/styles.css",
+        WORKSPACE / "packages/forms-schema-modeler-react/styles.css",
         WORKSPACE / "packages/localization-management-react/styles.css",
     ):
         content = stylesheet.read_text(encoding="utf-8")
@@ -143,6 +170,7 @@ def main() -> int:
             raise AssertionError(f"Management stylesheet is outside the semantic theme contract: {stylesheet}")
     for source in (
         WORKSPACE / "packages/forms-modeler-react/src/index.tsx",
+        WORKSPACE / "packages/forms-schema-modeler-react/src/index.tsx",
         WORKSPACE / "packages/localization-management-react/src/index.tsx",
     ):
         content = source.read_text(encoding="utf-8")
@@ -283,7 +311,7 @@ def main() -> int:
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")
     run(["pack", "--workspaces", "--dry-run", "--ignore-scripts", "--no-audit", "--no-fund"])
-    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
+    print("Forms frontend contracts, theme slots/tokens, JSON Forms runtime, AJV parity, renderer/actions, form/schema modeler UI, searchable lookups, localization management, React/Vue/Angular bindings, wizard state, CodeMirror default, and isolated Monaco adapter passed.")
     return 0
 
 

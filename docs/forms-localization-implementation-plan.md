@@ -53,7 +53,11 @@ As of 2026-09-06:
   validated optimistic move command; provider-neutral target discovery excludes cycles and leaf
   elements. The React adapter now also supplies a low-rank semantic core renderer suite for text,
   multiline text, number/integer, Boolean, date/time string input, single choice and multi-choice.
-  Specialized and application renderers retain priority. Vue/Angular bindings remain.
+  Specialized and application renderers retain priority. A separate dependency-free schema modeler
+  now owns a bounded JSON Schema 2020-12 subset, atomic optimistic/idempotent commands, undo/redo,
+  strict import/compilation and tree/graph projections. Its themed React plane synchronizes palette,
+  structure tree, block canvas, inspector, JSON Schema source and graph while sharing the same
+  CodeMirror/Monaco adapter contract. Vue/Angular management bindings remain.
 - Slice 6 is complete: locale/fallback validation, structured scopes, ICU-style
   placeholder/plural/select checks, exact/fallback immutable resolution and deterministic bundles.
   The explicit Forms-to-Localization bridge adds missing catalog messages, preserves reviewed
@@ -100,7 +104,7 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 now includes the established UI experience harness, package-isolation architecture checks,
   shell-portable frontend test entry point, real tarball payload inspection, and a disposable clean
-  consumer that installs and imports all nineteen packages with their exact framework peers. The
+  consumer that installs and imports all twenty-one packages with their exact framework peers. The
   first Vue runtime binding shares the CSP-safe precompiled validation seam. The tagged GitHub
   Packages publication step, deeper Vue/Angular management parity, physical-device/manual assistive
   evidence and the already-recorded local Firefox limitation remain. No web behavior has been added
@@ -119,7 +123,8 @@ As of 2026-09-06:
   desktop enhancement behind the shared editor contract and must never become a transitive dependency of the default
   authoring experience. Because CodeMirror uses dynamic layout style attributes, deployments that
   prohibit all style attributes use the built-in native source editor; CSP is not weakened for an
-  editor dependency.
+  editor dependency. Both rich adapters insert two-space indentation for Tab by default and expose
+  `Ctrl+M` as the focus-navigation toggle so the editor is not a keyboard trap.
 - Phone, tablet and desktop support is mandatory. Responsive layout, touch input, orientation,
   browser-engine compatibility, enlarged-text reflow, RTL and reduced-motion behavior are release
   acceptance, not consumer-specific polish.

@@ -5,7 +5,7 @@ import test from "node:test";
 import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss/program-kit-forms-ajv-build";
 import { codeMirrorJsonEditorAdapter, mountJsonEditor } from "@orbyss/program-kit-forms-codemirror";
 import { defaultRuntimeLimits } from "@orbyss/program-kit-forms-contracts";
-import { normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss/program-kit-forms-editor-contracts";
+import { jsonEditorIndentationPolicy, normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss/program-kit-forms-editor-contracts";
 import {
   createJsonFormsTranslator,
   createPrecompiledJsonFormsAjvFacade,
@@ -30,6 +30,16 @@ import {
   FormModelerGraph,
   ProgramKitFormModeler
 } from "@orbyss/program-kit-forms-modeler-react";
+import {
+  SchemaModelerConcurrencyError,
+  SchemaModelerSession,
+  SchemaModelerValidationError,
+  compileSchemaModelerDocument,
+  parseCompiledJsonSchema,
+  projectSchemaModelerGraph,
+  serializeCompiledJsonSchema
+} from "@orbyss/program-kit-forms-schema-modeler";
+import { ProgramKitSchemaModeler } from "@orbyss/program-kit-forms-schema-modeler-react";
 import { FormActionRegistry, RendererRegistry } from "@orbyss/program-kit-forms-renderer-registry";
 import { ProgramKitActionController, ProgramKitActionError, parseProgramKitActionBar } from "@orbyss/program-kit-forms-actions";
 import { ProgramKitWizardController, parseProgramKitWizard } from "@orbyss/program-kit-forms-wizard";
@@ -78,6 +88,20 @@ const uiSchema = {
   options: { variant: "program-kit-wizard" },
   elements: [{ type: "Category", id: "identity", elements: [{ type: "Control", id: "name", scope: "#/properties/name" }] }]
 };
+
+function schemaModelerDocument() {
+  return {
+    id: "customer",
+    revision: 1,
+    schemaId: "urn:program-kit:schema:customer:1",
+    title: "Customer",
+    rootNodeId: "root",
+    nodes: [
+      { id: "root", parentId: null, propertyName: null, order: 0, valueKind: "object", required: false, additionalProperties: false },
+      { id: "name", parentId: "root", propertyName: "name", order: 0, valueKind: "string", required: true, minimumLength: 1 }
+    ]
+  };
+}
 
 function modelerDocument() {
   return {
@@ -619,6 +643,56 @@ test("modeler component catalog bounds renderer packages, value kinds, and typed
   assert.equal(catalog.validateBindings([{ ...field, component: { ...field.component, options: { dataSourceId: "catalog.products", pageSize: "many", selection: "single" } } }]).some(item => item.code === "PKMC006"), true);
 });
 
+test("schema modeler compiles, round-trips, and applies optimistic idempotent edits", () => {
+  const document = schemaModelerDocument();
+  const session = new SchemaModelerSession(document);
+  const command = {
+    commandId: "add-age",
+    expectedSequence: 0,
+    operations: [{ type: "insertNode", parentId: "root", index: 1, node: { id: "age", parentId: "root", propertyName: "age", order: 1, valueKind: "integer", required: false, minimum: 0 } }]
+  };
+  const changed = session.apply(command);
+  assert.equal(changed.sequence, 1);
+  assert.equal(session.apply(command).sequence, 1);
+  assert.throws(() => session.apply({ ...command, commandId: "stale", expectedSequence: 0 }), SchemaModelerConcurrencyError);
+  const compiled = compileSchemaModelerDocument(changed.document);
+  assert.equal(compiled.additionalProperties, false);
+  assert.deepEqual(compiled.required, ["name"]);
+  assert.equal(compiled.properties.age.minimum, 0);
+  const roundTrip = parseCompiledJsonSchema(serializeCompiledJsonSchema(changed.document), "customer", 2);
+  assert.deepEqual(compileSchemaModelerDocument(roundTrip), compiled);
+  assert.equal(projectSchemaModelerGraph(roundTrip).edges.length, 2);
+  assert.equal(session.undo().document.nodes.some(node => node.id === "age"), false);
+  assert.equal(session.redo().document.nodes.some(node => node.id === "age"), true);
+});
+
+test("schema modeler rejects unsupported or structurally unsafe schemas transactionally", () => {
+  assert.throws(() => parseCompiledJsonSchema(JSON.stringify({ type: "object", $ref: "https://example.test/schema" })), /outside the governed modeler subset/);
+  assert.throws(() => parseCompiledJsonSchema(JSON.stringify({ type: "object", properties: {}, required: ["missing"] })), /requires unknown property/);
+  assert.throws(() => parseCompiledJsonSchema(JSON.stringify({ type: "array" })), /requires one item schema/);
+  assert.throws(() => parseCompiledJsonSchema(JSON.stringify({ type: "string", minimum: 1 })), /numeric-only keywords/);
+  assert.throws(() => parseCompiledJsonSchema(JSON.stringify({ type: "string", enum: [{ unsafe: true }] })), /do not match its type/);
+  assert.throws(() => new SchemaModelerSession({ ...schemaModelerDocument(), nodes: [{ ...schemaModelerDocument().nodes[0], valueKind: "string" }, schemaModelerDocument().nodes[1]] }), SchemaModelerValidationError);
+  const session = new SchemaModelerSession(schemaModelerDocument());
+  assert.throws(() => session.apply({ commandId: "bad-child", expectedSequence: 0, operations: [{ type: "insertNode", parentId: "name", index: 0, node: { id: "nested", parentId: "name", propertyName: "nested", order: 0, valueKind: "string", required: false } }] }), /Only object and array schemas/);
+  assert.equal(session.snapshot().sequence, 0);
+});
+
+test("React schema modeler renders themeable synchronized authoring views", () => {
+  const markup = renderToStaticMarkup(createElement(ProgramKitSchemaModeler, {
+    session: new SchemaModelerSession(schemaModelerDocument()),
+    editorMode: "strictCsp",
+    className: "consumer-schema-modeler",
+    classNames: { canvas: "consumer-schema-canvas" },
+    onCommit: () => {}
+  }));
+  assert.match(markup, /data-pk-slot="schema-modeler.root"/);
+  assert.match(markup, /consumer-schema-modeler/);
+  assert.match(markup, /consumer-schema-canvas/);
+  assert.match(markup, /Schema structure/);
+  assert.match(markup, /Schema canvas/);
+});
+
 test("localization management applies audited optimistic edits with replay and undo", () => {
   const session = new LocalizationManagementSession(localizationDocument());
   const command = {
@@ -864,6 +938,7 @@ test("default runtime bounds and JSON editor adapters stay independently consuma
   assert.equal(typeof mountJsonEditor, "function");
   assert.equal(codeMirrorJsonEditorAdapter.id, "program-kit.codemirror-json");
   assert.equal(codeMirrorJsonEditorAdapter.requiresWorkers, false);
+  assert.deepEqual(jsonEditorIndentationPolicy, { insertSpaces: true, tabSize: 2, tabKeyIndents: true, focusNavigationToggle: "Ctrl+M" });
   assert.throws(() => requireJsonEditorOptions({ parent: {}, document: "{}", accessibleLabel: " " }), /accessible label/);
   assert.deepEqual(normalizeJsonEditorDiagnostics([
     { from: -3, to: 99, severity: "error", message: "Invalid document" }

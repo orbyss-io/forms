@@ -14,6 +14,8 @@ import { FormLookupRegistry } from "@orbyss/program-kit-forms-lookups";
 import { programKitSearchableSelectRendererEntry } from "@orbyss/program-kit-forms-lookups-react";
 import { FormModelerActionCatalog, FormModelerComponentCatalog, FormModelerSession } from "@orbyss/program-kit-forms-modeler";
 import { ProgramKitFormModeler } from "@orbyss/program-kit-forms-modeler-react";
+import { SchemaModelerSession } from "@orbyss/program-kit-forms-schema-modeler";
+import { ProgramKitSchemaModeler } from "@orbyss/program-kit-forms-schema-modeler-react";
 import { LocalizationManagementSession } from "@orbyss/program-kit-localization-management";
 import { ProgramKitLocalizationManagement } from "@orbyss/program-kit-localization-management-react";
 import type { FormActionRequirement, JsonValue, RuntimeValidationIssue } from "@orbyss/program-kit-forms-contracts";
@@ -176,6 +178,18 @@ const modelerDocument = {
   }]
 };
 
+const schemaModelerDocument = {
+  id: "customer-schema",
+  revision: 1,
+  schemaId: "urn:program-kit:schema:customer:1",
+  title: "Customer",
+  rootNodeId: "root",
+  nodes: [
+    { id: "root", parentId: null, propertyName: null, order: 0, valueKind: "object" as const, required: false, additionalProperties: false },
+    { id: "name", parentId: "root", propertyName: "name", order: 0, valueKind: "string" as const, required: true, minimumLength: 1 }
+  ]
+};
+
 const modelerActionCatalog = new FormModelerActionCatalog([{
   handlerId: "registration.submit",
   contractVersion: "1.0.0",
@@ -308,6 +322,7 @@ function App(): ReactNode {
   const [modelerSequence, setModelerSequence] = useState(0);
   const [localizationAction, setLocalizationAction] = useState("");
   const modelerSession = useMemo(() => new FormModelerSession(modelerDocument), []);
+  const schemaModelerSession = useMemo(() => new SchemaModelerSession(schemaModelerDocument), []);
   const localizationSession = useMemo(() => new LocalizationManagementSession(localizationDocument), []);
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -381,6 +396,15 @@ function App(): ReactNode {
           onCommit={() => {}}
           renderPreview={document => <p>Trusted preview: {document.fields.map(field => field.label.defaultText).join(", ")}</p>}
           session={modelerSession}
+        />
+      </section>
+      <section aria-labelledby="schema-modeler-heading" className="fixture-modeler">
+        <h2 id="schema-modeler-heading">Schema modeler acceptance</h2>
+        <ProgramKitSchemaModeler
+          classNames={{ canvas: "fixture-themed-schema-canvas" }}
+          editorMode="strictCsp"
+          onCommit={() => {}}
+          session={schemaModelerSession}
         />
       </section>
       <section aria-labelledby="localization-heading" className="fixture-modeler">

@@ -1,7 +1,11 @@
 import { json, jsonParseLinter } from "@codemirror/lang-json";
+import { indentWithTab } from "@codemirror/commands";
+import { indentUnit } from "@codemirror/language";
 import { linter, type Diagnostic } from "@codemirror/lint";
+import { keymap } from "@codemirror/view";
 import { basicSetup, EditorView } from "codemirror";
 import {
+  jsonEditorIndentationPolicy,
   normalizeJsonEditorDiagnostics,
   requireJsonEditorOptions,
   type JsonEditorAdapter,
@@ -26,6 +30,8 @@ export function mountJsonEditor(options: JsonEditorOptions): JsonEditorHandle {
   const extensions = [
     basicSetup,
     json(),
+    indentUnit.of(" ".repeat(jsonEditorIndentationPolicy.tabSize)),
+    keymap.of([indentWithTab]),
     linter(jsonParseLinter()),
     EditorView.contentAttributes.of({ "aria-label": options.accessibleLabel }),
     EditorView.lineWrapping,

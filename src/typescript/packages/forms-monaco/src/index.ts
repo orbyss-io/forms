@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
 import {
+  jsonEditorIndentationPolicy,
   normalizeJsonEditorDiagnostics,
   requireJsonEditorOptions,
   type JsonEditorAdapter,
@@ -33,6 +34,10 @@ export function mountMonacoJsonEditor(options: JsonEditorOptions): JsonEditorHan
     ariaLabel: options.accessibleLabel,
     automaticLayout: true,
     readOnly: options.readOnly === true,
+    detectIndentation: false,
+    insertSpaces: jsonEditorIndentationPolicy.insertSpaces,
+    tabFocusMode: !jsonEditorIndentationPolicy.tabKeyIndents,
+    tabSize: jsonEditorIndentationPolicy.tabSize,
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     wordWrap: "on"

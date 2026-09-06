@@ -11,6 +11,7 @@ Import the theme once, followed by only the component styles that the applicatio
 ```ts
 import "@orbyss/program-kit-ui-theme/default.css";
 import "@orbyss/program-kit-forms-modeler-react/styles.css";
+import "@orbyss/program-kit-forms-schema-modeler-react/styles.css";
 import "@orbyss/program-kit-localization-management-react/styles.css";
 ```
 
@@ -55,7 +56,7 @@ and responsive reflow remain accessibility requirements. Branding must not remov
 ## Slots and classes
 
 Every significant management region exposes a stable namespaced `data-pk-slot`, for example
-`form-modeler.toolbar` or `localization-management.table`. These are the portable CSS contract used
+`form-modeler.toolbar`, `schema-modeler.canvas` or `localization-management.table`. These are the portable CSS contract used
 by React, Vue and Angular bindings.
 
 React bindings additionally accept typed `classNames` maps:

@@ -64,7 +64,7 @@ explicit Forms-to-Localization bridge.
 ## Frontend runtime boundary
 
 The isolated `src/typescript` workspace does not modify a consumer application's dependency graph.
-It currently contains nineteen independently packable packages:
+It currently contains twenty-one independently packable packages:
 
 - `@orbyss/program-kit-forms-contracts`: dependency-free JSON-safe release and runtime contracts;
 - `@orbyss/program-kit-forms-renderer-registry`: versioned renderer selection and declared-action
@@ -96,6 +96,12 @@ It currently contains nineteen independently packable packages:
   fallback, field/layout palette, pointer drag targets, touch/keyboard reorder and reparent controls,
   block canvas, application-owned live preview and relationship graph. Its root and significant
   visual regions support consumer classes, stable slots and a per-instance unstyled mode; and
+- `@orbyss/program-kit-forms-schema-modeler`: the dependency-free safe JSON Schema 2020-12
+  authoring subset with bounded validation, strict import/compilation, atomic optimistic and
+  idempotent edits, undo/redo, tree ordering and graph projection; and
+- `@orbyss/program-kit-forms-schema-modeler-react`: the optional themed management plane that keeps
+  palette, structure tree, block canvas, property inspector, JSON Schema editor and relationship
+  graph synchronized through the shared editor contract; and
 - `@orbyss/program-kit-forms-lookups`: trusted searchable source contracts and a framework-neutral
   controller for bounded search, cursor paging, declared dependent filters, cancellation, selected
   label rehydration and public-safe provider failures; and
@@ -171,6 +177,9 @@ inline style, `eval` and dynamic `Function` construction. Playwright 1.62.1 and 
   ownership, atomically adds a field/control from its palette, renders an application-owned preview,
   validates typed installed renderer options before commit, reorders/reparents through pointer or
   touch/keyboard-safe controls, rejects cyclic/leaf targets and projects relationships into the graph;
+- the schema modeler adds typed nodes from its palette, synchronizes property edits into JSON Schema
+  and graph projections, rejects unknown or misplaced schema keywords and exposes the same typed
+  theme-slot contract under strict CSP;
 - semantic text, multiline, integer, Boolean, single-choice and multi-choice renderers preserve
   typed values and remain lower-ranked than the installed searchable-lookup renderer;
 - localization rows filter by structured form scope and target locale, missing Arabic values edit
@@ -279,14 +288,14 @@ Verified commands and results:
   standalone-CSP checks, artifact/renderer/action/translation security tests, CodeMirror default
   checks, wizard/action navigation and state, modeler transactions/React administration/graph
   projection, lookup paging/cancellation/safe failures, localization optimistic/filter/import-preview
-  behavior, rendered React binding tests, and nineteen workspace package
+  behavior, rendered React binding tests, and twenty-one workspace package
   dry-run packs passed.
-- `python tests/validate_forms_frontend_packages.py`: nineteen real npm archives contained their
+- `python tests/validate_forms_frontend_packages.py`: twenty-one real npm archives contained their
   declared JavaScript, TypeScript declarations and exported styles; a disposable consumer installed
   the archives with exact JSON Forms/React/Vue/Angular peers and imported every public package successfully.
 - `python tests/validate_forms_browser.py --engines chromium,webkit`: six Chromium desktop/phone and
   WebKit desktop/tablet profiles passed locally, including governed action execution, searchable
-  lookup paging/selection/localized rehydration, strict-CSP modeler and localization management,
+  lookup paging/selection/localized rehydration, strict-CSP form/schema modelers and localization management,
   responsive card-table reflow and safe-error acceptance.
 - `python tests/validate_dotnet_build_contract.py`: restricted-profile restore/build contract passed.
 - `python tests/validate_dotnet_runtime.py`: runtime versions and package locks coherent.

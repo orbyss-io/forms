@@ -32,6 +32,13 @@ export interface JsonEditorAdapter {
   readonly mount: (options: JsonEditorOptions) => JsonEditorHandle;
 }
 
+export const jsonEditorIndentationPolicy = Object.freeze({
+  insertSpaces: true,
+  tabSize: 2,
+  tabKeyIndents: true,
+  focusNavigationToggle: "Ctrl+M"
+} as const);
+
 export function requireJsonEditorOptions(options: JsonEditorOptions): void {
   if (options.accessibleLabel.trim().length === 0) {
     throw new Error("A JSON editor requires an accessible label.");

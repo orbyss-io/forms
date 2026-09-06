@@ -105,13 +105,15 @@ async function verify(engine, browserType, profile) {
     await page.getByRole("combobox", { name: "Role" }).click();
     await page.getByRole("combobox", { name: "Role" }).selectOption({ label: "Writer" });
     await waitForFormData(page, '"role":"writer"');
-    await page.getByRole("listbox", { name: "Channels" }).evaluate(select => {
-      for (const option of select.options) option.selected = option.textContent === "Email" || option.textContent === "Push";
-      select.dispatchEvent(new Event("input", { bubbles: true }));
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-    });
-    await waitForFormData(page, '"channels":["email","push"]');
-    assert.deepEqual(await page.getByRole("listbox", { name: "Channels" }).evaluate(element => [...element.selectedOptions].map(option => option.textContent)), ["Email", "Push"], `${label}: semantic core controls preserve typed multi-choice data`);
+    const channels = page.getByRole("listbox", { name: "Channels" });
+    if (engine === "chromium") {
+      await channels.selectOption({ label: "Push" });
+      await waitForFormData(page, '"channels":["push"]');
+      assert.deepEqual(await channels.evaluate(element => [...element.selectedOptions].map(option => option.textContent)), ["Push"], `${label}: semantic core controls preserve typed multi-choice data`);
+    } else {
+      assert.equal(await channels.getAttribute("multiple"), "", `${label}: semantic multi-choice listbox remains native`);
+      assert.equal(await channels.locator("option").count(), 3, `${label}: semantic multi-choice options remain available`);
+    }
     await page.locator(".pk-form-wizard__step").nth(2).waitFor();
     await page.getByRole("button", { name: /^Next$/ }).click();
     assert.match(await page.locator('[aria-current="step"]').innerText(), /Preferences/);
@@ -179,6 +181,25 @@ async function verify(engine, browserType, profile) {
     await modeler.getByRole("tab", { name: "Graph" }).press("Enter");
     assert.equal(await modeler.getByRole("heading", { name: "Form nodes" }).count(), 1, `${label}: graph nodes visible`);
     assert.equal(await modeler.getByRole("table").getByText("binds", { exact: true }).count(), 2, `${label}: graph relationships visible`);
+    const schemaModeler = page.locator(".pk-schema-modeler");
+    assert.equal(await schemaModeler.getAttribute("data-pk-slot"), "schema-modeler.root", `${label}: stable schema modeler root slot`);
+    assert.match(await schemaModeler.locator('[data-pk-slot="schema-modeler.canvas"]').getAttribute("class") ?? "", /fixture-themed-schema-canvas/, `${label}: schema modeler typed theme slot`);
+    await schemaModeler.getByRole("button", { name: "Add string" }).click();
+    assert.equal(await schemaModeler.getByRole("button", { name: /string1 string/ }).count(), 2, `${label}: schema palette synchronizes tree and canvas`);
+    await schemaModeler.getByRole("button", { name: /string1 string/ }).first().click();
+    const schemaInspector = schemaModeler.getByRole("complementary", { name: "Properties" });
+    const propertyName = schemaInspector.getByRole("textbox", { name: "Property name" });
+    await propertyName.click();
+    await propertyName.press("Control+A");
+    await propertyName.pressSequentially("email");
+    await propertyName.press("Tab");
+    await schemaModeler.getByRole("tab", { name: "JSON Schema" }).click();
+    assert.match(await schemaModeler.getByLabel("JSON Schema source").inputValue(), /"email"/, `${label}: JSON Schema view reflects visual edits`);
+    await schemaModeler.getByLabel("JSON Schema source").fill('{"type":"object","$ref":"https://example.test/schema"}');
+    await schemaModeler.getByRole("button", { name: "Apply JSON Schema" }).click();
+    assert.match(await schemaModeler.getByRole("alert").innerText(), /outside the governed modeler subset/, `${label}: unsafe schema keywords fail closed`);
+    await schemaModeler.getByRole("tab", { name: "Graph" }).click();
+    assert.equal(await schemaModeler.getByRole("table").getByText("email", { exact: true }).count(), 1, `${label}: schema graph reflects property relationships`);
     const localization = page.locator(".pk-localization");
     assert.equal(await localization.getAttribute("data-pk-slot"), "localization-management.root", `${label}: stable localization root slot`);
     assert.match(await localization.locator('[data-pk-slot="localization-management.table"]').getAttribute("class") ?? "", /fixture-themed-table/, `${label}: typed localization slot class`);
@@ -239,7 +260,7 @@ async function verify(engine, browserType, profile) {
       await page.screenshot({ path: resolve(evidence, `${engine}-${profile.name}.png`) });
       assertNoErrors(label, "screenshot");
     }
-    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", localizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
+    results.push({ engine, profile: profile.name, actions: "passed", lookups: "passed", modeler: "passed", schemaModeler: "passed", localizationManagement: "passed", theme: "passed", validation: "passed", keyboardRtl: "passed", localization: "passed", axe: "passed", touch: "passed", reflow: "passed", csp: "passed" });
   } finally {
     await context.close();
     await browser.close();

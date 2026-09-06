@@ -13,7 +13,8 @@ into a consumer npm graph. Consumers install only the adapters they select.
 - `forms-editor-contracts` keeps modelers independent from a specific editor. `forms-codemirror` is
   the unconditional default JSON editor adapter, while `forms-monaco` is an exact-pinned optional
   package and Monaco remains outside every default consumer graph. Both rich editors need runtime
-  layout style attributes; the React
+  layout style attributes. Both use a fixed two-space indentation policy and make Tab indent by
+  default; `Ctrl+M` toggles focus-navigation mode for keyboard users. The React
   modeler exposes a native strict-CSP editing mode for deployments whose policy prohibits them.
 - `forms-wizard` parses the compiled Program Kit `Categorization` variant and owns shared navigation,
   validation, conditional-step, progress and status behavior for every framework renderer.
@@ -28,6 +29,8 @@ into a consumer npm graph. Consumers install only the adapters they select.
   tree, property inspector, CodeMirror JSON source and relationship graph on one governed modeler
   session, with a field/layout palette, block canvas, application-owned preview, selection,
   validation and undo/redo synchronized across views.
+- `forms-schema-modeler` and `forms-schema-modeler-react` provide the independent bounded JSON
+  Schema 2020-12 authoring model and its synchronized, themeable React tree/canvas/editor/graph plane.
 - `forms-lookups` owns trusted searchable data-source contracts, bounded/cancellable queries,
   paging, dependent filters, selected-label rehydration and public-safe loading state without
   embedding URLs, credentials or executable fetch logic in form schemas.
