@@ -19,6 +19,7 @@ from live.run_bootstrap_acceptance import (
     performance_warnings,
     run_logged_with_catalog_retry,
     snapshot_managed_baseline,
+    specify_bridge_command,
     validate_intake_skill_result,
     validate_first_slice,
     validate_result,
@@ -96,6 +97,14 @@ def main() -> int:
     )
     if git_probe.returncode != 0 or "cannot use nul" in git_probe.stderr.lower():
         raise AssertionError(f"Live worker Git excludes override is unusable: {git_probe.stderr}")
+    bridge = specify_bridge_command(root, "workflow", "add", "program-kit-bootstrap")
+    if (
+        bridge[0] != sys.executable
+        or Path(bridge[1]) != root / "scripts/invoke_specify.py"
+        or "--site-packages" not in bridge
+        or bridge[-3:] != ["workflow", "add", "program-kit-bootstrap"]
+    ):
+        raise AssertionError(f"Live setup does not use the installed Specify Python bridge: {bridge}")
     retry_results = iter(
         (
             subprocess.CompletedProcess(
@@ -535,6 +544,7 @@ def main() -> int:
         ".evidence.json",
         "server.shutdown()",
         "$speckit-program-kit-governance-bootstrap",
+        "specify_bridge_command",
         "validate_intake_skill_result",
     )
     print("Live bootstrap acceptance request, CI, fixture, and evidence contracts passed.")

@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+import sysconfig
 import threading
 import time
 import uuid
@@ -120,6 +121,18 @@ def run_logged_with_catalog_retry(
         log.write("Transient localhost catalog transfer reset; retrying unchanged install.\n")
         log.flush()
         time.sleep(1)
+
+
+def specify_bridge_command(root: Path, *arguments: str) -> list[str]:
+    site_packages = Path(sysconfig.get_paths()["purelib"]).resolve()
+    return [
+        sys.executable,
+        str(root / "scripts/invoke_specify.py"),
+        "--site-packages",
+        str(site_packages),
+        "--",
+        *arguments,
+    ]
 
 
 def safe_extract(archive_path: Path, destination: Path) -> None:
@@ -767,8 +780,8 @@ def install_candidate(
             safe_extract(archive, packages / name)
         run_logged(["git", "init"], project, log)
         run_logged(
-            [
-                "specify",
+            specify_bridge_command(
+                root,
                 "init",
                 ".",
                 "--force",
@@ -778,7 +791,7 @@ def install_candidate(
                 "--script",
                 "py",
                 "--ignore-agent-tools",
-            ],
+            ),
             project,
             log,
         )
@@ -787,8 +800,8 @@ def install_candidate(
         )
         try:
             run_logged(
-                [
-                    "specify",
+                specify_bridge_command(
+                    root,
                     "extension",
                     "catalog",
                     "add",
@@ -798,13 +811,13 @@ def install_candidate(
                     "--priority",
                     "1",
                     "--install-allowed",
-                ],
+                ),
                 project,
                 log,
             )
             run_logged(
-                [
-                    "specify",
+                specify_bridge_command(
+                    root,
                     "preset",
                     "catalog",
                     "add",
@@ -814,20 +827,20 @@ def install_candidate(
                     "--priority",
                     "1",
                     "--install-allowed",
-                ],
+                ),
                 project,
                 log,
             )
             run_logged(
-                [
-                    "specify",
+                specify_bridge_command(
+                    root,
                     "workflow",
                     "catalog",
                     "add",
                     f"{base_url}/workflows.json",
                     "--name",
                     "program-kit-live-candidate",
-                ],
+                ),
                 project,
                 log,
             )
@@ -835,19 +848,19 @@ def install_candidate(
             # bundle installation. The remaining components are installed and
             # provenance-recorded by the real bundle machinery.
             run_logged(
-                ["specify", "workflow", "add", "program-kit-bootstrap"],
+                specify_bridge_command(root, "workflow", "add", "program-kit-bootstrap"),
                 project,
                 log,
             )
             run_logged_with_catalog_retry(
-                [
-                    "specify",
+                specify_bridge_command(
+                    root,
                     "bundle",
                     "install",
                     str(archives["bundle"]),
                     "--integration",
                     integration,
-                ],
+                ),
                 project,
                 log,
             )
