@@ -86,6 +86,11 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Conversational bootstrap-intake validation failed.'
 }
 
+& $python (Join-Path $projectRoot 'tests\validate_c4_view.py')
+if ($LASTEXITCODE -ne 0) {
+    throw 'C4 projection viewing validation failed.'
+}
+
 & $python (Join-Path $projectRoot 'tests\validate_live_bootstrap_acceptance.py')
 if ($LASTEXITCODE -ne 0) {
     throw 'Live-bootstrap acceptance contract validation failed.'

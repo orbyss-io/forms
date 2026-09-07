@@ -78,8 +78,10 @@ def main() -> int:
     command_names = {
         command["name"] for command in extension["provides"]["commands"]
     }
-    if len(command_names) != 13:
-        raise AssertionError(f"Extension exposes {len(command_names)} commands, expected 13")
+    if len(command_names) != 14:
+        raise AssertionError(f"Extension exposes {len(command_names)} commands, expected 14")
+    if "speckit.program-kit-governance.view-c4" not in command_names:
+        raise AssertionError("Governance extension does not expose the C4 viewing skill")
     extension_catalog = yaml.safe_load(
         (root / "catalogs/extensions.json").read_text(encoding="utf-8")
     )
@@ -496,6 +498,8 @@ def main() -> int:
     context_script = extension_root / "scripts/bootstrap_context.py"
     intake_script = extension_root / "scripts/bootstrap_intake.py"
     architecture_map_script = extension_root / "scripts/architecture_map.py"
+    c4_view_script = extension_root / "scripts/c4_view.py"
+    c4_view_profile = extension_root / "references/c4-viewer-tool.json"
     context_schema = extension_root / "references/bootstrap-context.schema.json"
     intake_schema = extension_root / "references/bootstrap-intake.schema.json"
     architecture_map_schema = extension_root / "references/architecture-map.schema.json"
@@ -507,6 +511,8 @@ def main() -> int:
             context_script,
             intake_script,
             architecture_map_script,
+            c4_view_script,
+            c4_view_profile,
             context_schema,
             intake_schema,
             architecture_map_schema,
@@ -570,6 +576,12 @@ def main() -> int:
         "decision_refs",
         "blocked-executable",
     )
+    viewer_profile = json.loads(c4_view_profile.read_text(encoding="utf-8"))
+    selected_viewer = viewer_profile.get("selected", {})
+    if selected_viewer.get("docker_image") != "structurizr/structurizr:2026.06.28":
+        raise AssertionError("C4 viewer does not use the researched exact Structurizr pin")
+    if selected_viewer.get("default_port") != 8081:
+        raise AssertionError("C4 viewer default conflicts with the Keycloak fixture")
 
     roadmap_step = next(step for step in steps if step["id"] == "specification-roadmap")
     sync_step = next(step for step in steps if step["id"] == "synchronize-roadmap")

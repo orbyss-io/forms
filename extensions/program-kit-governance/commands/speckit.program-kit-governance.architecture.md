@@ -95,6 +95,10 @@ authorization. Generate the DSL projection only through:
 
 `python .specify/extensions/program-kit-governance/scripts/architecture_map.py export --map docs/architecture/architecture-map.json --format structurizr-dsl --output docs/architecture/workspace.dsl --force`
 
+After generating the projection, tell the user: "To open the C4 diagrams safely on localhost, ask
+`View the C4 projection` or invoke `$speckit-program-kit-governance-view-c4`. Program Kit validates
+freshness first and does not change the canonical architecture map."
+
 Then validate the canonical model with source and ADR hashes:
 
 `python .specify/extensions/program-kit-governance/scripts/architecture_map.py validate --map docs/architecture/architecture-map.json --project-root . --verify-sources`

@@ -44,7 +44,7 @@ Run these steps from the repository root.
 
    ```powershell
    Invoke-WebRequest `
-     https://github.com/orbyss-io/program-kit/releases/download/v0.9.9/Initialize-ProgramKit-0.9.9.cmd `
+     https://github.com/orbyss-io/program-kit/releases/download/v0.9.10/Initialize-ProgramKit-0.9.10.cmd `
      -OutFile Initialize-ProgramKit.cmd
    ```
 
@@ -63,7 +63,7 @@ not a PowerShell script.
 
    ```bash
    curl -fL \
-     https://github.com/orbyss-io/program-kit/releases/download/v0.9.9/Initialize-ProgramKit-0.9.9.sh \
+     https://github.com/orbyss-io/program-kit/releases/download/v0.9.10/Initialize-ProgramKit-0.9.10.sh \
      -o Initialize-ProgramKit.sh
    ```
 
@@ -144,8 +144,8 @@ Download and verify the full `program-kit-<version>.zip` release asset, extract 
 release-owned updater from the consuming repository in a normal user-owned terminal:
 
 ```powershell
-python C:\path\to\program-kit-0.9.9\scripts\upgrade_program_kit.py `
-  --release-root C:\path\to\program-kit-0.9.9 `
+python C:\path\to\program-kit-0.9.10\scripts\upgrade_program_kit.py `
+  --release-root C:\path\to\program-kit-0.9.10 `
   --target . `
   --integration codex
 ```
@@ -192,6 +192,11 @@ normal user-owned terminal from the repository root:
 ```text
 specify workflow run program-kit-bootstrap --input "bootstrap_intake=docs/architecture/bootstrap-intake.json" --input "integration=auto"
 ```
+
+To inspect the generated diagrams before confirming intake or approving a review gate, ask
+`View the C4 projection` or invoke `$speckit-program-kit-governance-view-c4`. The installed skill
+validates `workspace.dsl` against the canonical JSON map, uses pinned Structurizr Local on an
+available localhost port starting at 8081, and keeps viewer-created state outside the repository.
 
 For an uninterrupted development bootstrap, explicitly opt in to automatic approval and
 ratification:
@@ -385,11 +390,11 @@ uv run --with "specify-cli==1.0.1" python ./scripts/build_release.py
 ```
 
 Pushing a SemVer tag matching `VERSION` creates a GitHub release. Follow
-[`docs/releasing-0.9.9.md`](docs/releasing-0.9.9.md).
+[`docs/releasing-0.9.10.md`](docs/releasing-0.9.10.md).
 
 ```powershell
-git tag v0.9.9
-git push origin v0.9.9
+git tag v0.9.10
+git push origin v0.9.10
 ```
 
 The release workflow validates all manifests and catalog metadata, creates deterministic ZIP files and SHA-256 checksums, generates GitHub build-provenance attestations, and publishes the assets. The CI and release actions are pinned to immutable commits; Dependabot proposes action updates.
@@ -411,8 +416,8 @@ The release workflow validates all manifests and catalog metadata, creates deter
 Verify a downloaded artifact:
 
 ```powershell
-gh attestation verify program-kit-0.9.9.zip --repo orbyss-io/program-kit
-Get-FileHash program-kit-0.9.9.zip -Algorithm SHA256
+gh attestation verify program-kit-0.9.10.zip --repo orbyss-io/program-kit
+Get-FileHash program-kit-0.9.10.zip -Algorithm SHA256
 ```
 
 ## UI experience and public discovery

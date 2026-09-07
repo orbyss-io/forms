@@ -35,6 +35,14 @@ def assert_review_packet(path: Path, stage: str) -> None:
     expected = f"write-review --stage {stage}"
     if expected not in text:
         raise AssertionError(f"{stage} review packet has no rejection recovery command")
+    if stage in {"assessment", "bootstrap"}:
+        for expected_artifact in ("architecture-map.json", "workspace.dsl"):
+            if expected_artifact not in text:
+                raise AssertionError(
+                    f"{stage} review packet does not expose {expected_artifact} for human review"
+                )
+        if "$speckit-program-kit-governance-view-c4" not in text:
+            raise AssertionError(f"{stage} review packet has no C4 viewing action")
 
 
 def write_installation(project: Path, version: str, *, workflow_version: str | None = None) -> None:
@@ -265,6 +273,8 @@ def write_bootstrap_artifacts(module, project: Path) -> None:
     decision_hash = assessment_approval["artifacts"][module.BOOTSTRAP_DECISIONS.as_posix()]
     contents = {
         "docs/architecture/README.md": "# Architecture navigation\n",
+        "docs/architecture/architecture-map.json": "{}\n",
+        "docs/architecture/workspace.dsl": "workspace \"Review\" {\n}\n",
         "docs/architecture/architecture.md": (
             "# Architecture\n\nProgramKit.Host is the accepted runtime.\n\n"
             "The browser boundary inherits program-kit-web-threat-model-v1 and "

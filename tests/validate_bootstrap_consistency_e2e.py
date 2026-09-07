@@ -236,6 +236,8 @@ Amendments require human approval. Version changes follow semantic versioning. C
         ]
         artifacts_text = {
             "docs/architecture/README.md": "# Architecture navigation\n",
+            "docs/architecture/architecture-map.json": "{}\n",
+            "docs/architecture/workspace.dsl": "workspace \"Price Calculator\" {\n}\n",
             "docs/architecture/architecture.md": (
                 "# Architecture\n\nSLC-CALCULATE-001 owns the calculation outcome and contract.\n"
             ),

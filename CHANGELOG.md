@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.9.10 - 2026-09-07
+
+- Add a hash-aware C4 viewing skill and deterministic temporary launcher for pinned Structurizr
+  Local, with localhost port conflict handling, Docker/Java discovery, explicit network consent,
+  cleanup, review-packet guidance, and no mutation of the canonical architecture map.
+
 ## 0.9.9 - 2026-09-05
 
 - Move BFF, SPA, error, and web middleware ownership into independently selectable CShell features;

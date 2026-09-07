@@ -64,6 +64,9 @@ jobs:
       - name: Validate conversational bootstrap intake and architecture map
         run: python tests/validate_bootstrap_intake.py
 
+      - name: Validate C4 projection viewing and cleanup
+        run: python tests/validate_c4_view.py
+
       - name: Validate live bootstrap acceptance contracts without running agents
         run: python tests/validate_live_bootstrap_acceptance.py
 

@@ -146,6 +146,11 @@ def main() -> int:
             / ".agents/skills/speckit-program-kit-governance-bootstrap/SKILL.md"
         ).is_file():
             raise AssertionError("Installed Codex-safe bootstrap skill is missing")
+        if not (
+            project
+            / ".agents/skills/speckit-program-kit-governance-view-c4/SKILL.md"
+        ).is_file():
+            raise AssertionError("Installed C4 projection viewing skill is missing")
         run(sys.executable, str(governance), "validate-installation", cwd=project)
         for reference in ("vertical-slicing.md", "modularity-and-contracts.md", "default-adoption.md"):
             if not (deployed_extension / "references" / reference).is_file():

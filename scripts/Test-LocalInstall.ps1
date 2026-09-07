@@ -68,6 +68,38 @@ try {
     if (-not (Test-Path -LiteralPath $bootstrapSkill -PathType Leaf)) {
         throw 'Installed Codex-safe bootstrap skill was not found.'
     }
+    $c4ViewSkill = '.agents\skills\speckit-program-kit-governance-view-c4\SKILL.md'
+    if (-not (Test-Path -LiteralPath $c4ViewSkill -PathType Leaf)) {
+        throw 'Installed C4 projection viewing skill was not found.'
+    }
+    if (-not (Test-Path -LiteralPath '.specify\extensions\program-kit-governance\scripts\c4_view.py' -PathType Leaf)) {
+        throw 'Installed C4 projection launcher was not found.'
+    }
+    # Realistic installed-consumer request: "View the C4 projection."
+    $scenarioArchitecture = Join-Path $sourceRoot 'tests\live\scenarios\clean-bootstrap\docs\architecture'
+    New-Item -ItemType Directory -Path 'docs\architecture' -Force | Out-Null
+    Copy-Item -Path (Join-Path $scenarioArchitecture '*') -Destination 'docs\architecture' -Recurse -Force
+    $beforeView = @(
+        Get-ChildItem -File -Recurse | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } | ForEach-Object {
+            $relative = [System.IO.Path]::GetRelativePath($testRoot, $_.FullName)
+            "$relative|$((Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash)"
+        }
+    )
+    $c4ViewResult = (& python '.specify\extensions\program-kit-governance\scripts\c4_view.py' inspect --project-root . --json | Out-String)
+    if ($LASTEXITCODE -ne 0) { throw "Installed C4 projection inspection failed: $c4ViewResult" }
+    $c4ViewPayload = $c4ViewResult | ConvertFrom-Json
+    if (-not $c4ViewPayload.projection_current -or -not $c4ViewPayload.projection_parsed) {
+        throw "Installed C4 projection was not current and parseable: $c4ViewResult"
+    }
+    $afterView = @(
+        Get-ChildItem -File -Recurse | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } | ForEach-Object {
+            $relative = [System.IO.Path]::GetRelativePath($testRoot, $_.FullName)
+            "$relative|$((Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash)"
+        }
+    )
+    if (Compare-Object -ReferenceObject $beforeView -DifferenceObject $afterView) {
+        throw 'Installed view-only C4 inspection changed the consumer repository.'
+    }
     $dotnetSync = '.specify\extensions\program-kit-dotnet\scripts\dotnet_sync.py'
     if (-not (Test-Path -LiteralPath $dotnetSync -PathType Leaf)) {
         throw 'Installed .NET sync extension was not found.'

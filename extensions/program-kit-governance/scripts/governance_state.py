@@ -13,6 +13,8 @@ CONSTITUTION = Path(".specify/memory/constitution.md")
 RATIFICATION = Path(".specify/memory/constitution-ratification.json")
 ROADMAP = Path("docs/architecture/specification-roadmap.md")
 ARCHITECTURE = Path("docs/architecture/architecture.md")
+ARCHITECTURE_MAP = Path("docs/architecture/architecture-map.json")
+WORKSPACE_DSL = Path("docs/architecture/workspace.dsl")
 TRACEABILITY = Path("docs/architecture/traceability.md")
 DECISIONS = Path("docs/architecture/decisions")
 ASSESSMENT = Path("docs/architecture/bootstrap-assessment.md")
@@ -110,6 +112,8 @@ def bootstrap_artifacts() -> tuple[Path, ...]:
     return (
         Path("docs/architecture/README.md"),
         ARCHITECTURE,
+        ARCHITECTURE_MAP,
+        WORKSPACE_DSL,
         Path("docs/architecture/quality-attributes.md"),
         Path("docs/architecture/technology-radar.md"),
         TRACEABILITY,
@@ -987,6 +991,10 @@ def write_review(stage: str) -> None:
             "",
             *_list_items(decisions.get("deferred"), "question", "None"),
             "",
+            "## View the C4 projection",
+            "",
+            "Ask `View the C4 projection` or invoke `$speckit-program-kit-governance-view-c4`. Program Kit validates `docs/architecture/workspace.dsl` against canonical `docs/architecture/architecture-map.json` and opens only a disposable localhost viewer.",
+            "",
             "## After rejection",
             "",
             "Revise the files above, then regenerate and revalidate this packet before resuming:",
@@ -1098,6 +1106,10 @@ def write_review(stage: str) -> None:
             "",
             *_list_items(decisions.get("overrides"), "decision", "No default overrides"),
             *_list_items(decisions.get("unresolved"), "question", "No immediate unresolved decisions"),
+            "",
+            "## View the C4 projection",
+            "",
+            "Ask `View the C4 projection` or invoke `$speckit-program-kit-governance-view-c4`. Program Kit validates `docs/architecture/workspace.dsl` against canonical `docs/architecture/architecture-map.json` and opens only a disposable localhost viewer.",
             "",
             "## After rejection",
             "",

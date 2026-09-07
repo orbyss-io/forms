@@ -15,5 +15,50 @@ workspace "Greeting CLI" "Program Kit C4-aligned intake model" {
             include greeting_cli greeting_context
             autolayout lr
         }
+
+        styles {
+            element "Element" {
+                shape RoundedBox
+                background #F8FAFC
+                color #172033
+                stroke #94A3B8
+                strokeWidth 2
+                fontSize 22
+            }
+            element "Person" {
+                shape Person
+                background #0F766E
+                color #FFFFFF
+                stroke #115E59
+                strokeWidth 2
+            }
+            element "Software System" {
+                background #2563EB
+                color #FFFFFF
+                stroke #1D4ED8
+                strokeWidth 2
+            }
+            element "ProgramKitType:bounded-context" {
+                background #7C3AED
+                color #FFFFFF
+                stroke #6D28D9
+                strokeWidth 2
+            }
+            element "ProgramKitStatus:proposed" {
+                stroke #F97316
+                border dashed
+            }
+            relationship "Relationship" {
+                color #475569
+                thickness 3
+                style solid
+                routing Orthogonal
+                fontSize 18
+            }
+            relationship "ProgramKitStatus:proposed" {
+                color #EA580C
+                style dashed
+            }
+        }
     }
 }

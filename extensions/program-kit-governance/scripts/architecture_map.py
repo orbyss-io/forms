@@ -52,6 +52,48 @@ SUPPORTED_DSL_ELEMENT_TYPES = {
     "bounded-context",
     "data-store",
 }
+DEFAULT_PROJECTION_STYLES = (
+    (
+        "element",
+        "Element",
+        (
+            "shape RoundedBox",
+            "background #F8FAFC",
+            "color #172033",
+            "stroke #94A3B8",
+            "strokeWidth 2",
+            "fontSize 22",
+        ),
+    ),
+    (
+        "element",
+        "Person",
+        (
+            "shape Person",
+            "background #0F766E",
+            "color #FFFFFF",
+            "stroke #115E59",
+            "strokeWidth 2",
+        ),
+    ),
+    (
+        "element",
+        "Software System",
+        ("background #2563EB", "color #FFFFFF", "stroke #1D4ED8", "strokeWidth 2"),
+    ),
+    (
+        "element",
+        "ProgramKitType:bounded-context",
+        ("background #7C3AED", "color #FFFFFF", "stroke #6D28D9", "strokeWidth 2"),
+    ),
+    ("element", "ProgramKitStatus:proposed", ("stroke #F97316", "border dashed")),
+    (
+        "relationship",
+        "Relationship",
+        ("color #475569", "thickness 3", "style solid", "routing Orthogonal", "fontSize 18"),
+    ),
+    ("relationship", "ProgramKitStatus:proposed", ("color #EA580C", "style dashed")),
+)
 
 
 class ArchitectureMapError(RuntimeError):
@@ -635,6 +677,13 @@ class StructurizrDslExporter(ArchitectureMapExporter):
                     + " ".join(_dsl_identifier(element_id) for element_id in view["elements"])
                 )
             lines.extend(("            autolayout lr", "        }"))
+        lines.append("")
+        lines.append("        styles {")
+        for target, tag, properties in DEFAULT_PROJECTION_STYLES:
+            lines.append(f"            {target} {_escape(tag)} {{")
+            lines.extend(f"                {item}" for item in properties)
+            lines.append("            }")
+        lines.append("        }")
         lines.extend(("    }", "}", ""))
         return "\n".join(lines)
 
@@ -660,6 +709,11 @@ WORKSPACE_LINE = re.compile(
     r'^workspace\s+("(?:[^"\\]|\\.)*")(?:\s+("(?:[^"\\]|\\.)*"))?\s*\{$'
 )
 BLOCKED_EXTENSION_LINE = re.compile(r"^//\s*BLOCKED\s+([a-z0-9-]+):\s*(.+)$", re.IGNORECASE)
+STYLE_DECLARATION_LINE = re.compile(r'^(element|relationship)\s+"(?:[^"\\]|\\.)*"\s*\{$')
+STYLE_PROPERTY_LINE = re.compile(
+    r"^(?:shape|background|color|stroke|strokeWidth|fontSize|border|thickness|style|routing)\s+"
+    r"(?:#[0-9A-Fa-f]{6}|[A-Za-z][A-Za-z0-9]*|[0-9]+)$"
+)
 
 
 def _quoted(token: str) -> str:
@@ -730,6 +784,8 @@ class StructurizrDslImporter(ArchitectureMapImporter):
         element_stack: list[str] = []
         in_model = False
         in_views = False
+        in_styles = False
+        in_style = False
         for line_number, raw in enumerate(lines, 1):
             line = raw.strip()
             if not line or line.startswith("#"):
@@ -753,12 +809,19 @@ class StructurizrDslImporter(ArchitectureMapImporter):
             if line == "views {":
                 in_views = True
                 continue
+            if in_views and line == "styles {":
+                in_styles = True
+                continue
             workspace = WORKSPACE_LINE.fullmatch(line)
             if workspace:
                 title_from_dsl = _quoted(workspace.group(1))
                 continue
             if line == "}":
-                if line == "}" and current_view is not None:
+                if in_styles and in_style:
+                    in_style = False
+                elif in_styles:
+                    in_styles = False
+                elif line == "}" and current_view is not None:
                     views.append(current_view)
                     current_view = None
                 elif line == "}" and in_model and element_stack:
@@ -768,6 +831,15 @@ class StructurizrDslImporter(ArchitectureMapImporter):
                 elif line == "}" and in_views:
                     in_views = False
                 continue
+            if in_styles:
+                if not in_style and STYLE_DECLARATION_LINE.fullmatch(line):
+                    in_style = True
+                    continue
+                if in_style and STYLE_PROPERTY_LINE.fullmatch(line):
+                    continue
+                raise ArchitectureMapError(
+                    f"Unsupported Structurizr DSL style statement at line {line_number}: {line}"
+                )
             if in_model:
                 match = ELEMENT_LINE.fullmatch(line)
                 if match:
@@ -978,6 +1050,8 @@ class StructurizrDslImporter(ArchitectureMapImporter):
             )
         if current_view is not None:
             raise ArchitectureMapError("Structurizr DSL ended inside a view")
+        if in_styles or in_style:
+            raise ArchitectureMapError("Structurizr DSL ended inside styles")
         if not elements:
             raise ArchitectureMapError("Structurizr DSL did not contain any supported C4 elements")
         if base:

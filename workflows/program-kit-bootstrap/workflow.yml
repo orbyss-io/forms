@@ -3,7 +3,7 @@ schema_version: "1.0"
 workflow:
   id: "program-kit-bootstrap"
   name: "Architecture-Governed Repository Bootstrap"
-  version: "0.9.9"
+  version: "0.9.10"
   author: "Orbyss"
   description: "Consumes a confirmed conversational intake and orchestrates Program Kit assessment, ratification, architecture, quality, and the candidate specification portfolio."
 
@@ -126,7 +126,7 @@ steps:
     default:
       - id: review-assessment
         type: gate
-        message: "Gate 1/3 — Assessment approval. Review the concise packet listing every file and summarizing explicit intake choices, applied Program Kit defaults, overrides, acknowledgements, genuinely unresolved decisions, and deferred triggers. Approve to adopt this exact provisional baseline. Reject keeps the run paused so the artifacts and packet can be revised and regenerated."
+        message: "Gate 1/3 — Assessment approval. Review the concise packet listing every file and summarizing explicit intake choices, applied Program Kit defaults, overrides, acknowledgements, genuinely unresolved decisions, and deferred triggers. To open the C4 diagrams, ask 'View the C4 projection' or invoke $speckit-program-kit-governance-view-c4; Program Kit validates freshness and uses a temporary localhost viewer without changing the canonical map. Approve to adopt this exact provisional baseline. Reject keeps the run paused so the artifacts and packet can be revised and regenerated."
         show_file: "docs/architecture/reviews/assessment-review.md"
         options: [approve, reject]
         on_reject: retry
@@ -233,7 +233,7 @@ steps:
     default:
       - id: review-bootstrap
         type: gate
-        message: "Gate 3/3 — Final bootstrap approval. Review the concise packet and every listed artifact. Approval accepts the generated baseline and reviewed defaults but does not promote separately Proposed ADRs. Reject keeps the run paused for revision and packet regeneration."
+        message: "Gate 3/3 — Final bootstrap approval. Review the concise packet and every listed artifact. To open the C4 diagrams, ask 'View the C4 projection' or invoke $speckit-program-kit-governance-view-c4; Program Kit validates freshness and uses a temporary localhost viewer without changing the canonical map. Approval accepts the generated baseline and reviewed defaults but does not promote separately Proposed ADRs. Reject keeps the run paused for revision and packet regeneration."
         show_file: "docs/architecture/reviews/bootstrap-review.md"
         options: [approve, reject]
         on_reject: retry

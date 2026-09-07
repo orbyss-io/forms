@@ -29,6 +29,13 @@ Evaluate rather than automatically install:
 - ArchUnitNET for compiled .NET dependency and layering rules.
 - Structurizr DSL/C4 and arc42 when architecture-as-code and navigable documentation fit.
 
+Program Kit's generated C4 review projection uses the optional, managed Structurizr Local profile in
+`c4-viewer-tool.json`. The profile records authoritative sources, retrieval date, exact version,
+license and supply-chain boundaries, update triggers, and removal path. Viewing is not a project
+technology decision and does not add a bootstrap runtime dependency. Invoke
+`speckit-program-kit-governance-view-c4`; never substitute Structurizr Lite or an unpinned `latest`
+image.
+
 When .NET is detected, evaluate CShells and CShells.AspNetCore when the architecture requires runtime
 feature composition, per-shell or per-tenant service isolation, configuration-driven feature sets,
 or dynamic activation and reload. Their presence is not a default architecture choice. Inspect the

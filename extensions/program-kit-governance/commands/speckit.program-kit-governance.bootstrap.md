@@ -86,6 +86,10 @@ inferred bounded contexts, capabilities, ownership, and relationships `proposed`
 intake does not accept architecture. Preserve the exact hash, byte count, importer ID, and importer
 version for every source and bound artifact.
 
+After generating the projection, tell the user: "To open the C4 diagrams safely on localhost, ask
+`View the C4 projection` or invoke `$speckit-program-kit-governance-view-c4`. Program Kit validates
+freshness first and does not change the canonical architecture map."
+
 Present the concise synthesis and map changes to the user. Ask for confirmation only after there are
 no invisible or unclassified gaps. Do not mark the intake `confirmed` from silence or inference.
 After explicit confirmation, set its status to `confirmed`, refresh every artifact hash and byte

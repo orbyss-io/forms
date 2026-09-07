@@ -149,7 +149,9 @@ def main() -> int:
             "scripts/bootstrap_context.py",
             "scripts/bootstrap_intake.py",
             "scripts/architecture_map.py",
+            "scripts/c4_view.py",
             "commands/speckit.program-kit-governance.assessment.md",
+            "commands/speckit.program-kit-governance.view-c4.md",
             "references/bootstrap-intake.schema.json",
             "references/architecture-map.schema.json",
             "references/intake-method.md",
@@ -158,6 +160,8 @@ def main() -> int:
             "references/bootstrap-decisions.schema.json",
             "references/bootstrap-context.schema.json",
             "references/codex-desktop-windows.md",
+            "references/c4-viewing.md",
+            "references/c4-viewer-tool.json",
         ):
             if not (extracted_extension / path).is_file():
                 raise AssertionError(f"Extension release ZIP is missing {path}")
@@ -299,6 +303,9 @@ def main() -> int:
         )
         if not bootstrap_skill.is_file():
             raise AssertionError("Codex-safe Program Kit bootstrap skill was not installed")
+        c4_view_skill = project / ".agents/skills/speckit-program-kit-governance-view-c4/SKILL.md"
+        if not c4_view_skill.is_file():
+            raise AssertionError("C4 projection viewing skill was not installed")
         installed_skill_text = bootstrap_skill.read_text(encoding="utf-8")
         if "Stop. Do not call a shell tool" not in installed_skill_text:
             raise AssertionError("Installed bootstrap skill lost its execution-boundary guidance")
