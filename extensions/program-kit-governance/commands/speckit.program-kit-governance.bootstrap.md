@@ -88,7 +88,8 @@ version for every source and bound artifact.
 
 After generating the projection, tell the user: "To open the C4 diagrams safely on localhost, ask
 `View the C4 projection` or invoke `$speckit-program-kit-governance-view-c4`. Program Kit validates
-freshness first and does not change the canonical architecture map."
+freshness and the draft artifact hashes first and does not change the canonical architecture map,
+confirm the intake, or accept the architecture."
 
 Present the concise synthesis and map changes to the user. Ask for confirmation only after there are
 no invisible or unclassified gaps. Do not mark the intake `confirmed` from silence or inference.

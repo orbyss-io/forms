@@ -25,11 +25,19 @@ const results = [], errors = [];
 const evidence = resolve(root, 'acceptance/browser-evidence');
 await mkdir(evidence, { recursive: true });
 
-const engines = [
+const supportedEngines = [
   { name: 'chromium', browserType: chromium },
   { name: 'webkit', browserType: webkit },
   { name: 'firefox', browserType: firefox },
 ];
+const engineArgument = process.argv.find(value => value.startsWith('--engines='));
+const requestedEngineNames = (engineArgument?.slice('--engines='.length) || 'chromium,firefox,webkit')
+  .split(',').map(value => value.trim()).filter(Boolean);
+const unknownEngines = requestedEngineNames.filter(name => !supportedEngines.some(engine => engine.name === name));
+assert.deepEqual(unknownEngines, [], `Unsupported browser engines: ${unknownEngines.join(', ')}`);
+const selectedEngineNames = new Set(requestedEngineNames);
+const engines = supportedEngines.filter(engine => selectedEngineNames.has(engine.name));
+assert(engines.length > 0, 'At least one browser engine is required');
 const deviceProfiles = [
   { name: 'phone-portrait', engine: 'chromium', viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true },
   { name: 'phone-landscape', engine: 'chromium', viewport: { width: 844, height: 390 }, deviceScaleFactor: 3, isMobile: true },
@@ -172,6 +180,7 @@ try {
 } finally {
   await new Promise(resolve => server.close(resolve));
   await writeFile(resolve(evidence, 'report.json'), JSON.stringify({ results, errors,
-    scope: 'Chromium/Firefox/WebKit desktop plus emulated touch phone/tablet fixture checks; not full WCAG certification, physical-device/virtual-keyboard proof, actual browser zoom, assistive-technology task acceptance, or production field performance.' }, null, 2));
+    engines: requestedEngineNames,
+    scope: 'Selected desktop engines plus their emulated touch phone/tablet fixture checks; not full WCAG certification, physical-device/virtual-keyboard proof, actual browser zoom, assistive-technology task acceptance, or production field performance.' }, null, 2));
 }
 console.log(`UI browser acceptance passed: ${results.length} engine/archetype/device combinations.`);

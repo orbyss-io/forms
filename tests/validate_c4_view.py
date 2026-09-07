@@ -151,7 +151,12 @@ def model(intent: Path, documentation: Path) -> dict:
     }
 
 
-def create_project(root: Path, architecture, value: dict | None = None) -> dict:
+def create_project(
+    root: Path,
+    architecture,
+    value: dict | None = None,
+    status: str = "confirmed",
+) -> dict:
     intent = root / "docs/architecture/project-intent.md"
     documentation = root / "docs/architecture/README.md"
     write(intent, "# Intent\n\nA reviewer inspects the system.\n")
@@ -163,7 +168,7 @@ def create_project(root: Path, architecture, value: dict | None = None) -> dict:
     write(dsl_path, architecture.StructurizrDslExporter().export(value))
     intake = {
         "schema_version": "1.0",
-        "status": "confirmed",
+        "status": status,
         "artifacts": {
             "project_intent": {
                 "path": "docs/architecture/project-intent.md",
@@ -210,6 +215,34 @@ def main() -> int:
     architecture = load_module(scripts / "architecture_map.py", "test_c4_architecture")
     viewer = load_module(scripts / "c4_view.py", "test_c4_viewer")
 
+    viewer_skill = (
+        repository
+        / "extensions/program-kit-governance/commands/speckit.program-kit-governance.view-c4.md"
+    ).read_text(encoding="utf-8")
+    bootstrap_skill = (
+        repository
+        / "extensions/program-kit-governance/commands/speckit.program-kit-governance.bootstrap.md"
+    ).read_text(encoding="utf-8")
+    viewing_reference = (
+        repository / "extensions/program-kit-governance/references/c4-viewing.md"
+    ).read_text(encoding="utf-8")
+    workflow = (repository / "workflows/program-kit-bootstrap/workflow.yml").read_text(
+        encoding="utf-8"
+    )
+    intake_validator = (
+        repository / "extensions/program-kit-governance/scripts/bootstrap_intake.py"
+    ).read_text(encoding="utf-8")
+    for text, marker in (
+        (viewer_skill, "including informed review before bootstrap confirmation"),
+        (viewer_skill, "never performs bootstrap approval"),
+        (bootstrap_skill, "draft artifact hashes"),
+        (viewing_reference, "Draft intake review is allowed before explicit confirmation"),
+    ):
+        if marker not in text:
+            raise AssertionError(f"Bootstrap/viewer guidance lost the draft-review boundary: {marker}")
+    if "validate-bootstrap-intake" not in workflow or 'intake.get("status") != "confirmed"' not in intake_validator:
+        raise AssertionError("The outer bootstrap workflow no longer requires a confirmed intake")
+
     profile = viewer.load_profile()
     if profile["selected"]["version"] in {"", "latest"}:
         raise AssertionError("Structurizr viewer must use an exact managed version")
@@ -228,11 +261,18 @@ def main() -> int:
         tests_root = Path(directory)
         os.environ[viewer.STATE_ENVIRONMENT] = str(tests_root / "viewer state")
         project = tests_root / "consumer repository with spaces"
-        value = create_project(project, architecture)
+        value = create_project(project, architecture, status="draft")
 
         valid = viewer.validate_projection(project)
-        if not valid["projection_current"] or valid["intake_binding"] != "confirmed-intake":
-            raise AssertionError(f"Current projection was not accepted: {valid}")
+        if (
+            not valid["projection_current"]
+            or valid["intake_binding"] != "draft-intake"
+            or valid["review_mode"] != "draft-intake-review"
+            or valid["intake_status"] != "draft"
+        ):
+            raise AssertionError(f"Current draft projection was not accepted for review: {valid}")
+        if valid["confirmation_performed"] or valid["architecture_acceptance_performed"]:
+            raise AssertionError("Draft viewing claimed confirmation or architecture acceptance")
         if valid["primary_view_key"] != "system-context":
             raise AssertionError(f"Viewer did not select the first generated diagram: {valid}")
         if viewer.diagram_url(8081, valid["primary_view_key"]) != (
@@ -250,8 +290,77 @@ def main() -> int:
             raise AssertionError("View-only staging changed the consumer repository")
         viewer.cleanup_directory(project)
 
+        fake_runtimes = {
+            "docker": {
+                "installed": True,
+                "path": "docker",
+                "daemon_available": True,
+                "image": profile["selected"]["docker_image"],
+                "image_local": True,
+                "diagnostic": "ready",
+            },
+            "java": {
+                "installed": False,
+                "path": None,
+                "major": None,
+                "supported": False,
+                "war": None,
+                "war_local": False,
+                "diagnostic": "not used",
+            },
+        }
+        opened: list[str] = []
+        original_discovery = viewer.discover_runtimes
+        original_capture = viewer.run_capture
+        original_wait = viewer.wait_ready
+        original_open = viewer.webbrowser.open
+
+        def fake_capture(arguments, timeout=10):
+            command = list(arguments)
+            if command[1:3] == ["container", "inspect"]:
+                return subprocess.CompletedProcess(command, 0, "true\n", "")
+            if command[1:4] == ["container", "rm", "--force"]:
+                return subprocess.CompletedProcess(command, 0, "", "")
+            if command[1] == "run":
+                return subprocess.CompletedProcess(command, 0, "draft-viewer-container\n", "")
+            return subprocess.CompletedProcess(command, 1, "", "unexpected command")
+
+        viewer.discover_runtimes = lambda profile, war=None: fake_runtimes
+        viewer.run_capture = fake_capture
+        viewer.wait_ready = lambda url, active, timeout=45: None
+        viewer.webbrowser.open = lambda url: opened.append(url) or True
+        draft_before_start = snapshot(project)
+        try:
+            started = viewer.start_session(project, "auto", None, None, True, True)
+            if started["review_mode"] != "draft-intake-review" or not opened:
+                raise AssertionError("Current draft intake did not open in read-only review mode")
+            staged_workspace = Path(started["data_directory"]) / "workspace.json"
+            write(staged_workspace, '{"layout":"viewer-only"}\n')
+            if (project / "workspace.json").exists():
+                raise AssertionError("Viewer workspace.json escaped into the consumer repository")
+            viewer.stop_session(project, fake_runtimes)
+        finally:
+            viewer.discover_runtimes = original_discovery
+            viewer.run_capture = original_capture
+            viewer.wait_ready = original_wait
+            viewer.webbrowser.open = original_open
+            if viewer.session_directory(project).exists():
+                viewer.cleanup_directory(project)
+        if snapshot(project) != draft_before_start:
+            raise AssertionError("Opening and closing a draft viewer changed repository files")
+        if json.loads((project / "docs/architecture/bootstrap-intake.json").read_text(encoding="utf-8"))["status"] != "draft":
+            raise AssertionError("Viewing changed draft intake status")
+
         dsl_path = project / "docs/architecture/workspace.dsl"
         original_dsl = dsl_path.read_text(encoding="utf-8")
+        intake_path = project / "docs/architecture/bootstrap-intake.json"
+        registered = json.loads(intake_path.read_text(encoding="utf-8"))
+        registered["artifacts"]["c4_projection"]["sha256"] = "0" * 64
+        write(intake_path, json.dumps(registered, indent=2) + "\n")
+        expect_failure(lambda: viewer.validate_projection(project), "Draft bootstrap intake hashes do not match")
+        registered["artifacts"]["c4_projection"]["sha256"] = digest(dsl_path)
+        write(intake_path, json.dumps(registered, indent=2) + "\n")
+
         for expected_style in ("background #2563EB", "ProgramKitStatus:proposed", "routing Orthogonal"):
             if expected_style not in original_dsl:
                 raise AssertionError(f"Generated projection omitted review styling: {expected_style}")
@@ -264,8 +373,19 @@ def main() -> int:
         expect_failure(lambda: viewer.validate_projection(project), "C4 projection is missing")
         write(dsl_path, original_dsl)
 
-        intake_path = project / "docs/architecture/bootstrap-intake.json"
         registered = json.loads(intake_path.read_text(encoding="utf-8"))
+        write(intake_path, "{\n")
+        expect_failure(lambda: viewer.validate_projection(project), "Cannot read bootstrap intake")
+        write(intake_path, json.dumps(registered, indent=2) + "\n")
+        registered["status"] = "pending"
+        write(intake_path, json.dumps(registered, indent=2) + "\n")
+        expect_failure(lambda: viewer.validate_projection(project), "status must be draft or confirmed")
+        registered["status"] = "confirmed"
+        write(intake_path, json.dumps(registered, indent=2) + "\n")
+        confirmed = viewer.validate_projection(project)
+        if confirmed["review_mode"] != "confirmed-baseline-review" or confirmed["intake_binding"] != "confirmed-intake":
+            raise AssertionError(f"Confirmed intake review regressed: {confirmed}")
+
         value["title"] = "Evolved review system"
         write(project / "docs/architecture/architecture-map.json", json.dumps(value, indent=2) + "\n")
         write(dsl_path, architecture.StructurizrDslExporter().export(value))

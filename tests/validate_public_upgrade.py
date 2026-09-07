@@ -4,6 +4,7 @@ import argparse
 import contextlib
 import http.server
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -31,12 +32,19 @@ EXPECTED_HOOKS = {
 
 
 def run(*args: str, cwd: Path, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
+    environment = os.environ.copy()
+    # Desktop hosts can inject a named-pipe TLS key logger that crashes the
+    # Windows Specify/OpenSSL process before catalog I/O begins.
+    environment.pop("SSLKEYLOGFILE", None)
     try:
         return subprocess.run(
             args,
             cwd=cwd,
+            env=environment,
             input=input_text,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
             capture_output=True,
         )

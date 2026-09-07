@@ -13,7 +13,8 @@ specific diagnostic cannot be resolved from this contract.
 `journeys`, `quality_requirements`, `integrations`, `choices`, `capability_assessments`,
 `open_items`, `candidate_slice_signals`, and `routing`.
 
-- Use schema version `1.0`; status is `confirmed` only after explicit confirmation.
+- Use schema version `1.0`; status is `draft` before review and becomes `confirmed` only after
+  explicit confirmation. Draft viewing does not perform that transition.
 - `project` contains `name` and `summary`.
 - `artifacts` contains `project_intent`, `architecture_map`, and `c4_projection`; each contains only
   repository-relative `path`, lowercase SHA-256 `sha256`, and integer `bytes`.

@@ -18,6 +18,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--install", action="store_true", help="Restore the isolated pinned npm graph with scripts disabled")
     parser.add_argument("--install-browser", action="store_true", help="Provision pinned Chromium, Firefox, WebKit and Linux system dependencies")
+    parser.add_argument("--engines", default="chromium,firefox,webkit")
     args = parser.parse_args()
     fixture = ROOT / "artifacts/ui-browser"
     fixture.mkdir(parents=True, exist_ok=True)
@@ -44,7 +45,7 @@ def main() -> int:
     if args.install:
         run(npm + ["ci", "--ignore-scripts", "--no-audit", "--no-fund", "--strict-ssl=true", "--fetch-retries=0", "--fetch-timeout=30000"])
     if args.install_browser:
-        command = [str(node), str(package_root / "node_modules/playwright/cli.js"), "install", "chromium", "firefox", "webkit"]
+        command = [str(node), str(package_root / "node_modules/playwright/cli.js"), "install", *args.engines.split(",")]
         if sys.platform.startswith("linux"):
             command.append("--with-deps")
         run(command)
@@ -54,7 +55,7 @@ def main() -> int:
     if ".bg-primary" not in compiled or "var(--pk-primary)" not in compiled or ".text-on-primary" not in compiled:
         raise AssertionError("Tailwind did not compile the semantic-token bridge")
     print("Pinned Tailwind semantic-token compilation passed.")
-    run([str(node), "browser.mjs"])
+    run([str(node), "browser.mjs", f"--engines={args.engines}"])
     (fixture / "toolchain-evidence.json").write_text(json.dumps({"node": package["engines"]["node"], "npm": package["engines"]["npm"],
         "trust": trust, "scriptsEnabled": False, "lockSha256": ui_profile.digest((package_root / "package-lock.json").read_bytes())}, indent=2))
     return 0

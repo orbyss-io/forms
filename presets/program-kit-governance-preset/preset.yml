@@ -3,7 +3,7 @@ schema_version: "1.0"
 preset:
   id: "program-kit-governance-preset"
   name: "Program Kit Governance Templates"
-  version: "0.9.10"
+  version: "0.9.11"
   description: "Adds architecture-governance traceability to the standard Spec Kit feature, plan, and task artifacts."
   author: "Orbyss"
   repository: "https://github.com/orbyss-io/program-kit"

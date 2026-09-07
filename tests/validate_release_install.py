@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import shutil
 import subprocess
 import tempfile
 import zipfile
@@ -55,6 +58,14 @@ EXPECTED_STEPS = [
 
 def run(*args: str, cwd: Path) -> None:
     subprocess.run(args, cwd=cwd, check=True)
+
+
+def snapshot(root: Path) -> dict[str, str]:
+    return {
+        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in root.rglob("*")
+        if path.is_file()
+    }
 
 
 def main() -> int:
@@ -306,10 +317,105 @@ def main() -> int:
         c4_view_skill = project / ".agents/skills/speckit-program-kit-governance-view-c4/SKILL.md"
         if not c4_view_skill.is_file():
             raise AssertionError("C4 projection viewing skill was not installed")
+        c4_view_skill_text = c4_view_skill.read_text(encoding="utf-8")
+        if (
+            "including informed review before bootstrap confirmation" not in c4_view_skill_text
+            or "never performs bootstrap approval" not in c4_view_skill_text
+        ):
+            raise AssertionError("Installed C4 viewer skill lost the draft-review approval boundary")
         installed_skill_text = bootstrap_skill.read_text(encoding="utf-8")
         if "Stop. Do not call a shell tool" not in installed_skill_text:
             raise AssertionError("Installed bootstrap skill lost its execution-boundary guidance")
         run("specify", "workflow", "add", str(workflow_zip), "--dev", cwd=project)
+
+        scenario_architecture = (
+            root / "tests/live/scenarios/clean-bootstrap/docs/architecture"
+        )
+        consumer_architecture = project / "docs/architecture"
+        shutil.copytree(scenario_architecture, consumer_architecture, dirs_exist_ok=True)
+        intake_path = consumer_architecture / "bootstrap-intake.json"
+        intake = json.loads(intake_path.read_text(encoding="utf-8"))
+        intake["status"] = "draft"
+        for record in intake["artifacts"].values():
+            artifact = project / record["path"]
+            record["sha256"] = hashlib.sha256(artifact.read_bytes()).hexdigest()
+            record["bytes"] = artifact.stat().st_size
+        intake_path.write_text(
+            json.dumps(intake, indent=2) + "\n", encoding="utf-8", newline="\n"
+        )
+
+        before_draft_review = snapshot(project)
+        installed_viewer = (
+            project
+            / ".specify/extensions/program-kit-governance/scripts/c4_view.py"
+        )
+        draft_review = subprocess.run(
+            [
+                "python",
+                str(installed_viewer),
+                "inspect",
+                "--project-root",
+                ".",
+                "--json",
+            ],
+            cwd=project,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        draft_payload = json.loads(draft_review.stdout)
+        if (
+            draft_payload.get("review_mode") != "draft-intake-review"
+            or draft_payload.get("intake_status") != "draft"
+            or draft_payload.get("repository_writes") is not False
+            or draft_payload.get("confirmation_performed") is not False
+            or draft_payload.get("architecture_acceptance_performed") is not False
+        ):
+            raise AssertionError(f"Packaged draft C4 review reported an unsafe result: {draft_payload}")
+        if snapshot(project) != before_draft_review:
+            raise AssertionError("Packaged draft C4 viewing changed the clean consumer repository")
+        if json.loads(intake_path.read_text(encoding="utf-8"))["status"] != "draft":
+            raise AssertionError("Packaged C4 viewing confirmed the draft intake")
+
+        installed_intake_validator = (
+            project
+            / ".specify/extensions/program-kit-governance/scripts/bootstrap_intake.py"
+        )
+        draft_bootstrap_validation = subprocess.run(
+            [
+                "python",
+                str(installed_intake_validator),
+                "validate",
+                "--project-root",
+                ".",
+                "--json",
+            ],
+            cwd=project,
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        if (
+            draft_bootstrap_validation.returncode == 0
+            or "confirmation status" not in draft_bootstrap_validation.stderr
+        ):
+            raise AssertionError("The packaged outer bootstrap validator accepted a draft intake")
+
+        intake["status"] = "confirmed"
+        intake_path.write_text(
+            json.dumps(intake, indent=2) + "\n", encoding="utf-8", newline="\n"
+        )
+        run(
+            "python",
+            str(installed_intake_validator),
+            "validate",
+            "--project-root",
+            ".",
+            "--json",
+            cwd=project,
+        )
 
         extension_config = yaml.safe_load(
             (project / ".specify/extensions.yml").read_text(encoding="utf-8")

@@ -1,5 +1,5 @@
 ---
-description: View or preview Program Kit's generated C4/Structurizr workspace projection in a safe localhost viewer. Use when the user asks to view, open, render, preview, or inspect the C4 map, architecture map, Structurizr model, or workspace.dsl; do not use for architecture editing, bootstrap approval, or architecture acceptance.
+description: View or preview Program Kit's generated C4/Structurizr workspace projection in a safe localhost viewer. Use when the user asks to view, open, render, preview, or inspect the C4 map, architecture map, Structurizr model, or workspace.dsl, including informed review before bootstrap confirmation; viewing supports review but never performs bootstrap approval, architecture editing, or architecture acceptance.
 ---
 
 ## Purpose
@@ -8,6 +8,10 @@ Help the human visually inspect the generated C4 projection without changing its
 Read `references/c4-viewing.md` and the managed profile it names. Treat
 `docs/architecture/architecture-map.json` as canonical and `docs/architecture/workspace.dsl` as a
 generated, read-only review projection. Never import viewer or DSL changes into the map.
+
+Inspection may accept either a current `draft` intake for informed pre-confirmation review or a
+`confirmed` intake for baseline review. A draft must match every registered artifact hash exactly.
+Viewing never changes intake status, creates approval evidence, or accepts proposed architecture.
 
 ## View workflow
 

@@ -525,6 +525,9 @@ def main() -> int:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
             raise AssertionError(f"Bootstrap schema has the wrong dialect: {schema_path}")
+    intake_status = json.loads(intake_schema.read_text(encoding="utf-8"))["properties"]["status"]
+    if intake_status != {"enum": ["draft", "confirmed"]}:
+        raise AssertionError("Bootstrap intake schema must distinguish draft review from confirmation")
     acknowledgement = json.loads(decisions_schema.read_text(encoding="utf-8"))[
         "properties"
     ]["acknowledgements"]["items"]
@@ -561,6 +564,13 @@ def main() -> int:
         "Do not read either JSON schema",
         "exactly one physical",
         "bootstrap_intake=docs/architecture/bootstrap-intake.json",
+        "draft artifact hashes",
+    )
+    require_text(
+        extension_root / "commands/speckit.program-kit-governance.view-c4.md",
+        "including informed review before bootstrap confirmation",
+        "never performs bootstrap approval",
+        "Viewing never changes intake status",
     )
     require_text(
         intake_authoring,

@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    [string]$BrowserEngines = 'chromium,firefox,webkit'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,10 +45,10 @@ if ($LASTEXITCODE -ne 0) { throw 'Forms engine runtime, AJV parity, or framework
 & $python (Join-Path $projectRoot 'tests\validate_forms_frontend_packages.py')
 if ($LASTEXITCODE -ne 0) { throw 'Forms frontend clean package installation validation failed.' }
 
-& $python (Join-Path $projectRoot 'tests\validate_ui_browser.py') --install --install-browser
+& $python (Join-Path $projectRoot 'tests\validate_ui_browser.py') --install --install-browser --engines=$BrowserEngines
 if ($LASTEXITCODE -ne 0) { throw 'UI browser and analytics acceptance failed.' }
 
-& $python (Join-Path $projectRoot 'tests\validate_forms_browser.py')
+& $python (Join-Path $projectRoot 'tests\validate_forms_browser.py') --engines=$BrowserEngines
 if ($LASTEXITCODE -ne 0) { throw 'Forms wizard browser/device acceptance failed.' }
 
 & $python (Join-Path $projectRoot 'tests\validate_forms_physical_acceptance.py')

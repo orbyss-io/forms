@@ -79,6 +79,10 @@ try {
     $scenarioArchitecture = Join-Path $sourceRoot 'tests\live\scenarios\clean-bootstrap\docs\architecture'
     New-Item -ItemType Directory -Path 'docs\architecture' -Force | Out-Null
     Copy-Item -Path (Join-Path $scenarioArchitecture '*') -Destination 'docs\architecture' -Recurse -Force
+    $intakePath = 'docs\architecture\bootstrap-intake.json'
+    $draftIntake = Get-Content -Raw -LiteralPath $intakePath | ConvertFrom-Json
+    $draftIntake.status = 'draft'
+    $draftIntake | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $intakePath -Encoding utf8
     $beforeView = @(
         Get-ChildItem -File -Recurse | Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } | ForEach-Object {
             $relative = [System.IO.Path]::GetRelativePath($testRoot, $_.FullName)
@@ -88,7 +92,11 @@ try {
     $c4ViewResult = (& python '.specify\extensions\program-kit-governance\scripts\c4_view.py' inspect --project-root . --json | Out-String)
     if ($LASTEXITCODE -ne 0) { throw "Installed C4 projection inspection failed: $c4ViewResult" }
     $c4ViewPayload = $c4ViewResult | ConvertFrom-Json
-    if (-not $c4ViewPayload.projection_current -or -not $c4ViewPayload.projection_parsed) {
+    if (-not $c4ViewPayload.projection_current -or -not $c4ViewPayload.projection_parsed `
+        -or $c4ViewPayload.intake_status -ne 'draft' `
+        -or $c4ViewPayload.review_mode -ne 'draft-intake-review' `
+        -or $c4ViewPayload.confirmation_performed `
+        -or $c4ViewPayload.architecture_acceptance_performed) {
         throw "Installed C4 projection was not current and parseable: $c4ViewResult"
     }
     $afterView = @(
@@ -99,6 +107,16 @@ try {
     )
     if (Compare-Object -ReferenceObject $beforeView -DifferenceObject $afterView) {
         throw 'Installed view-only C4 inspection changed the consumer repository.'
+    }
+    $afterReviewIntake = Get-Content -Raw -LiteralPath $intakePath | ConvertFrom-Json
+    if ($afterReviewIntake.status -ne 'draft') {
+        throw 'Installed view-only C4 inspection confirmed the draft intake.'
+    }
+    $afterReviewIntake.status = 'confirmed'
+    $afterReviewIntake | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $intakePath -Encoding utf8
+    & python '.specify\extensions\program-kit-governance\scripts\bootstrap_intake.py' validate --project-root . --json
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Explicitly confirmed intake failed final installed validation.'
     }
     $dotnetSync = '.specify\extensions\program-kit-dotnet\scripts\dotnet_sync.py'
     if (-not (Test-Path -LiteralPath $dotnetSync -PathType Leaf)) {

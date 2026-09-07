@@ -4,6 +4,14 @@ Program Kit uses `docs/architecture/architecture-map.json` as the semantic sourc
 generates `docs/architecture/workspace.dsl` only as a review projection. Viewing must not import DSL
 edits or change either canonical file.
 
+The viewer has two read-only modes. Draft intake review is allowed before explicit confirmation only
+when the intake is valid JSON, all three registered artifact hashes and byte counts match exactly,
+the DSL parses, and it is byte-for-byte equivalent (apart from newline normalization) to a fresh
+export of canonical `architecture-map.json`. Confirmed baseline review retains the same projection
+freshness and registered-pair drift checks. Neither mode changes intake status, creates approval or
+acceptance evidence, or accepts proposed architecture; the outer bootstrap workflow still requires
+a confirmed intake.
+
 ## Runtime policy
 
 The managed viewer profile is `c4-viewer-tool.json`. Prefer its exact Docker image when Docker is

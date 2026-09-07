@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.9.11 - 2026-09-07
+
+- Allow a current, hash-bound draft bootstrap intake to open its generated C4 projection for
+  read-only informed review without confirming the intake or accepting proposed architecture.
+- Preserve strict confirmed-intake enforcement in the outer bootstrap workflow and add source,
+  packaged clean-consumer, release-install, and upgrade regression coverage for the review order.
+
 ## 0.9.10 - 2026-09-07
 
 - Add a hash-aware C4 viewing skill and deterministic temporary launcher for pinned Structurizr

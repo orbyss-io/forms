@@ -6,12 +6,12 @@
     "program-kit": {
       "name": "Program Kit",
       "id": "program-kit",
-      "version": "0.9.10",
+      "version": "0.9.11",
       "role": "architecture-governed-development",
       "description": "Bootstraps constitution-first, modular, vertically sliced Spec Kit repositories from an initial design.",
       "author": "Orbyss",
       "license": "MIT",
-      "download_url": "https://github.com/orbyss-io/program-kit/releases/download/v0.9.10/program-kit-0.9.10.zip",
+      "download_url": "https://github.com/orbyss-io/program-kit/releases/download/v0.9.11/program-kit-0.9.11.zip",
       "repository": "https://github.com/orbyss-io/program-kit",
       "requires": {
         "speckit_version": ">=1.0.1,<2.0.0"

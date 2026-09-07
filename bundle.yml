@@ -3,7 +3,7 @@ schema_version: "1.0"
 bundle:
   id: "program-kit"
   name: "Program Kit"
-  version: "0.9.10"
+  version: "0.9.11"
   role: "architecture-governed-development"
   description: "Bootstraps constitution-first, modular, vertically sliced Spec Kit repositories from an initial design."
   author: "Orbyss"
@@ -15,17 +15,17 @@ requires:
 provides:
   extensions:
     - id: "program-kit-governance"
-      version: "0.9.10"
+      version: "0.9.11"
     - id: "program-kit-dotnet"
-      version: "0.9.10"
+      version: "0.9.11"
   presets:
     - id: "program-kit-governance-preset"
-      version: "0.9.10"
+      version: "0.9.11"
       priority: 10
       strategy: "append"
   workflows:
     - id: "program-kit-bootstrap"
-      version: "0.9.10"
+      version: "0.9.11"
 
 tags:
   - "architecture"

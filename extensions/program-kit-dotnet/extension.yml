@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: "program-kit-dotnet"
   name: "Program Kit .NET"
-  version: "0.9.10"
+  version: "0.9.11"
   description: "Provides the default .NET engineering baseline, runtime guidance, and reviewable managed-file synchronization."
   author: "Orbyss"
   repository: "https://github.com/orbyss-io/program-kit"

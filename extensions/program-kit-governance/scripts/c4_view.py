@@ -21,9 +21,14 @@ from typing import Callable, Sequence
 from urllib.parse import quote
 
 
+# Dynamic architecture-map loading must not create __pycache__ in the consumer repository.
+sys.dont_write_bytecode = True
+
+
 ARCHITECTURE_MAP = Path("docs/architecture/architecture-map.json")
 WORKSPACE_DSL = Path("docs/architecture/workspace.dsl")
 BOOTSTRAP_INTAKE = Path("docs/architecture/bootstrap-intake.json")
+PROJECT_INTENT = Path("docs/architecture/project-intent.md")
 PROFILE = Path(__file__).resolve().parents[1] / "references/c4-viewer-tool.json"
 STATE_ENVIRONMENT = "PROGRAM_KIT_C4_STATE_ROOT"
 WAR_ENVIRONMENT = "PROGRAM_KIT_STRUCTURIZR_WAR"
@@ -143,22 +148,52 @@ def validate_projection(project_root: Path) -> dict:
             "regenerate workspace.dsl from the canonical map before review"
         )
 
-    intake = load_json(intake_path, "confirmed bootstrap intake")
-    if intake.get("status") != "confirmed":
-        raise C4ViewError(f"Bootstrap intake is not confirmed: {BOOTSTRAP_INTAKE.as_posix()}")
+    intake = load_json(intake_path, "bootstrap intake")
+    intake_status = intake.get("status")
+    if intake_status not in {"draft", "confirmed"}:
+        raise C4ViewError(
+            f"Bootstrap intake status must be draft or confirmed: {BOOTSTRAP_INTAKE.as_posix()}"
+        )
     map_record = _artifact_record(intake, "architecture_map", ARCHITECTURE_MAP)
     dsl_record = _artifact_record(intake, "c4_projection", WORKSPACE_DSL)
     map_hash = sha256_file(map_path)
     dsl_hash = sha256_file(dsl_path)
     map_match = map_record["sha256"] == map_hash and map_record["bytes"] == map_path.stat().st_size
     dsl_match = dsl_record["sha256"] == dsl_hash and dsl_record["bytes"] == dsl_path.stat().st_size
-    if map_match != dsl_match:
-        changed = WORKSPACE_DSL if map_match else ARCHITECTURE_MAP
-        raise C4ViewError(
-            f"Registered intake hashes show partial architecture drift at {changed.as_posix()}; "
-            "refresh the generated pair and its governance evidence before review"
+    if intake_status == "draft":
+        intent_path = project_root / PROJECT_INTENT
+        intent_record = _artifact_record(intake, "project_intent", PROJECT_INTENT)
+        if not intent_path.is_file():
+            raise C4ViewError(f"Draft intake artifact is missing: {PROJECT_INTENT.as_posix()}")
+        intent_match = (
+            intent_record["sha256"] == sha256_file(intent_path)
+            and intent_record["bytes"] == intent_path.stat().st_size
         )
-    binding = "confirmed-intake" if map_match else "evolved-together-from-confirmed-intake"
+        mismatched = [
+            path.as_posix()
+            for path, matches in (
+                (PROJECT_INTENT, intent_match),
+                (ARCHITECTURE_MAP, map_match),
+                (WORKSPACE_DSL, dsl_match),
+            )
+            if not matches
+        ]
+        if mismatched:
+            raise C4ViewError(
+                "Draft bootstrap intake hashes do not match current artifacts: "
+                + ", ".join(mismatched)
+            )
+        binding = "draft-intake"
+        review_mode = "draft-intake-review"
+    else:
+        if map_match != dsl_match:
+            changed = WORKSPACE_DSL if map_match else ARCHITECTURE_MAP
+            raise C4ViewError(
+                f"Registered intake hashes show partial architecture drift at {changed.as_posix()}; "
+                "refresh the generated pair and its governance evidence before review"
+            )
+        binding = "confirmed-intake" if map_match else "evolved-together-from-confirmed-intake"
+        review_mode = "confirmed-baseline-review"
     view_keys = [view["key"] for view in model["views"]]
     return {
         "project_root": str(project_root),
@@ -168,7 +203,11 @@ def validate_projection(project_root: Path) -> dict:
         "projection_sha256": dsl_hash,
         "projection_current": True,
         "projection_parsed": True,
+        "intake_status": intake_status,
         "intake_binding": binding,
+        "review_mode": review_mode,
+        "confirmation_performed": False,
+        "architecture_acceptance_performed": False,
         "registered_map_sha256": map_record["sha256"],
         "registered_projection_sha256": dsl_record["sha256"],
         "view_keys": view_keys,
@@ -546,6 +585,10 @@ def start_session(
             )
         existing["reused"] = True
         existing["url"] = diagram_url(existing["port"], validation["primary_view_key"])
+        existing["intake_status"] = validation["intake_status"]
+        existing["review_mode"] = validation["review_mode"]
+        existing["confirmation_performed"] = False
+        existing["architecture_acceptance_performed"] = False
         if open_browser:
             webbrowser.open(existing["url"])
         return existing
@@ -572,6 +615,10 @@ def start_session(
             "health_url": health_url,
             "primary_view_key": validation["primary_view_key"],
             "projection_sha256": validation["projection_sha256"],
+            "intake_status": validation["intake_status"],
+            "review_mode": validation["review_mode"],
+            "confirmation_performed": False,
+            "architecture_acceptance_performed": False,
             "data_directory": str(data_directory),
             "reused": False,
         }
@@ -641,6 +688,8 @@ def inspection(project_root: Path, war: str | None = None, preferred_port: int |
             "active_session": active,
             "repository_writes": False,
             "external_network_calls": False,
+            "confirmation_performed": False,
+            "architecture_acceptance_performed": False,
         }
     )
     return result
@@ -674,6 +723,8 @@ def main() -> int:
                 print(json.dumps(payload, indent=2))
             else:
                 print(f"C4 projection is current and parseable: {payload['projection']}")
+                print(f"Review mode: {payload['review_mode']}")
+                print("Viewing does not confirm the intake or accept the architecture.")
                 print(f"Managed Structurizr version: {payload['structurizr_version']}")
                 print(f"Viewer ready: {str(payload['viewer_ready']).lower()}; selected port: {payload['port']}")
         elif args.command == "start":
@@ -682,6 +733,8 @@ def main() -> int:
                 print("Structurizr Local stopped and temporary viewer state removed.")
             else:
                 print(f"Structurizr Local is available at {payload['url']}")
+                print(f"Read-only review mode: {payload['review_mode']}")
+                print("Viewing did not confirm the intake or accept the architecture.")
                 print("The first diagram opens directly; use the left thumbnail rail to switch views.")
                 print(
                     "A magnifier on an element opens a linked detail view; no magnifier means the "
