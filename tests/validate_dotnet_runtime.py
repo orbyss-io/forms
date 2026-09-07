@@ -182,6 +182,11 @@ def main() -> int:
             raise AssertionError(
                 "Registry publication jobs must be serialized after the validated release job"
             )
+    runtime_gate = "if: ${{ needs.release.outputs.publish_runtime == 'true' }}"
+    if release_workflow.count(runtime_gate) != 3:
+        raise AssertionError(
+            "Frontend, NuGet, and host-image publication must share the runtime-version change gate"
+        )
     if "packages: write" not in release_workflow:
         raise AssertionError("Release must grant its called host-image workflow package publication access")
 

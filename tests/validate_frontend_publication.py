@@ -116,6 +116,13 @@ def main() -> int:
         or "uses: ./.github/workflows/publish-frontend.yml" not in release
     ):
         raise AssertionError("The tag release does not gate frontend publication on full release validation.")
+    runtime_gate = "if: ${{ needs.release.outputs.publish_runtime == 'true' }}"
+    if "publish_runtime: ${{ steps.runtime_publication.outputs.publish }}" not in release:
+        raise AssertionError("The validated release does not expose its immutable-runtime publication decision.")
+    if "git show \"${previous_tag}:RUNTIME_VERSION\"" not in release:
+        raise AssertionError("Runtime publication is not classified against the previous stable release.")
+    if release.count(runtime_gate) != 3:
+        raise AssertionError("Every immutable runtime publication job must use the shared version-change gate.")
     if "publish-nuget:\n    needs: [release, publish-frontend]" not in release:
         raise AssertionError("NuGet publication must wait for successful frontend publication.")
     if "publish-host-image:\n    needs: [release, publish-frontend, publish-nuget]" not in release:

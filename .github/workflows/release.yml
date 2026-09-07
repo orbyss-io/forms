@@ -14,11 +14,40 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      publish_runtime: ${{ steps.runtime_publication.outputs.publish }}
     steps:
       - name: Check out tagged source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      - name: Classify immutable runtime publication
+        id: runtime_publication
+        shell: bash
+        run: |
+          current_runtime="$(tr -d '\r\n' < RUNTIME_VERSION)"
+          previous_tag=""
+          while IFS= read -r candidate; do
+            if [[ "$candidate" != "$GITHUB_REF_NAME" && "$candidate" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              previous_tag="$candidate"
+              break
+            fi
+          done < <(git tag --list 'v*' --sort=-version:refname)
+
+          publish="true"
+          if [[ -n "$previous_tag" ]]; then
+            previous_runtime="$(git show "${previous_tag}:RUNTIME_VERSION" | tr -d '\r\n')"
+            if [[ "$previous_runtime" == "$current_runtime" ]]; then
+              publish="false"
+            fi
+            echo "Previous stable runtime: $previous_runtime ($previous_tag)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No previous stable release was found." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "Current runtime: $current_runtime" >> "$GITHUB_STEP_SUMMARY"
+          echo "Publish immutable runtime family: $publish" >> "$GITHUB_STEP_SUMMARY"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -229,15 +258,18 @@ jobs:
 
   publish-frontend:
     needs: release
+    if: ${{ needs.release.outputs.publish_runtime == 'true' }}
     uses: ./.github/workflows/publish-frontend.yml
     secrets: inherit
 
   publish-nuget:
     needs: [release, publish-frontend]
+    if: ${{ needs.release.outputs.publish_runtime == 'true' }}
     uses: ./.github/workflows/publish-nuget.yml
     secrets: inherit
 
   publish-host-image:
     needs: [release, publish-frontend, publish-nuget]
+    if: ${{ needs.release.outputs.publish_runtime == 'true' }}
     uses: ./.github/workflows/publish-host-image.yml
     secrets: inherit

@@ -27,6 +27,10 @@ The managed-layout regression must reconstruct an authenticated `eng/program-kit
 migrate it to `.program-kit/eng/`, preserve unrelated consumer-owned `eng/**` files, remove only
 empty retired directories, and prove that a repeated sync converges without further changes.
 
+The release workflow must classify the immutable runtime family against the previous stable tag.
+When `RUNTIME_VERSION` is unchanged, frontend, NuGet, and host-image publication all remain skipped;
+when it advances, those jobs remain serialized after the complete validated release job.
+
 Create and push the stable tag only from the fully validated and explicitly approved release commit:
 
 ```powershell

@@ -9,6 +9,8 @@
   cleanup, review-packet guidance, and no mutation of the canonical architecture map.
 - Consolidate generated Program Kit engineering tooling under `.program-kit/eng/` and migrate
   authenticated files from the opaque top-level `eng/program-kit/` layout during managed sync.
+- Publish the immutable frontend, NuGet, and host-image family only when `RUNTIME_VERSION` advances,
+  so component-only releases never attempt to overwrite an existing package or image version.
 
 ## 0.9.9 - 2026-09-05
 

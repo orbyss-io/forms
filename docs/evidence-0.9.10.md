@@ -31,3 +31,8 @@ reached or confirms no removal, and an automated regression now covers that beha
 Structurizr's surrounding application chrome remains upstream. Program Kit improves the generated
 diagram styling, direct landing, navigation guidance, and safe lifecycle without introducing a
 custom architecture editor or making visual tooling a bootstrap prerequisite.
+
+The ordered release workflow compares `RUNTIME_VERSION` with the previous stable tag and exposes one
+shared publication decision to the frontend, NuGet, and host-image jobs. This component-only release
+keeps runtime version `0.9.9-preview.1`, so those immutable registry jobs are skipped while the
+Program Kit component assets and public catalogs continue through their complete release gates.
