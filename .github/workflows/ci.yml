@@ -23,24 +23,9 @@ jobs:
         uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
           global-json-file: global.json
-
-      - name: Check out pinned Foundation source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: orbyss-io/dotnet-foundation
-          ref: 66afe661fbe9810428309bb35eb7248f12187abb
-          path: .dependencies/dotnet-foundation
-
-      - name: Pack pinned Foundation dependency
-        shell: bash
-        run: |
-          dotnet restore .dependencies/dotnet-foundation/Orbyss.Foundation.slnx --locked-mode --configfile .dependencies/dotnet-foundation/NuGet.config
-          dotnet build .dependencies/dotnet-foundation/Orbyss.Foundation.slnx -c Release --no-restore
-          dotnet pack .dependencies/dotnet-foundation/Orbyss.Foundation.slnx -c Release --no-build -p:PackageOutputPath="$GITHUB_WORKSPACE/artifacts/foundation"
-
       - name: Restore and build
         run: |
-          dotnet restore Orbyss.Forms.slnx --locked-mode --configfile NuGet.ci.config
+          dotnet restore Orbyss.Forms.slnx --locked-mode --configfile NuGet.config
           dotnet build Orbyss.Forms.slnx -c Release --no-restore
       - name: Validate contracts
         run: |
