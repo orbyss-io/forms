@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out tagged source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -176,6 +178,9 @@ jobs:
       - name: Test packaged components and bundle graph
         run: python tests/validate_release_install.py
 
+      - name: Test candidate upgrade from previous stable release
+        run: python tests/validate_public_upgrade.py --candidate-dir artifacts
+
       - name: Attest release assets
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
@@ -216,7 +221,7 @@ jobs:
       - name: Test live public catalog installation
         run: python tests/validate_public_install.py
 
-      - name: Test live public catalog upgrade from v0.2.0
+      - name: Test live public catalog upgrade from previous stable release
         run: python tests/validate_public_upgrade.py
 
   publish-nuget:
