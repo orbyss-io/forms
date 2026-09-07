@@ -26,16 +26,15 @@ publication must instead compare the tagged commit with the last successfully pu
 each independently released family. A deterministic release plan records the selected families and
 their artifact hashes before any write permission is granted.
 
-The publication units are the complete synchronized dependency families: frontend npm packages,
-Orbyss Forms NuGet packages, the host container image, and bootstrap/release assets. Because frontend
-packages use exact internal versions and .NET projects share `FormsVersion`, a change to one
-member can require its family-wide dependent closure. The safe initial policy is therefore to
-publish all packages in a changed family, skip every unchanged family, and publish nothing for a
-docs-only release. Per-package publishing is deferred until independent versions and a tested
+The publication units are the complete synchronized dependency families: frontend npm packages
+and Orbyss Forms/Localization NuGet packages. Because frontend packages use exact internal versions
+and .NET projects share `FormsVersion`, a change to one member can require its family-wide dependent
+closure. The initial stable-release policy therefore validates and publishes both exact package
+families together. Per-package publishing is deferred until independent versions and a tested
 dependency-closure planner exist.
 
-The packages use the `preview` dist-tag because frontend/runtime artifacts remain preview-versioned
-in this release. An optional future npmjs.com mirror requires a separate explicit decision. It is
+The packages use the `latest` dist-tag because they are independently versioned stable Forms
+artifacts. An optional future npmjs.com mirror requires a separate explicit decision. It is
 not part of the default publication topology.
 
 The repository-wide family selection and least-authority rules are defined in

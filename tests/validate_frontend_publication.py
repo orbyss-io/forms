@@ -59,7 +59,7 @@ def main() -> int:
     expected_publish = {
         "registry": "https://npm.pkg.github.com",
         "access": "public",
-        "tag": "preview",
+        "tag": "latest",
     }
     for manifest in manifests:
         name = str(manifest["name"])
@@ -75,7 +75,7 @@ def main() -> int:
         if not str(repository.get("directory", "")).startswith("src/typescript/packages/"):
             raise AssertionError(f"{name} has no package directory association.")
         if manifest.get("publishConfig") != expected_publish:
-            raise AssertionError(f"{name} can publish outside the approved GitHub Packages preview channel.")
+            raise AssertionError(f"{name} can publish outside the approved GitHub Packages stable channel.")
 
     for config_path in (WORKSPACE / "packages").glob("*/tsconfig.json"):
         config = json.loads(config_path.read_text(encoding="utf-8"))
@@ -92,7 +92,7 @@ def main() -> int:
         "validate_forms_frontend.py --install",
         "npm pack --workspaces",
         "npm publish",
-        "--tag=preview",
+        "--tag=latest",
         "NODE_AUTH_TOKEN: ${{ github.token }}",
         "Verify package family",
     )

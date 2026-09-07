@@ -10,7 +10,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
     "access": "public",
-    "tag": "preview"
+    "tag": "latest"
   },
   "type": "module",
   "sideEffects": ["./default.css"],

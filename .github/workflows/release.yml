@@ -113,5 +113,5 @@ jobs:
         shell: bash
         run: |
           for package in artifacts/npm/*.tgz; do
-            npm publish "$package" --registry=https://npm.pkg.github.com --access=public --tag=preview
+            npm publish "$package" --registry=https://npm.pkg.github.com --access=public --tag=latest
           done
