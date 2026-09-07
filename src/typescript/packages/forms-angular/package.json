@@ -1,10 +1,10 @@
 {
-  "name": "@orbyss-io/program-kit-forms-angular",
-  "version": "0.9.9-preview.1",
+  "name": "@orbyss-io/forms-angular",
+  "version": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/orbyss-io/program-kit.git",
+    "url": "git+https://github.com/orbyss-io/forms.git",
     "directory": "src/typescript/packages/forms-angular"
   },
   "publishConfig": {
@@ -25,8 +25,8 @@
     "build": "ngc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
-    "@orbyss-io/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1"
+    "@orbyss-io/forms-contracts": "0.1.0",
+    "@orbyss-io/forms-jsonforms-runtime": "0.1.0"
   },
   "peerDependencies": {
     "@angular/common": "22.1.5",

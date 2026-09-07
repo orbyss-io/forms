@@ -4,23 +4,23 @@ import {
   type FormRelease,
   type JsonObject,
   type JsonValue,
-  type ProgramKitTranslator,
-  type ProgramKitValidator,
+  type OrbyssTranslator,
+  type OrbyssValidator,
   type RuntimeValidationIssue,
   type RuntimeLimits
-} from "@orbyss-io/program-kit-forms-contracts";
+} from "@orbyss-io/forms-contracts";
 import {
   FormActionRegistry,
   RendererRegistry,
   type FormActionContext
-} from "@orbyss-io/program-kit-forms-renderer-registry";
+} from "@orbyss-io/forms-renderer-registry";
 
 export interface PreparedJsonFormsRuntime<TRenderer> {
   readonly schema: JsonObject;
   readonly uiSchema: JsonObject;
   readonly renderers: RendererRegistry<TRenderer>;
-  readonly validate: ProgramKitValidator;
-  readonly translate: ProgramKitTranslator;
+  readonly validate: OrbyssValidator;
+  readonly translate: OrbyssTranslator;
   readonly actions: readonly FormActionRequirement[];
   readonly dispatchAction: (
     actionId: string,
@@ -33,8 +33,8 @@ export async function prepareJsonFormsRuntime<TRenderer>(
   release: FormRelease,
   renderers: RendererRegistry<TRenderer>,
   actions: FormActionRegistry,
-  validate: ProgramKitValidator,
-  translate: ProgramKitTranslator,
+  validate: OrbyssValidator,
+  translate: OrbyssTranslator,
   limits: RuntimeLimits = defaultRuntimeLimits
 ): Promise<PreparedJsonFormsRuntime<TRenderer>> {
   if (release.retired) {
@@ -75,7 +75,7 @@ export async function prepareJsonFormsRuntime<TRenderer>(
 
 export function createJsonFormsTranslator(
   translations: Readonly<Record<string, string>>
-): ProgramKitTranslator {
+): OrbyssTranslator {
   const snapshot = Object.freeze({ ...translations });
   return (key, fallback) => snapshot[key] ?? fallback;
 }
@@ -97,7 +97,7 @@ export interface PrecompiledJsonFormsAjvFacade {
   readonly validate: (schema: unknown, data: unknown) => boolean;
 }
 
-const missingTranslationSentinel = "\u0000program-kit:missing-jsonforms-translation\u0000";
+const missingTranslationSentinel = "\u0000orbyss-forms:missing-jsonforms-translation\u0000";
 
 export interface JsonFormsTranslatorAdapter {
   <D extends string | undefined>(
@@ -111,7 +111,7 @@ export interface JsonFormsTranslatorAdapter {
  * fallback; converting that probe to an empty string suppresses its built-in validation message.
  */
 export function createJsonFormsTranslatorAdapter(
-  translate: ProgramKitTranslator
+  translate: OrbyssTranslator
 ): JsonFormsTranslatorAdapter {
   return ((key: string, fallback?: string) => {
     if (fallback !== undefined) return translate(key, fallback);
@@ -127,7 +127,7 @@ export function createJsonFormsTranslatorAdapter(
  */
 export function createPrecompiledJsonFormsAjvFacade(
   rootSchema: JsonObject,
-  validateRoot: ProgramKitValidator
+  validateRoot: OrbyssValidator
 ): PrecompiledJsonFormsAjvFacade {
   const rootValidator = createCompatibleValidator(data => validateRoot(data as JsonValue));
   return Object.freeze({

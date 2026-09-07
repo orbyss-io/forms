@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Endpoint-only CShells feature for governed Orbyss Forms form management.</Description>
+    <PackageId>Orbyss.Forms.Web.Management</PackageId>
+    <PackageTags>orbyss-forms;forms;aspnetcore;management;cshells</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="CShells.AspNetCore.Abstractions" PrivateAssets="all" />
+    <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

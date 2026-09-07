@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Governed MCP tool definitions over Orbyss Forms form draft, submission, and attachment application services.</Description>
+    <PackageId>Orbyss.Forms.Tool</PackageId>
+    <PackageTags>orbyss-forms;forms;mcp;tools;agents</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

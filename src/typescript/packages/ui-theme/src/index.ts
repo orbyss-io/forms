@@ -34,11 +34,11 @@ export const programKitThemeTokenNames = Object.freeze([
   "--pk-motion-easing"
 ] as const);
 
-export type ProgramKitThemeTokenName = typeof programKitThemeTokenNames[number];
-export type ProgramKitThemeTokens = Partial<Record<ProgramKitThemeTokenName, string>>;
-export type ProgramKitClassNames<TSlot extends string> = Partial<Readonly<Record<TSlot, string>>>;
+export type OrbyssThemeTokenName = typeof programKitThemeTokenNames[number];
+export type OrbyssThemeTokens = Partial<Record<OrbyssThemeTokenName, string>>;
+export type OrbyssClassNames<TSlot extends string> = Partial<Readonly<Record<TSlot, string>>>;
 
-export function joinProgramKitClassNames(
+export function joinOrbyssClassNames(
   ...values: readonly (string | undefined | null | false)[]
 ): string | undefined {
   const result = values
@@ -53,5 +53,5 @@ export function programKitClassName(
   customClassName: string | undefined,
   unstyled = false
 ): string | undefined {
-  return joinProgramKitClassNames(unstyled ? undefined : defaultClassName, customClassName);
+  return joinOrbyssClassNames(unstyled ? undefined : defaultClassName, customClassName);
 }

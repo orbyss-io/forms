@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provider-neutral resumable drafts, authoritative submissions, and quarantined attachment orchestration for Orbyss Forms forms.</Description>
+    <PackageId>Orbyss.Forms.Submissions</PackageId>
+    <PackageTags>orbyss-forms;forms;drafts;submissions;attachments</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

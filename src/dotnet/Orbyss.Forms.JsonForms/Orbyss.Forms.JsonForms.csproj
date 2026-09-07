@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Deterministic Orbyss Forms form compilation to JSON Schema and JSON Forms UI Schema.</Description>
+    <PackageId>Orbyss.Forms.JsonForms</PackageId>
+    <PackageTags>orbyss-forms;forms;json-schema;json-forms;compiler</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../Orbyss.Forms.Core/Orbyss.Forms.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

@@ -9,27 +9,27 @@ import type {
 import type {
   JsonObject,
   JsonValue,
-  ProgramKitTranslator,
-  ProgramKitValidator,
+  OrbyssTranslator,
+  OrbyssValidator,
   RuntimeValidationIssue
-} from "@orbyss-io/program-kit-forms-contracts";
+} from "@orbyss-io/forms-contracts";
 import {
   createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
   type JsonFormsCompatibleValidationError
-} from "@orbyss-io/program-kit-forms-jsonforms-runtime";
+} from "@orbyss-io/forms-jsonforms-runtime";
 
 export const programKitVueFormsAdapterVersion = "1.0.0";
 
-export interface ProgramKitJsonFormsVueRuntime {
+export interface OrbyssJsonFormsVueRuntime {
   readonly schema: JsonObject;
   readonly uiSchema: JsonObject;
-  readonly validate: ProgramKitValidator;
-  readonly translate: ProgramKitTranslator;
+  readonly validate: OrbyssValidator;
+  readonly translate: OrbyssTranslator;
 }
 
-export interface ProgramKitJsonFormsVueChange {
+export interface OrbyssJsonFormsVueChange {
   readonly data: JsonValue;
   readonly issues: readonly RuntimeValidationIssue[];
 }
@@ -38,11 +38,11 @@ export interface ProgramKitJsonFormsVueChange {
  * Thin Vue binding over JSON Forms. Renderer components and styling are application-owned and must
  * be supplied by the consumer.
  */
-export const ProgramKitJsonFormsVue = defineComponent({
-  name: "ProgramKitJsonFormsVue",
+export const OrbyssJsonFormsVue = defineComponent({
+  name: "OrbyssJsonFormsVue",
   props: {
     runtime: {
-      type: Object as PropType<ProgramKitJsonFormsVueRuntime>,
+      type: Object as PropType<OrbyssJsonFormsVueRuntime>,
       required: true
     },
     data: {
@@ -71,11 +71,11 @@ export const ProgramKitJsonFormsVue = defineComponent({
     }
   },
   emits: {
-    change: (change: ProgramKitJsonFormsVueChange) => change !== null
+    change: (change: OrbyssJsonFormsVueChange) => change !== null
   },
   setup(props, { emit }) {
     if (props.renderers.length === 0) {
-      throw new Error("Program Kit's Vue binding requires consumer-supplied JSON Forms renderers.");
+      throw new Error("Orbyss Forms's Vue binding requires consumer-supplied JSON Forms renderers.");
     }
     const ajv = computed(() => createPrecompiledJsonFormsAjvFacade(
       props.runtime.schema,

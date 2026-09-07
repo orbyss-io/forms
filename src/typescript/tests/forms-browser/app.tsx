@@ -7,10 +7,10 @@ import {
 import { withJsonFormsControlProps } from "@jsonforms/react";
 import { createRoot } from "react-dom/client";
 import { useMemo, useState, type ReactNode } from "react";
-import { ProgramKitJsonForms } from "@orbyss-io/program-kit-forms-react";
-import type { JsonValue, RuntimeValidationIssue } from "@orbyss-io/program-kit-forms-contracts";
+import { OrbyssJsonForms } from "@orbyss-io/forms-react";
+import type { JsonValue, RuntimeValidationIssue } from "@orbyss-io/forms-contracts";
 import { schema } from "./schema.mjs";
-import { validate as validateGenerated } from "program-kit:validator";
+import { validate as validateGenerated } from "orbyss-forms:validator";
 
 interface GeneratedError {
   readonly instancePath: string;
@@ -73,7 +73,7 @@ function App(): ReactNode {
   return <main>
     <header className="fixture-header">
       <div>
-        <p className="fixture-eyebrow">Program Kit engine</p>
+        <p className="fixture-eyebrow">Orbyss Forms engine</p>
         <h1>Consumer-rendered form acceptance</h1>
       </div>
       <button onClick={() => {
@@ -82,7 +82,7 @@ function App(): ReactNode {
       }} type="button">{locale === "en" ? "العربية" : "English"}</button>
     </header>
     <section className="consumer-form">
-      <ProgramKitJsonForms
+      <OrbyssJsonForms
         data={data}
         onChange={next => setData(next)}
         renderers={renderers}

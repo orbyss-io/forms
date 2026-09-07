@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Governed MCP tool methods for Orbyss Forms form authoring and release management.</Description>
+    <PackageId>Orbyss.Forms.Management.Tool</PackageId>
+    <PackageTags>orbyss-forms;forms;management;mcp;tools</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj" />
+  </ItemGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
+</Project>

@@ -1,8 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-  </PropertyGroup>
-  <Import Project=".program-kit/eng/ProgramKit.Packages.props" />
-  <!-- Consumer-owned central package versions belong here. -->
-</Project>

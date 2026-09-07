@@ -8,8 +8,8 @@ after the package set is complete. See `docs/frontend-package-publication.md`.
 ## Physical-review decision
 
 The forms engine was accepted. The TypeScript form-modeler, schema-modeler,
-localization-management and Program Kit-authored form-component packages were removed from the
-publishable family after physical review. Program Kit retains the backend contracts, validation,
+localization-management and Orbyss Forms-authored form-component packages were removed from the
+publishable family after physical review. Orbyss Forms retains the backend contracts, validation,
 management APIs, storage ports, MCP operations and headless frontend engine; it ships no management
 UI or form renderer components. This decision supersedes historical UI progress notes below.
 
@@ -35,7 +35,7 @@ As of 2026-09-06:
   Applications supply all renderer components, editor implementations and CSS. A compiler-emitted
   .NET release fixture is consumed byte-for-byte by the TypeScript integrity/runtime path.
 - Slice 5 retains only headless capabilities: the portable wizard parser/state machine,
-  manifest-backed action controller and trusted searchable-lookup controller. Program Kit publishes
+  manifest-backed action controller and trusted searchable-lookup controller. Orbyss Forms publishes
   no wizard, action-bar, lookup or core-control renderer.
 - Slice 6 is complete on the server: locale/fallback validation, structured scopes, ICU-style
   placeholder/plural/select checks, exact/fallback immutable resolution, deterministic bundles,
@@ -62,26 +62,26 @@ As of 2026-09-06:
   runtime, and shared MCP probes.
 - Slice 8 includes package-isolation architecture checks, shell-portable frontend tests, real
   tarball inspection, a disposable consumer of all twelve engine packages, and read-only
-  Chromium/Firefox/WebKit CI using a fixture-owned renderer. Program Kit-owned UI prototypes were
-  removed. No web behavior has been added to `ProgramKit.Host`, and persistence technology remains
+  Chromium/Firefox/WebKit CI using a fixture-owned renderer. Orbyss Forms-owned UI prototypes were
+  removed. No web behavior has been added to `Orbyss.Foundation.Host`, and persistence technology remains
   consumer-owned.
 
 ## Fixed decisions
 
-- Program Kit owns framework-neutral form, localization, action, release and compatibility
+- Orbyss Forms owns framework-neutral form, localization, action, release and compatibility
   contracts. JSON Forms and AJV remain adapter boundaries; renderer libraries and editors are
   consumer choices.
 - The optional `ui-theme` package contains application-wide semantic tokens only. It is not a
   component stylesheet.
 - `forms-editor-contracts` specifies safe mounting, diagnostics and keyboard behavior without
   selecting CodeMirror, Monaco or another editor.
-- Program Kit tests its engine through fixture-owned renderers on Chromium, Firefox and WebKit.
+- Orbyss Forms tests its engine through fixture-owned renderers on Chromium, Firefox and WebKit.
   Physical layout, touch, screen-reader and appearance acceptance belongs to the consuming
   application and its selected renderer/design system.
 - Management and runtime boundaries are separate CShells features. The Host does not register form,
   localization, submission, editor or action middleware/endpoints.
 - In-memory persistence is the deterministic test/development reference. It is never represented as
-  durable. Filesystem persistence is an explicit adapter. Program Kit does not select a production
+  durable. Filesystem persistence is an explicit adapter. Orbyss Forms does not select a production
   database, ORM, migration system, or object-storage provider for consumers.
 - Every mutation uses optimistic concurrency, an idempotency key and audit metadata. Published form
   and localization releases are immutable.
@@ -93,26 +93,26 @@ As of 2026-09-06:
 
 The .NET boundary is split into:
 
-- `ProgramKit.Forms.Abstractions`: identifiers, authoring commands, immutable release contracts,
+- `Orbyss.Forms.Abstractions`: identifiers, authoring commands, immutable release contracts,
   diagnostics, compatibility manifests and narrow query ports.
-- `ProgramKit.Forms.Core`: validation and release compatibility analysis.
-- `ProgramKit.Forms.Application`: authoring, deterministic compilation, evidence-bound review,
+- `Orbyss.Forms.Core`: validation and release compatibility analysis.
+- `Orbyss.Forms.Application`: authoring, deterministic compilation, evidence-bound review,
   publication, bounded queries and retirement orchestration over replaceable stores.
-- `ProgramKit.Forms.JsonForms`: compilation to JSON Schema/JSON Forms UI Schema, AJV parity fixtures
+- `Orbyss.Forms.JsonForms`: compilation to JSON Schema/JSON Forms UI Schema, AJV parity fixtures
   and translation-requirement extraction.
-- `ProgramKit.Forms.Storage.Abstractions`, `.InMemory` and `.FileSystem`: narrow consumer-owned
+- `Orbyss.Forms.Storage.Abstractions`, `.InMemory` and `.FileSystem`: narrow consumer-owned
   persistence ports, a complete non-durable test/development reference, and an explicit filesystem
   adapter without leaking persistence models into application contracts.
-- `ProgramKit.Forms.Web.Management` and `.Web.Runtime`: independently selected CShells features.
-- `ProgramKit.Forms.Submissions`: optional drafts, resumability, attachments and submission
+- `Orbyss.Forms.Web.Management` and `.Web.Runtime`: independently selected CShells features.
+- `Orbyss.Forms.Submissions`: optional drafts, resumability, attachments and submission
   lifecycle, including compatibility-aware migration through explicitly registered trusted
   handlers; form rendering does not imply data collection.
-- `ProgramKit.Mcp.AspNetCore`: the single protected stateless Streamable HTTP transport, without
+- `Orbyss.Foundation.Mcp.AspNetCore`: the single protected stateless Streamable HTTP transport, without
   domain tools or middleware ownership.
-- `ProgramKit.Forms.Mcp.AspNetCore`, `.Tool`, `.Management.Mcp.AspNetCore` and `.Management.Tool`:
+- `Orbyss.Forms.Mcp.AspNetCore`, `.Tool`, `.Management.Mcp.AspNetCore` and `.Management.Tool`:
   independently selected tool contributors over the same application services, without a second
   rules engine or independently mapped MCP endpoints.
-- `ProgramKit.Localization.Abstractions`, `.Core`, `.Formats`, `.Storage.*`, `.Web.Management`,
+- `Orbyss.Localization.Abstractions`, `.Core`, `.Formats`, `.Storage.*`, `.Web.Management`,
   `.Web.Runtime`, `.Application`, `.Mcp.AspNetCore` and `.Tool`: an independent application-wide
   localization bounded context.
 - Format adapters for CSV, XLSX, JSON, XLIFF 2.1 and PO. Remote imports are a separately enabled,
@@ -150,7 +150,7 @@ consumer may make locale completeness a publication policy.
 
 ## Consumer-owned rendering contracts
 
-Program Kit retains a framework-neutral wizard state machine for current, visited, completed,
+Orbyss Forms retains a framework-neutral wizard state machine for current, visited, completed,
 warning, error, skipped, optional and disabled states; linear, non-linear and visited-only
 navigation; validation gates; conditional steps; and resumable progress. It does not render that
 state. Applications map it to their selected stepper or design-system component.
@@ -172,9 +172,9 @@ state. Dependent filters are read only from declared rooted data JSON Pointers.
 
 ## Authoring and localization experience
 
-Program Kit supplies backend form/localization management contracts, validation, import/export,
+Orbyss Forms supplies backend form/localization management contracts, validation, import/export,
 review, publication, runtime and MCP capabilities. Consumers build any human administration UI in
-their own design system. Program Kit does not publish a modeler or localization-management UI.
+their own design system. Orbyss Forms does not publish a modeler or localization-management UI.
 
 Forms integrate through narrow query ports: localization can resolve form display names for its
 filter, and forms can request completeness/preview information. Neither core package references the

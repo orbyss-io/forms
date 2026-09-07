@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Atomic content-verified filesystem storage for immutable Orbyss Forms form releases.</Description>
+    <PackageId>Orbyss.Forms.Storage.FileSystem</PackageId>
+    <PackageTags>orbyss-forms;forms;storage;filesystem</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

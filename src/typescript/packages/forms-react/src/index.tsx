@@ -14,30 +14,30 @@ import {
 import type {
   JsonObject,
   JsonValue,
-  ProgramKitTranslator,
-  ProgramKitValidator,
+  OrbyssTranslator,
+  OrbyssValidator,
   RuntimeValidationIssue
-} from "@orbyss-io/program-kit-forms-contracts";
+} from "@orbyss-io/forms-contracts";
 import {
   createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
   type JsonFormsCompatibleValidationError
-} from "@orbyss-io/program-kit-forms-jsonforms-runtime";
+} from "@orbyss-io/forms-jsonforms-runtime";
 
 export const programKitReactFormsAdapterVersion = "1.0.0";
 
 type JsonFormsAjv = NonNullable<ComponentProps<typeof JsonForms>["ajv"]>;
 
-export interface ProgramKitJsonFormsRuntime {
+export interface OrbyssJsonFormsRuntime {
   readonly schema: JsonObject;
   readonly uiSchema: JsonObject;
-  readonly validate: ProgramKitValidator;
-  readonly translate: ProgramKitTranslator;
+  readonly validate: OrbyssValidator;
+  readonly translate: OrbyssTranslator;
 }
 
-export interface ProgramKitJsonFormsProps {
-  readonly runtime: ProgramKitJsonFormsRuntime;
+export interface OrbyssJsonFormsProps {
+  readonly runtime: OrbyssJsonFormsRuntime;
   readonly data: JsonValue;
   /** Renderer components are application-owned and must be supplied by the consumer. */
   readonly renderers: readonly JsonFormsRendererRegistryEntry[];
@@ -49,18 +49,18 @@ export interface ProgramKitJsonFormsProps {
   readonly onChange?: (data: JsonValue, issues: readonly RuntimeValidationIssue[]) => void;
 }
 
-const ProgramKitFormsRuntimeContext = createContext<ProgramKitJsonFormsRuntime | null>(null);
+const OrbyssFormsRuntimeContext = createContext<OrbyssJsonFormsRuntime | null>(null);
 
 /** Gives application-owned renderers access to the governed runtime ports. */
-export function useProgramKitFormsRuntime(): ProgramKitJsonFormsRuntime | null {
-  return useContext(ProgramKitFormsRuntimeContext);
+export function useOrbyssFormsRuntime(): OrbyssJsonFormsRuntime | null {
+  return useContext(OrbyssFormsRuntimeContext);
 }
 
 /**
- * Thin React binding over JSON Forms. Program Kit supplies schema, translation and precompiled
+ * Thin React binding over JSON Forms. Orbyss Forms supplies schema, translation and precompiled
  * validation integration; the consuming application owns every renderer and visual decision.
  */
-export function ProgramKitJsonForms({
+export function OrbyssJsonForms({
   runtime,
   data,
   renderers,
@@ -69,9 +69,9 @@ export function ProgramKitJsonForms({
   config,
   validationMode = "ValidateAndHide",
   onChange
-}: ProgramKitJsonFormsProps): ReactNode {
+}: OrbyssJsonFormsProps): ReactNode {
   if (renderers.length === 0) {
-    throw new Error("Program Kit's React binding requires consumer-supplied JSON Forms renderers.");
+    throw new Error("Orbyss Forms's React binding requires consumer-supplied JSON Forms renderers.");
   }
   const ajv = useMemo(
     () => createPrecompiledJsonFormsAjvFacade(runtime.schema, runtime.validate) as unknown as JsonFormsAjv,
@@ -79,7 +79,7 @@ export function ProgramKitJsonForms({
   );
   const translator = useMemo(() => createJsonFormsTranslatorAdapter(runtime.translate), [runtime.translate]);
   return (
-    <ProgramKitFormsRuntimeContext.Provider value={runtime}>
+    <OrbyssFormsRuntimeContext.Provider value={runtime}>
       <JsonForms
         ajv={ajv}
         data={data}
@@ -100,6 +100,6 @@ export function ProgramKitJsonForms({
           )
         })}
       />
-    </ProgramKitFormsRuntimeContext.Provider>
+    </OrbyssFormsRuntimeContext.Provider>
   );
 }

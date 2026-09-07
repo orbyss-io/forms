@@ -2,39 +2,39 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss-io/program-kit-forms-ajv-build";
-import { defaultRuntimeLimits } from "@orbyss-io/program-kit-forms-contracts";
-import { jsonEditorIndentationPolicy, normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss-io/program-kit-forms-editor-contracts";
+import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss-io/forms-ajv-build";
+import { defaultRuntimeLimits } from "@orbyss-io/forms-contracts";
+import { jsonEditorIndentationPolicy, normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss-io/forms-editor-contracts";
 import {
   createJsonFormsTranslator,
   createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
   prepareJsonFormsRuntime
-} from "@orbyss-io/program-kit-forms-jsonforms-runtime";
-import { FormLookupController, FormLookupRegistry } from "@orbyss-io/program-kit-forms-lookups";
-import { FormActionRegistry, RendererRegistry } from "@orbyss-io/program-kit-forms-renderer-registry";
-import { ProgramKitActionController, ProgramKitActionError, parseProgramKitActionBar } from "@orbyss-io/program-kit-forms-actions";
-import { ProgramKitWizardController, parseProgramKitWizard } from "@orbyss-io/program-kit-forms-wizard";
-import { ProgramKitJsonForms } from "@orbyss-io/program-kit-forms-react";
+} from "@orbyss-io/forms-jsonforms-runtime";
+import { FormLookupController, FormLookupRegistry } from "@orbyss-io/forms-lookups";
+import { FormActionRegistry, RendererRegistry } from "@orbyss-io/forms-renderer-registry";
+import { OrbyssActionController, OrbyssActionError, parseOrbyssActionBar } from "@orbyss-io/forms-actions";
+import { OrbyssWizardController, parseOrbyssWizard } from "@orbyss-io/forms-wizard";
+import { OrbyssJsonForms } from "@orbyss-io/forms-react";
 import { rankWith, uiTypeIs } from "@jsonforms/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createSSRApp, defineComponent, h, markRaw } from "vue";
 import { renderToString } from "vue/server-renderer";
 import {
-  ProgramKitJsonFormsVue,
+  OrbyssJsonFormsVue,
   programKitVueFormsAdapterVersion
-} from "@orbyss-io/program-kit-forms-vue";
+} from "@orbyss-io/forms-vue";
 import {
-  joinProgramKitClassNames,
+  joinOrbyssClassNames,
   programKitClassName,
   programKitThemeTokenNames
-} from "@orbyss-io/program-kit-ui-theme";
+} from "@orbyss-io/forms-ui-theme";
 
 const schema = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "urn:program-kit:forms:registration:1",
+  $id: "urn:orbyss:forms:registration:1",
   type: "object",
   properties: { name: { type: "string", minLength: 1 } },
   required: ["name"],
@@ -43,7 +43,7 @@ const schema = {
 const uiSchema = {
   type: "Categorization",
   id: "registration",
-  options: { variant: "program-kit-wizard" },
+  options: { variant: "orbyss-forms-wizard" },
   elements: [{ type: "Category", id: "identity", elements: [{ type: "Control", id: "name", scope: "#/properties/name" }] }]
 };
 
@@ -60,7 +60,7 @@ function release(overrides = {}) {
       revision: { value: 1 },
       dataSchema: artifact("application/schema+json", schema),
       uiSchema: artifact("application/vnd.jsonforms.uischema+json", uiSchema),
-      renderers: [{ componentId: "ProgramKit.Wizard", versionRange: "[1.0.0,2.0.0)" }],
+      renderers: [{ componentId: "Orbyss.Forms.Wizard", versionRange: "[1.0.0,2.0.0)" }],
       translations: [],
       actions: [{
         actionId: "finish",
@@ -87,7 +87,7 @@ test("AJV build-time validator agrees with the generated schema", () => {
   assert.equal(validate({ name: "Ada", executable: true }).some(issue => issue.keyword === "additionalProperties"), true);
 });
 
-test("AJV allowlists Program Kit annotations while rejecting arbitrary schema extensions", () => {
+test("AJV allowlists Orbyss Forms annotations while rejecting arbitrary schema extensions", () => {
   assert.deepEqual(compileBuildTimeValidator({
     type: "string",
     "x-i18n": "fields.name",
@@ -113,7 +113,7 @@ test("AJV emits an executable standalone ESM validator without runtime code gene
 });
 
 test("runtime verifies artifacts, renderer requirements, translations, and typed actions", async () => {
-  const renderers = new RendererRegistry([{ componentId: "ProgramKit.Wizard", version: "1.0.0", rank: ui => ui.type === "Categorization" ? 10 : -1, renderer: "wizard" }]);
+  const renderers = new RendererRegistry([{ componentId: "Orbyss.Forms.Wizard", version: "1.0.0", rank: ui => ui.type === "Categorization" ? 10 : -1, renderer: "wizard" }]);
   const actions = new FormActionRegistry({
     "registration.submit": async (payload, context) => ({ payload, formId: context.formId, releaseId: context.releaseId })
   });
@@ -165,7 +165,7 @@ test("framework adapters share a precompiled JSON Forms validation facade", () =
 
 test("Vue binding renders a governed runtime through consumer-supplied renderers", async () => {
   const RootRenderer = defineComponent({
-    name: "ProgramKitVueTestRenderer",
+    name: "OrbyssVueTestRenderer",
     setup: () => () => h("output", { "data-vue-runtime": "ready" }, "Vue runtime ready")
   });
   const runtime = {
@@ -175,7 +175,7 @@ test("Vue binding renders a governed runtime through consumer-supplied renderers
     translate: (_key, fallback) => fallback
   };
   const application = createSSRApp({
-    render: () => h(ProgramKitJsonFormsVue, {
+    render: () => h(OrbyssJsonFormsVue, {
       runtime,
       data: { name: "Ada" },
       renderers: [{ tester: () => 1000, renderer: markRaw(RootRenderer) }]
@@ -193,8 +193,8 @@ test("TypeScript runtime consumes the exact release fixture emitted by the .NET 
     "utf8"
   ));
   const renderers = new RendererRegistry([
-    { componentId: "ProgramKit.ActionBar", version: "1.0.0", rank: ui => ui.type === "ProgramKit.ActionBar" ? 1000 : -1, renderer: "actions" },
-    { componentId: "ProgramKit.Wizard", version: "1.0.0", rank: ui => ui.type === "Categorization" ? 1000 : -1, renderer: "wizard" }
+    { componentId: "Orbyss.Forms.ActionBar", version: "1.0.0", rank: ui => ui.type === "Orbyss.Forms.ActionBar" ? 1000 : -1, renderer: "actions" },
+    { componentId: "Orbyss.Forms.Wizard", version: "1.0.0", rank: ui => ui.type === "Categorization" ? 1000 : -1, renderer: "wizard" }
   ]);
   const actions = new FormActionRegistry({
     "registration.submit": async payload => ({ accepted: true, payload })
@@ -211,7 +211,7 @@ test("TypeScript runtime consumes the exact release fixture emitted by the .NET 
     /\beval\s*\(|new\s+Function\b/
   );
   const actionElement = runtime.uiSchema.elements[0].elements[1];
-  const actionBar = parseProgramKitActionBar(actionElement, runtime.actions);
+  const actionBar = parseOrbyssActionBar(actionElement, runtime.actions);
   assert.deepEqual(actionBar.actions.map(action => action.actionId), ["finish"]);
   assert.equal(actionBar.actions[0].requiresValidForm, true);
   assert.deepEqual(
@@ -238,26 +238,26 @@ test("action bars preserve release order and reject undeclared or duplicate acti
       icon: { name: "send", bundle: "lucide" }
     }
   ];
-  const definition = parseProgramKitActionBar({
-    type: "ProgramKit.ActionBar",
+  const definition = parseOrbyssActionBar({
+    type: "Orbyss.Forms.ActionBar",
     id: "primary-actions",
     options: { actions: ["submit", "save"] }
   }, requirements);
   assert.deepEqual(definition.actions.map(action => action.actionId), ["submit", "save"]);
   assert.equal(definition.actions[0].position, 0);
-  assert.throws(() => parseProgramKitActionBar({
-    type: "ProgramKit.ActionBar",
+  assert.throws(() => parseOrbyssActionBar({
+    type: "Orbyss.Forms.ActionBar",
     options: { actions: ["missing"] }
   }, requirements), /absent from the immutable release manifest/);
-  assert.throws(() => parseProgramKitActionBar({
-    type: "ProgramKit.ActionBar",
+  assert.throws(() => parseOrbyssActionBar({
+    type: "Orbyss.Forms.ActionBar",
     options: { actions: ["save", "save"] }
   }, requirements), /repeated/);
 });
 
 test("action controller gates validation, availability, and global single-flight dispatch", async () => {
-  const definition = parseProgramKitActionBar({
-    type: "ProgramKit.ActionBar",
+  const definition = parseOrbyssActionBar({
+    type: "Orbyss.Forms.ActionBar",
     options: { actions: ["submit", "save", "hidden"] }
   }, [
     { actionId: "submit", handlerId: "submit", kind: "submit", label: { key: "submit", defaultText: "Submit" }, requiresValidForm: true },
@@ -267,7 +267,7 @@ test("action controller gates validation, availability, and global single-flight
   let valid = false;
   let resolveDispatch;
   let dispatchCount = 0;
-  const controller = new ProgramKitActionController(definition, {
+  const controller = new OrbyssActionController(definition, {
     validate: () => valid ? [] : [{ path: "/name", keyword: "required", message: "Name is required." }],
     availability: action => action.actionId === "hidden" ? "hidden" : "enabled",
     dispatch: async () => {
@@ -293,23 +293,23 @@ test("action controller gates validation, availability, and global single-flight
 });
 
 test("action controller exposes only deliberate public failures and supports cancellation", async () => {
-  const definition = parseProgramKitActionBar({ type: "ProgramKit.ActionBar", options: { actions: ["run"] } }, [{
+  const definition = parseOrbyssActionBar({ type: "Orbyss.Forms.ActionBar", options: { actions: ["run"] } }, [{
     actionId: "run",
     handlerId: "run",
     kind: "custom",
     label: { key: "run", defaultText: "Run" },
     requiresValidForm: false
   }]);
-  const explicit = new ProgramKitActionController(definition, {
+  const explicit = new OrbyssActionController(definition, {
     validate: () => [],
-    dispatch: async () => { throw new ProgramKitActionError("PAYMENT_DECLINED", "Payment was declined.", true); }
+    dispatch: async () => { throw new OrbyssActionError("PAYMENT_DECLINED", "Payment was declined.", true); }
   });
   const explicitResult = await explicit.invoke("run", {}, { data: {} });
   assert.deepEqual(explicitResult.snapshot.actions[0].failure, {
     code: "PAYMENT_DECLINED", message: "Payment was declined.", retryable: true
   });
 
-  const unexpected = new ProgramKitActionController(definition, {
+  const unexpected = new OrbyssActionController(definition, {
     validate: () => [],
     dispatch: async () => { throw new Error("database password leaked"); }
   });
@@ -318,7 +318,7 @@ test("action controller exposes only deliberate public failures and supports can
     code: "PKA999", message: "The action could not be completed.", retryable: false
   });
 
-  const cancellable = new ProgramKitActionController(definition, {
+  const cancellable = new OrbyssActionController(definition, {
     validate: () => [],
     dispatch: async (_id, _payload, signal) => await new Promise((_resolve, reject) => {
       signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), { once: true });
@@ -335,7 +335,7 @@ test("theme contract exposes bounded semantic tokens and deterministic class com
   assert.equal(programKitThemeTokenNames.includes("--pk-color-primary"), true);
   assert.equal(programKitThemeTokenNames.includes("--pk-shadow-dialog"), true);
   assert.equal(new Set(programKitThemeTokenNames).size, programKitThemeTokenNames.length);
-  assert.equal(joinProgramKitClassNames("base repeated", "repeated consumer"), "base repeated consumer");
+  assert.equal(joinOrbyssClassNames("base repeated", "repeated consumer"), "base repeated consumer");
   assert.equal(programKitClassName("pk-default", "consumer", false), "pk-default consumer");
   assert.equal(programKitClassName("pk-default", "consumer", true), "consumer");
 });
@@ -346,7 +346,7 @@ test("searchable lookups enforce provider contracts, paging, filters, and label 
       dataSourceId: "catalog.products",
       contractVersion: "1.0.0",
       displayName: "Products",
-      providerPackage: "@orbyss-io/program-kit-product-lookups",
+      providerPackage: "@orbyss-io/orbyss-forms-product-lookups",
       execution: "server",
       supportsSearch: true,
       supportsPaging: true,
@@ -428,7 +428,7 @@ test("runtime fails closed for tampering, external references, and missing rende
 
 test("runtime refuses to render a release whose trusted action package is not installed", async () => {
   const renderers = new RendererRegistry([
-    { componentId: "ProgramKit.Wizard", version: "1.0.0", rank: () => 1, renderer: "wizard" }
+    { componentId: "Orbyss.Forms.Wizard", version: "1.0.0", rank: () => 1, renderer: "wizard" }
   ]);
   await assert.rejects(() => prepareJsonFormsRuntime(
     release(),
@@ -451,12 +451,12 @@ test("default runtime bounds and application-owned JSON editor contracts stay in
   ], 0), /unsupported severity/);
 });
 
-test("Program Kit wizard parses translated labels, icons, and portable presentation policy", () => {
-  const definition = parseProgramKitWizard({
+test("Orbyss Forms wizard parses translated labels, icons, and portable presentation policy", () => {
+  const definition = parseOrbyssWizard({
     type: "Categorization",
     id: "checkout",
     options: {
-      variant: "program-kit-wizard",
+      variant: "orbyss-forms-wizard",
       navigationPolicy: "visited",
       navigationPlacement: "top",
       progressStyle: "segmented",
@@ -481,11 +481,11 @@ test("Program Kit wizard parses translated labels, icons, and portable presentat
   assert.equal(definition.steps[1].optional, true);
 });
 
-test("Program Kit wizard gates forward movement, supports optional steps, and retains stable state", async () => {
-  const definition = parseProgramKitWizard({
+test("Orbyss Forms wizard gates forward movement, supports optional steps, and retains stable state", async () => {
+  const definition = parseOrbyssWizard({
     type: "Categorization",
     id: "checkout",
-    options: { variant: "program-kit-wizard", navigationPolicy: "linear", validateBeforeAdvance: true },
+    options: { variant: "orbyss-forms-wizard", navigationPolicy: "linear", validateBeforeAdvance: true },
     elements: [
       { type: "Category", id: "identity", label: "Identity", elements: [] },
       { type: "Category", id: "preferences", label: "Preferences", options: { presentation: { optional: "true" } }, elements: [] },
@@ -493,7 +493,7 @@ test("Program Kit wizard gates forward movement, supports optional steps, and re
     ]
   });
   let identityValid = false;
-  const controller = new ProgramKitWizardController(definition, {
+  const controller = new OrbyssWizardController(definition, {
     validateStep: async stepId => stepId === "identity" && !identityValid
       ? [{ stepId, path: "/name", message: "Name is required.", severity: "error" }]
       : []
@@ -516,11 +516,11 @@ test("Program Kit wizard gates forward movement, supports optional steps, and re
   assert.equal(finished.snapshot.progress, 1);
 });
 
-test("Program Kit wizard rejects malformed and duplicate categories", () => {
-  assert.throws(() => parseProgramKitWizard({ type: "VerticalLayout", options: {}, elements: [] }), /Categorization/);
-  assert.throws(() => parseProgramKitWizard({
+test("Orbyss Forms wizard rejects malformed and duplicate categories", () => {
+  assert.throws(() => parseOrbyssWizard({ type: "VerticalLayout", options: {}, elements: [] }), /Categorization/);
+  assert.throws(() => parseOrbyssWizard({
     type: "Categorization",
-    options: { variant: "program-kit-wizard" },
+    options: { variant: "orbyss-forms-wizard" },
     elements: [
       { type: "Category", id: "same", elements: [] },
       { type: "Category", id: "same", elements: [] }
@@ -537,14 +537,14 @@ test("React binding delegates all rendering to the consuming application", () =>
     translate: (_key, fallback) => fallback
   };
   const ConsumerRenderer = () => createElement("output", { "data-consumer-renderer": "ready" }, "Application renderer");
-  const markup = renderToStaticMarkup(createElement(ProgramKitJsonForms, {
+  const markup = renderToStaticMarkup(createElement(OrbyssJsonForms, {
     runtime,
     data: { name: "Ada" },
     renderers: [{ tester: rankWith(1000, uiTypeIs("Control")), renderer: ConsumerRenderer }]
   }));
   assert.match(markup, /data-consumer-renderer="ready"/);
   assert.match(markup, /Application renderer/);
-  assert.throws(() => renderToStaticMarkup(createElement(ProgramKitJsonForms, {
+  assert.throws(() => renderToStaticMarkup(createElement(OrbyssJsonForms, {
     runtime,
     data: { name: "Ada" },
     renderers: []

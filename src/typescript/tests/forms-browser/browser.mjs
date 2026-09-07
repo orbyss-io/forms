@@ -94,6 +94,6 @@ try {
   assert.deepEqual(errors, []);
 } finally {
   await new Promise(resolveClose => server.close(resolveClose));
-  await writeFile(resolve(evidence, "report.json"), JSON.stringify({ results, errors, scope: "Automated engine/device emulation of the forms engine through fixture-owned renderers; Program Kit publishes no renderer components." }, null, 2));
+  await writeFile(resolve(evidence, "report.json"), JSON.stringify({ results, errors, scope: "Automated engine/device emulation of the forms engine through fixture-owned renderers; Orbyss Forms publishes no renderer components." }, null, 2));
 }
 console.log(`Forms engine browser acceptance passed: ${results.length} engine/device profiles.`);

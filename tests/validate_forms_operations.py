@@ -18,26 +18,25 @@ def references(project: Path, kind: str) -> set[str]:
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     graphs = {
-        "src/dotnet/ProgramKit.Forms.Submissions/ProgramKit.Forms.Submissions.csproj": (
+        "src/dotnet/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj": (
             set(),
             {
-                "../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj",
-                "../ProgramKit.Forms.Storage.Abstractions/ProgramKit.Forms.Storage.Abstractions.csproj",
+                "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+                "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
             },
         ),
-        "src/dotnet/ProgramKit.Forms.Web.Submissions/ProgramKit.Forms.Web.Submissions.csproj": (
+        "src/dotnet/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj": (
             {"CShells.AspNetCore.Abstractions"},
-            {"../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj"},
+            {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/dotnet/ProgramKit.Forms.Tool/ProgramKit.Forms.Tool.csproj": (
+        "src/dotnet/Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj": (
             {"ModelContextProtocol"},
-            {"../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj"},
+            {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/dotnet/ProgramKit.Forms.Mcp.AspNetCore/ProgramKit.Forms.Mcp.AspNetCore.csproj": (
-            {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore"},
+        "src/dotnet/Orbyss.Forms.Mcp.AspNetCore/Orbyss.Forms.Mcp.AspNetCore.csproj": (
+            {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore", "Orbyss.Foundation.Mcp.AspNetCore"},
             {
-                "../ProgramKit.Forms.Tool/ProgramKit.Forms.Tool.csproj",
-                "../ProgramKit.Mcp.AspNetCore/ProgramKit.Mcp.AspNetCore.csproj",
+                "../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj",
             },
         ),
     }
@@ -58,7 +57,7 @@ def main() -> int:
 
     web_source = (
         root
-        / "src/dotnet/ProgramKit.Forms.Web.Submissions/ProgramKitFormSubmissionsFeature.cs"
+        / "src/dotnet/Orbyss.Forms.Web.Submissions/OrbyssFormSubmissionsFeature.cs"
     ).read_text(encoding="utf-8")
     if "IWebShellFeature" not in web_source or "IMiddlewareShellFeature" in web_source:
         raise AssertionError("Form submission HTTP composition must remain endpoint-only")
@@ -67,7 +66,7 @@ def main() -> int:
 
     mcp_source = (
         root
-        / "src/dotnet/ProgramKit.Forms.Mcp.AspNetCore/ProgramKitFormMcpFeature.cs"
+        / "src/dotnet/Orbyss.Forms.Mcp.AspNetCore/OrbyssFormMcpFeature.cs"
     ).read_text(encoding="utf-8")
     for required in ("IShellFeature", "DependsOn", "WithTools<FormOperationsTools>"):
         if required not in mcp_source:
@@ -76,18 +75,11 @@ def main() -> int:
         if forbidden in mcp_source:
             raise AssertionError(f"The form MCP contributor contains unsafe composition: {forbidden}")
 
-    transport_source = (
-        root / "src/dotnet/ProgramKit.Mcp.AspNetCore/ProgramKitMcpFeature.cs"
-    ).read_text(encoding="utf-8")
-    for required in ("IWebShellFeature", "WithHttpTransport", "Stateless = true", "MapMcp", "RequireAuthorization"):
-        if required not in transport_source:
-            raise AssertionError(f"The shared MCP transport is missing: {required}")
-    for forbidden in ("WithToolsFromAssembly", "AllowAnonymous", "IMiddlewareShellFeature"):
-        if forbidden in transport_source:
-            raise AssertionError(f"The shared MCP transport contains unsafe composition: {forbidden}")
+    if any((root / "src/dotnet").glob("Orbyss.Foundation.*")):
+        raise AssertionError("Forms must consume Foundation packages instead of owning Foundation source.")
 
     tool_source = (
-        root / "src/dotnet/ProgramKit.Forms.Tool/FormOperationsTools.cs"
+        root / "src/dotnet/Orbyss.Forms.Tool/FormOperationsTools.cs"
     ).read_text(encoding="utf-8")
     names = re.findall(r'McpServerTool\(Name = "([^"]+)"', tool_source)
     if len(names) != 11 or len(set(names)) != len(names):
@@ -109,7 +101,7 @@ def main() -> int:
         raise AssertionError("The operational MCP surface must expose governed draft migration")
 
     submission_source = (
-        root / "src/dotnet/ProgramKit.Forms.Submissions/DefaultFormSubmissionService.cs"
+        root / "src/dotnet/Orbyss.Forms.Submissions/DefaultFormSubmissionService.cs"
     ).read_text(encoding="utf-8")
     for required in (
         "IFormDraftMigrationOperations",
@@ -122,22 +114,7 @@ def main() -> int:
         if required not in submission_source:
             raise AssertionError(f"The governed draft migration path is missing: {required}")
 
-    host_source = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in (root / "src/dotnet/ProgramKit.Host").rglob("*")
-        if path.suffix in {".cs", ".csproj"}
-    )
-    for forbidden in (
-        "ProgramKit.Forms.Submissions",
-        "ProgramKit.Forms.Web.Submissions",
-        "ProgramKit.Forms.Mcp",
-        "ProgramKit.Mcp",
-        "ModelContextProtocol",
-    ):
-        if forbidden in host_source:
-            raise AssertionError(f"ProgramKit.Host owns optional form behavior: {forbidden}")
-
-    probe = root / "tests/dotnet/ProgramKit.Forms.Operations.Probe/ProgramKit.Forms.Operations.Probe.csproj"
+    probe = root / "tests/dotnet/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj"
     result = subprocess.run(
         ["dotnet", "run", "--project", str(probe), "--configuration", "Release", "--no-build"],
         cwd=root,
@@ -151,7 +128,7 @@ def main() -> int:
             "Form operations public-contract probe failed.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         )
-    print("Program Kit form operational capability validation passed.")
+    print("Orbyss Forms form operational capability validation passed.")
     return 0
 
 

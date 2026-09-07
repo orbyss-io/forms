@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>Provider-neutral public document catalogue contracts for Program Kit web discovery.</Description>
-    <PackageId>ProgramKit.Web.Discovery.Abstractions</PackageId>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
-  <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
-</Project>

@@ -1,7 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { build } from "esbuild";
-import { generateStandaloneValidatorModule } from "@orbyss-io/program-kit-forms-ajv-build";
+import { generateStandaloneValidatorModule } from "@orbyss-io/forms-ajv-build";
 import { schema } from "./schema.mjs";
 
 const workspace = resolve(import.meta.dirname, "../..");
@@ -22,10 +22,10 @@ await build({
   sourcemap: false,
   define: { "process.env.NODE_ENV": "\"production\"" },
   plugins: [{
-    name: "program-kit-precompiled-validator",
+    name: "orbyss-forms-precompiled-validator",
     setup(buildApi) {
-      buildApi.onResolve({ filter: /^program-kit:validator$/ }, () => ({ path: "validator", namespace: "program-kit" }));
-      buildApi.onLoad({ filter: /.*/, namespace: "program-kit" }, () => ({ contents: validator, loader: "js", resolveDir: workspace }));
+      buildApi.onResolve({ filter: /^orbyss-forms:validator$/ }, () => ({ path: "validator", namespace: "orbyss-forms" }));
+      buildApi.onLoad({ filter: /.*/, namespace: "orbyss-forms" }, () => ({ contents: validator, loader: "js", resolveDir: workspace }));
     }
   }]
 });

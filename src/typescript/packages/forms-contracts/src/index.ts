@@ -87,7 +87,7 @@ export interface RuntimeValidationIssue {
   readonly property?: string;
 }
 
-export type ProgramKitValidator = (data: JsonValue) => readonly RuntimeValidationIssue[];
+export type OrbyssValidator = (data: JsonValue) => readonly RuntimeValidationIssue[];
 
 export const defaultRuntimeLimits: RuntimeLimits = {
   maximumArtifactBytes: 1_048_576,
@@ -96,4 +96,4 @@ export const defaultRuntimeLimits: RuntimeLimits = {
 };
 
 /** A minimal translation port shared by framework-neutral form packages. */
-export type ProgramKitTranslator = (key: string, fallback: string, context?: string | null) => string;
+export type OrbyssTranslator = (key: string, fallback: string, context?: string | null) => string;

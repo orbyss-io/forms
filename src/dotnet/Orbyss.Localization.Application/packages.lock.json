@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "Orbyss.Foundation.Analyzers": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "ZvUgpYEWT6O4mMa7wutL1TQnPtlcXldqPDZKI2Ex7nWk2rbmdRS6lQVU1e5EMdL3OkERNsyftMaC7fNFBgEc1g=="
+      },
+      "orbyss.localization.abstractions": {
+        "type": "Project"
+      },
+      "orbyss.localization.core": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.storage.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Abstractions": "[0.1.0, )"
+        }
+      }
+    }
+  }
+}

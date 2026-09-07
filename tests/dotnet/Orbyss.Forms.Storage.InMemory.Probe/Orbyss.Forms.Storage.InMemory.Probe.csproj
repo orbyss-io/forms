@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/dotnet/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj" />
+    <ProjectReference Include="../../../src/dotnet/Orbyss.Localization.Storage.InMemory/Orbyss.Localization.Storage.InMemory.csproj" />
+  </ItemGroup>
+</Project>

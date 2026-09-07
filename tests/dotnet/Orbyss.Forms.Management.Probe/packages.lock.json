@@ -1,0 +1,210 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "CShells.AspNetCore.Abstractions": {
+        "type": "Direct",
+        "requested": "[0.0.29-preview.147, )",
+        "resolved": "0.0.29-preview.147",
+        "contentHash": "QyrV5tebsfl07v053N1T6DinwDhCr4tICrDwpqPDP6IUSL72ZvumTO2ZurBlbTNgD5wmdCfmHQXduLfLI7iPhA==",
+        "dependencies": {
+          "CShells.Abstractions": "0.0.29-preview.147",
+          "JetBrains.Annotations": "2025.2.4"
+        }
+      },
+      "Orbyss.Foundation.Analyzers": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "ZvUgpYEWT6O4mMa7wutL1TQnPtlcXldqPDZKI2Ex7nWk2rbmdRS6lQVU1e5EMdL3OkERNsyftMaC7fNFBgEc1g=="
+      },
+      "Orbyss.Foundation.Mcp.AspNetCore": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "gSo6j0ldGZpb/8VeMxjrkE2VuStzreyBHur+o6TaLlmXuP9qRvoTMUruDeVw4XZRcbJmiZz+/fKUfJGeAbRD7Q==",
+        "dependencies": {
+          "ModelContextProtocol": "2.2.0",
+          "ModelContextProtocol.AspNetCore": "2.2.0"
+        }
+      },
+      "JetBrains.Annotations": {
+        "type": "Transitive",
+        "resolved": "2025.2.4",
+        "contentHash": "TwbgxAkXxY+vNEhNVx/QXjJ4vqxmepOjsgRvvImQPbHkHMMb4W+ahL3laMsxXKtNT7iMy+E1B3xkqao2hf1n3A=="
+      },
+      "Microsoft.Extensions.AI.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.8.3",
+        "contentHash": "K0B05oApxmviWalNHPMBBcRC7erKiDATz3ENNR/jqTR9JwIwLRefgDhj2jCRwL1aca99pXUe0qyQC73/xIuZig=="
+      },
+      "ModelContextProtocol.Core": {
+        "type": "Transitive",
+        "resolved": "2.2.0",
+        "contentHash": "FeBfXU6T8k+jw4afg4sfxdEX2rL/e5oKOk9ROOGztu9k47+7Bz08sdaToYt2XvMY1opNbwxYQOFMj6wH9TInhA==",
+        "dependencies": {
+          "Microsoft.Extensions.AI.Abstractions": "10.8.3"
+        }
+      },
+      "orbyss.forms.abstractions": {
+        "type": "Project"
+      },
+      "orbyss.forms.application": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Abstractions": "[0.1.0, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.core": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.jsonforms": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Abstractions": "[0.1.0, )",
+          "Orbyss.Forms.Core": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.management.mcp.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "ModelContextProtocol.AspNetCore": "[2.2.0, )",
+          "Orbyss.Forms.Management.Tool": "[0.1.0, )",
+          "Orbyss.Foundation.Mcp.AspNetCore": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.management.tool": {
+        "type": "Project",
+        "dependencies": {
+          "ModelContextProtocol": "[2.2.0, )",
+          "Orbyss.Forms.Abstractions": "[0.1.0, )",
+          "Orbyss.Forms.Tool": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.storage.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.storage.filesystem": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Storage.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.storage.inmemory": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Storage.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.tool": {
+        "type": "Project",
+        "dependencies": {
+          "ModelContextProtocol": "[2.2.0, )",
+          "Orbyss.Forms.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.web.management": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.forms.web.runtime": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Forms.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.abstractions": {
+        "type": "Project"
+      },
+      "orbyss.localization.application": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Abstractions": "[0.1.0, )",
+          "Orbyss.Localization.Core": "[0.1.0, )",
+          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.core": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.formats": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.mcp.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "ModelContextProtocol.AspNetCore": "[2.2.0, )",
+          "Orbyss.Foundation.Mcp.AspNetCore": "[0.1.0, )",
+          "Orbyss.Localization.Tool": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.storage.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.storage.filesystem": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.storage.inmemory": {
+        "type": "Project",
+        "dependencies": {
+          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
+        }
+      },
+      "orbyss.localization.tool": {
+        "type": "Project",
+        "dependencies": {
+          "ModelContextProtocol": "[2.2.0, )",
+          "Orbyss.Localization.Abstractions": "[0.1.0, )"
+        }
+      },
+      "CShells.Abstractions": {
+        "type": "CentralTransitive",
+        "requested": "[0.0.29-preview.147, )",
+        "resolved": "0.0.29-preview.147",
+        "contentHash": "0fBss0kPNYAdUovGowMP1iq6m4U1DWgNb0KvgIriINrZ1OX2p/CXmHzIdkY3NFedSrMbc5pWvsSxE4IFFEvPKA==",
+        "dependencies": {
+          "JetBrains.Annotations": "2025.2.4"
+        }
+      },
+      "ModelContextProtocol": {
+        "type": "CentralTransitive",
+        "requested": "[2.2.0, )",
+        "resolved": "2.2.0",
+        "contentHash": "4Pb9u02Nwsp0poueDsqNdyGRojFxOYpljB7zDBsq+aHL+Afou3OgxlBc3GWFVnsRMRJrUtWqDh3s6k2JgPzmrQ==",
+        "dependencies": {
+          "ModelContextProtocol.Core": "[2.2.0]"
+        }
+      },
+      "ModelContextProtocol.AspNetCore": {
+        "type": "CentralTransitive",
+        "requested": "[2.2.0, )",
+        "resolved": "2.2.0",
+        "contentHash": "3JelDMuFIwFzXybsh6K30G6wXu5gmqKnuRnieqgBMuR0FkqqXRv4B+NYZuPgthSyNq5UwRyvv2U2VJBE3RD3PQ==",
+        "dependencies": {
+          "ModelContextProtocol": "[2.2.0]"
+        }
+      }
+    }
+  }
+}

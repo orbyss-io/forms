@@ -6,48 +6,18 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: write
+  contents: read
   packages: write
   id-token: write
   attestations: write
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
-    outputs:
-      publish_runtime: ${{ steps.runtime_publication.outputs.publish }}
+    environment: forms-packages-production
     steps:
       - name: Check out tagged source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Classify immutable runtime publication
-        id: runtime_publication
-        shell: bash
-        run: |
-          current_runtime="$(tr -d '\r\n' < RUNTIME_VERSION)"
-          previous_tag=""
-          while IFS= read -r candidate; do
-            if [[ "$candidate" != "$GITHUB_REF_NAME" && "$candidate" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              previous_tag="$candidate"
-              break
-            fi
-          done < <(git tag --list 'v*' --sort=-version:refname)
-
-          publish="true"
-          if [[ -n "$previous_tag" ]]; then
-            previous_runtime="$(git show "${previous_tag}:RUNTIME_VERSION" | tr -d '\r\n')"
-            if [[ "$previous_runtime" == "$current_runtime" ]]; then
-              publish="false"
-            fi
-            echo "Previous stable runtime: $previous_runtime ($previous_tag)" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "No previous stable release was found." >> "$GITHUB_STEP_SUMMARY"
-          fi
-          echo "Current runtime: $current_runtime" >> "$GITHUB_STEP_SUMMARY"
-          echo "Publish immutable runtime family: $publish" >> "$GITHUB_STEP_SUMMARY"
-          echo "publish=$publish" >> "$GITHUB_OUTPUT"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -59,217 +29,89 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Verify tag matches VERSION
-        shell: bash
-        run: |
-          expected="v$(tr -d '\r\n' < VERSION)"
-          if [[ "$GITHUB_REF_NAME" != "$expected" ]]; then
-            echo "Tag $GITHUB_REF_NAME does not match VERSION ($expected)." >&2
-            exit 1
-          fi
-
-      - name: Install pinned Spec Kit
-        run: python -m pip install --disable-pip-version-check "specify-cli==1.0.1"
-
-      - name: Validate Program Kit components
-        run: python tests/validate_components.py
-
-      - name: Set up pinned UI acceptance Node
+      - name: Set up Node and GitHub Packages authentication
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "24.20.0"
+          registry-url: https://npm.pkg.github.com
+          scope: "@orbyss-io"
 
-      - name: Set up pinned UI acceptance npm
+      - name: Set up pinned npm
         run: npm install --global npm@11.19.0 --ignore-scripts --no-audit --no-fund
 
-      - name: Validate UI experience and public content contracts
-        run: python tests/validate_ui_experience.py
-
-      - name: Validate Forms engine runtime, AJV parity, and thin framework bindings
-        run: python tests/validate_forms_frontend.py --install
-
-      - name: Validate clean Forms frontend package installation
-        run: python tests/validate_forms_frontend_packages.py
-
-      - name: Validate tag-only frontend publication contract
-        run: python tests/validate_frontend_publication.py --tag "$GITHUB_REF_NAME"
-
-      - name: Validate UI accessibility, keyboard and analytics in Chromium
-        run: python tests/validate_ui_browser.py --install --install-browser
-
-      - name: Validate forms engine through consumer renderers across browser engines
-        run: python tests/validate_forms_browser.py
-
-      - name: Validate web security assurance evidence
-        run: python tests/validate_web_security_assurance.py
-
-      - name: Validate provider-neutral authentication boundaries
-        run: python tests/validate_authentication_provider_boundary.py
-
-      - name: Validate Codex agent bootstrap boundary
-        run: python tests/validate_codex_bootstrap.py
-
-      - name: Validate governance-state transitions
-        run: python tests/validate_governance_state.py
-
-      - name: Validate sequential offline/local upgrade
-        run: python tests/validate_local_upgrade.py
-
-      - name: Validate bootstrap context generation
-        run: python tests/validate_bootstrap_context.py
-
-      - name: Validate C4 projection viewing and cleanup
-        run: python tests/validate_c4_view.py
-
-      - name: Validate live bootstrap acceptance contracts without running agents
-        run: python tests/validate_live_bootstrap_acceptance.py
-
-      - name: Validate lifecycle and managed profile contracts
-        run: python tests/validate_lifecycle_profiles.py
-
-      - name: Validate exact JavaScript toolchain execution
-        run: python tests/validate_js_toolchain.py
-
-      - name: Validate managed build and restricted-profile restore contract
-        run: python tests/validate_dotnet_build_contract.py
-
-      - name: Validate solution test-project discovery
-        run: python tests/validate_dotnet_test_discovery.py
-
-      - name: Validate profile-gated .NET scaffold
-        run: python tests/validate_dotnet_scaffold.py
-
-      - name: Import generated realms into pinned Keycloak
-        run: python tests/validate_keycloak_realm_import.py
-
-      - name: Validate .NET runtime version coherence
-        run: python tests/validate_dotnet_runtime.py
-
-      - name: Build .NET runtime in locked mode
+      - name: Verify release tag
+        shell: bash
         run: |
-          dotnet restore ProgramKit.slnx --locked-mode --configfile NuGet.config
-          dotnet build ProgramKit.slnx -c Release --no-restore
+          expected="v$(tr -d '\r\n' < VERSION)"
+          [[ "$GITHUB_REF_NAME" == "$expected" ]] || { echo "Tag must equal $expected" >&2; exit 1; }
 
-      - name: Validate BFF OIDC cookie policy
-        run: python tests/validate_bff_cookie_options.py
+      - name: Restore, build, and test .NET family
+        run: |
+          dotnet restore Orbyss.Forms.slnx --locked-mode --configfile NuGet.config
+          dotnet build Orbyss.Forms.slnx -c Release --no-restore
+          python tests/validate_forms_management.py
+          python tests/validate_forms_operations.py
+          python tests/validate_forms_localization_contracts.py
+          python tests/validate_inmemory_storage.py
 
-      - name: Validate provider-neutral authentication assurance
-        run: python tests/validate_assurance.py
+      - name: Build and test frontend family
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          python tests/validate_frontend_publication.py --tag "$GITHUB_REF_NAME"
+          python tests/validate_forms_frontend.py --install
+          python tests/validate_forms_frontend_packages.py
+          python tests/validate_forms_browser.py
 
-      - name: Validate provider-neutral OAuth client credentials
-        run: python tests/validate_client_credentials.py
+      - name: Pack package families
+        shell: bash
+        run: |
+          dotnet pack Orbyss.Forms.slnx -c Release --no-build -p:PackageOutputPath="$PWD/artifacts/nuget"
+          mkdir -p artifacts/npm
+          pushd src/typescript
+          npm pack --workspaces --pack-destination "$OLDPWD/artifacts/npm" --ignore-scripts --json > "$OLDPWD/artifacts/npm/pack.json"
+          popd
 
-      - name: Validate provider-neutral OAuth token exchange
-        run: python tests/validate_token_exchange.py
+      - name: Verify package family
+        shell: bash
+        run: |
+          shopt -s nullglob
+          nuget_packages=(artifacts/nuget/*.nupkg)
+          npm_packages=(artifacts/npm/*.tgz)
+          [[ ${#nuget_packages[@]} -eq 27 ]] || { echo "Expected 27 NuGet packages, found ${#nuget_packages[@]}." >&2; exit 1; }
+          [[ ${#npm_packages[@]} -eq 12 ]] || { echo "Expected 12 npm packages, found ${#npm_packages[@]}." >&2; exit 1; }
+          python tests/validate_package_metadata.py --packages artifacts/nuget
 
-      - name: Validate provider-neutral authenticated downstream APIs
-        run: python tests/validate_downstream_api.py
-
-      - name: Validate provider-neutral DPoP enforcement
-        run: python tests/validate_dpop.py
-
-      - name: Validate provider-neutral discovery and JWKS rollover
-        run: python tests/validate_jwks_rotation.py
-
-      - name: Validate Keycloak Admin REST adapter boundaries
-        run: python tests/validate_keycloak_admin.py
-
-      - name: Validate shell-owned public discovery endpoints
-        run: python tests/validate_web_discovery.py
-
-      - name: Pack built-in .NET features for integration validation
-        run: dotnet pack ProgramKit.slnx -c Release --no-build -p:PackageOutputPath="$PWD/artifacts/nuget"
-
-      - name: Validate packaged BFF identity journeys in a real browser
-        run: python tests/validate_bff_browser_flow.py
-
-      - name: Validate packaged SPA-PKCE identity journeys in a real browser
-        run: python tests/validate_spa_browser_flow.py
-
-      - name: Restore representative consumer dependency graph
-        run: python tests/validate_dotnet_consumer_restore.py
-
-      - name: Start host with a newly packed consumer feature
-        run: python tests/validate_dotnet_feature_host.py
-
-      - name: Validate composed OpenAPI producer and client pipeline
-        run: python tests/validate_openapi_exporter.py
-
-      - name: Validate bundle manifest
-        run: specify bundle validate --path . --offline
-
-      - name: Build release assets
-        run: python scripts/build_release.py
-
-      - name: Validate packaged UI in a clean consumer
-        run: python tests/validate_packaged_ui.py
-
-      - name: Validate clean-consumer bootstrap consistency
-        run: python tests/validate_bootstrap_consistency_e2e.py
-
-      - name: Test packaged components and bundle graph
-        run: python tests/validate_release_install.py
-
-      - name: Test candidate upgrade from previous stable release
-        run: python tests/validate_public_upgrade.py --candidate-dir artifacts
-
-      - name: Attest release assets
+      - name: Attest packages
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: |
-            artifacts/*.zip
-            artifacts/*.cmd
-            artifacts/*.sh
-            artifacts/SHA256SUMS
+            artifacts/nuget/*.nupkg
+            artifacts/npm/*.tgz
 
-      - name: Publish GitHub release
+      - name: Authenticate with NuGet.org
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Publish NuGet packages
         env:
-          GH_TOKEN: ${{ github.token }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         shell: bash
         run: |
-          assets=(
-            artifacts/*.zip
-            artifacts/*.cmd
-            artifacts/*.sh
-            artifacts/SHA256SUMS
-          )
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber
-          elif ! gh release create "$GITHUB_REF_NAME" "${assets[@]}" \
-              --verify-tag \
-              --title "Program Kit $GITHUB_REF_NAME" \
-              --generate-notes; then
-            for attempt in {1..12}; do
-              if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-                gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --clobber
-                exit 0
-              fi
-              sleep 5
-            done
-            echo "release creation failed and no concurrent release became visible" >&2
-            exit 1
-          fi
+          for package in artifacts/nuget/*.nupkg; do
+            dotnet nuget push "$package" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+          done
 
-      - name: Test live public catalog installation
-        run: python tests/validate_public_install.py
+      - name: Verify public NuGet propagation
+        run: python scripts/verify_nuget_publication.py --packages artifacts/nuget --timeout-seconds 900
 
-      - name: Test live public catalog upgrade from previous stable release
-        run: python tests/validate_public_upgrade.py
-
-  publish-frontend:
-    needs: release
-    if: ${{ needs.release.outputs.publish_runtime == 'true' }}
-    uses: ./.github/workflows/publish-frontend.yml
-    secrets: inherit
-
-  publish-nuget:
-    needs: [release, publish-frontend]
-    if: ${{ needs.release.outputs.publish_runtime == 'true' }}
-    uses: ./.github/workflows/publish-nuget.yml
-    secrets: inherit
-
-  publish-host-image:
-    needs: [release, publish-frontend, publish-nuget]
-    if: ${{ needs.release.outputs.publish_runtime == 'true' }}
-    uses: ./.github/workflows/publish-host-image.yml
-    secrets: inherit
+      - name: Publish npm packages
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          for package in artifacts/npm/*.tgz; do
+            npm publish "$package" --registry=https://npm.pkg.github.com --access=public --tag=preview
+          done

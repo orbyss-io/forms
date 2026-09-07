@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src/typescript"
-sys.path.insert(0, str(ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng"))
+sys.path.insert(0, str(ROOT / "eng"))
 import js_toolchain
 
 
@@ -95,7 +95,7 @@ def main() -> int:
             raise AssertionError("Packed frontend identities do not match the workspace package set.")
 
         (consumer / "package.json").write_text(
-            json.dumps({"name": "program-kit-clean-consumer", "private": True, "type": "module"}),
+            json.dumps({"name": "orbyss-forms-clean-consumer", "private": True, "type": "module"}),
             encoding="utf-8",
         )
         install_arguments = [
@@ -121,21 +121,21 @@ def main() -> int:
             *(str(archive) for archive in archives),
         ]
         run(npm + install_arguments, consumer, environment)
-        node_names = [name for name in names if name != "@orbyss-io/program-kit-forms-angular"]
+        node_names = [name for name in names if name != "@orbyss-io/forms-angular"]
         module_probe = (
             "const names=" + json.dumps(node_names) + ";"
             "for(const name of names){const value=await import(name);"
             "if(Object.keys(value).length===0)throw new Error(`No public exports: ${name}`);}" 
-            "console.log(`Imported ${names.length} Program Kit frontend packages.`);"
+            "console.log(`Imported ${names.length} Orbyss Forms frontend packages.`);"
         )
         imported = run([str(node), "--input-type=module", "--eval", module_probe], consumer, environment)
-        if f"Imported {len(node_names)} Program Kit frontend packages." not in imported.stdout:
+        if f"Imported {len(node_names)} Orbyss Forms frontend packages." not in imported.stdout:
             raise AssertionError("The clean frontend consumer did not import every Node-loadable package.")
 
         angular_entry = consumer / "angular-entry.js"
         angular_entry.write_text(
-            'import { ProgramKitJsonFormsAngularComponent } from "@orbyss-io/program-kit-forms-angular";\n'
-            'console.log(ProgramKitJsonFormsAngularComponent);\n',
+            'import { OrbyssJsonFormsAngularComponent } from "@orbyss-io/forms-angular";\n'
+            'console.log(OrbyssJsonFormsAngularComponent);\n',
             encoding="utf-8",
         )
         esbuild = WORKSPACE / "node_modules" / ".bin" / ("esbuild.cmd" if os.name == "nt" else "esbuild")

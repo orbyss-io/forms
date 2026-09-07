@@ -2,13 +2,13 @@
 
 Decision date: 2026-09-06
 
-Program Kit frontend packages will publish from the tagged GitHub Actions release workflow to
+Orbyss Forms frontend packages will publish from the tagged GitHub Actions release workflow to
 GitHub Packages at `npm.pkg.github.com` under the `@orbyss` scope. Consumers will install only the
 adapters they select. No manual package upload is part of the release procedure.
 
 The publication workflow is enabled for the approved twelve-package engine family. It:
 
-- derives every package version from `RUNTIME_VERSION` (`0.9.9-preview.1`) while requiring the
+- derives every package version from `RUNTIME_VERSION` (`0.1.0`) while requiring the
   release tag to match `VERSION` (`v0.9.9`);
 - authenticate with the workflow's narrowly scoped GitHub package permission, never a committed
   token;
@@ -27,8 +27,8 @@ each independently released family. A deterministic release plan records the sel
 their artifact hashes before any write permission is granted.
 
 The publication units are the complete synchronized dependency families: frontend npm packages,
-Program Kit NuGet packages, the host container image, and bootstrap/release assets. Because frontend
-packages use exact internal versions and .NET projects share `ProgramKitVersion`, a change to one
+Orbyss Forms NuGet packages, the host container image, and bootstrap/release assets. Because frontend
+packages use exact internal versions and .NET projects share `FormsVersion`, a change to one
 member can require its family-wide dependent closure. The safe initial policy is therefore to
 publish all packages in a changed family, skip every unchanged family, and publish nothing for a
 docs-only release. Per-package publishing is deferred until independent versions and a tested

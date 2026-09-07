@@ -1,10 +1,10 @@
 {
-  "name": "@orbyss-io/program-kit-ui-theme",
-  "version": "0.9.9-preview.1",
+  "name": "@orbyss-io/forms-ui-theme",
+  "version": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/orbyss-io/program-kit.git",
+    "url": "git+https://github.com/orbyss-io/forms.git",
     "directory": "src/typescript/packages/ui-theme"
   },
   "publishConfig": {

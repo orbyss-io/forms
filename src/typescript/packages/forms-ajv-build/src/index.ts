@@ -1,6 +1,6 @@
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
 import * as standaloneModule from "ajv/dist/standalone/index.js";
-import type { JsonObject, JsonValue } from "@orbyss-io/program-kit-forms-contracts";
+import type { JsonObject, JsonValue } from "@orbyss-io/forms-contracts";
 
 export interface AjvValidationIssue {
   readonly path: string;
@@ -10,7 +10,7 @@ export interface AjvValidationIssue {
 }
 
 export function compileBuildTimeValidator(schema: JsonObject): (data: JsonValue) => readonly AjvValidationIssue[] {
-  const ajv = createProgramKitAjv();
+  const ajv = createOrbyssAjv();
   const validate = ajv.compile(schema);
   return data => {
     const valid = validate(data);
@@ -26,8 +26,8 @@ export function generateStandaloneValidatorModule(
   if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(exportName)) {
     throw new Error("The standalone validator export name must be a JavaScript identifier.");
   }
-  const ajv = createProgramKitAjv();
-  const schemaId = "urn:program-kit:standalone-validator";
+  const ajv = createOrbyssAjv();
+  const schemaId = "urn:orbyss-forms:standalone-validator";
   ajv.addSchema({ ...schema, $id: schemaId }, schemaId);
   const generate = (standaloneModule.default ?? standaloneModule) as unknown as (
     instance: Ajv2020,
@@ -36,7 +36,7 @@ export function generateStandaloneValidatorModule(
   return generate(ajv, { [exportName]: schemaId });
 }
 
-function createProgramKitAjv(): Ajv2020 {
+function createOrbyssAjv(): Ajv2020 {
   const ajv = new Ajv2020({
     allErrors: true,
     strict: true,

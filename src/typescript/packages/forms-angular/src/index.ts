@@ -16,10 +16,10 @@ import type {
 import type {
   JsonObject,
   JsonValue,
-  ProgramKitTranslator,
-  ProgramKitValidator,
+  OrbyssTranslator,
+  OrbyssValidator,
   RuntimeValidationIssue
-} from "@orbyss-io/program-kit-forms-contracts";
+} from "@orbyss-io/forms-contracts";
 import {
   createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
@@ -27,18 +27,18 @@ import {
   type JsonFormsTranslatorAdapter,
   type JsonFormsCompatibleValidationError,
   type PrecompiledJsonFormsAjvFacade
-} from "@orbyss-io/program-kit-forms-jsonforms-runtime";
+} from "@orbyss-io/forms-jsonforms-runtime";
 
 export const programKitAngularFormsAdapterVersion = "1.0.0";
 
-export interface ProgramKitJsonFormsAngularRuntime {
+export interface OrbyssJsonFormsAngularRuntime {
   readonly schema: JsonObject;
   readonly uiSchema: JsonObject;
-  readonly validate: ProgramKitValidator;
-  readonly translate: ProgramKitTranslator;
+  readonly validate: OrbyssValidator;
+  readonly translate: OrbyssTranslator;
 }
 
-export interface ProgramKitJsonFormsAngularChange {
+export interface OrbyssJsonFormsAngularChange {
   readonly data: JsonValue;
   readonly issues: readonly RuntimeValidationIssue[];
 }
@@ -53,7 +53,7 @@ interface JsonFormsAngularChangeEvent {
  * renderer components and styling are supplied by the consuming application.
  */
 @Component({
-  selector: "program-kit-json-forms",
+  selector: "orbyss-forms-json-forms",
   standalone: true,
   imports: [JsonFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,14 +72,14 @@ interface JsonFormsAngularChangeEvent {
     ></jsonforms>
   `
 })
-export class ProgramKitJsonFormsAngularComponent implements OnChanges {
-  @Input({ required: true }) runtime!: ProgramKitJsonFormsAngularRuntime;
+export class OrbyssJsonFormsAngularComponent implements OnChanges {
+  @Input({ required: true }) runtime!: OrbyssJsonFormsAngularRuntime;
   @Input({ required: true }) data!: JsonValue;
   @Input({ required: true }) renderers!: JsonFormsRendererRegistryEntry[];
   @Input() readonly = false;
   @Input() config: Readonly<Record<string, unknown>> = Object.freeze({});
   @Input() validationMode: ValidationMode = "ValidateAndHide";
-  @Output() readonly change = new EventEmitter<ProgramKitJsonFormsAngularChange>();
+  @Output() readonly change = new EventEmitter<OrbyssJsonFormsAngularChange>();
 
   ajv!: PrecompiledJsonFormsAjvFacade;
   uiSchema!: UISchemaElement;
@@ -87,7 +87,7 @@ export class ProgramKitJsonFormsAngularComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.renderers.length === 0) {
-      throw new Error("Program Kit's Angular binding requires consumer-supplied JSON Forms renderers.");
+      throw new Error("Orbyss Forms's Angular binding requires consumer-supplied JSON Forms renderers.");
     }
     if (changes["runtime"] !== undefined) {
       this.ajv = createPrecompiledJsonFormsAjvFacade(this.runtime.schema, this.runtime.validate);

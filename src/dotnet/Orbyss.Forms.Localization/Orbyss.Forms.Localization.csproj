@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Explicit integration bridge from Orbyss Forms form translation requirements to localization catalogs.</Description>
+    <PackageId>Orbyss.Forms.Localization</PackageId>
+    <PackageTags>orbyss-forms;forms;localization;integration</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

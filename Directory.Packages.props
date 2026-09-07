@@ -4,6 +4,8 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Orbyss.Foundation.Analyzers" Version="0.1.0" />
+    <PackageVersion Include="Orbyss.Foundation.Mcp.AspNetCore" Version="0.1.0" />
     <PackageVersion Include="CShells.Abstractions" Version="0.0.29-preview.147" />
     <PackageVersion Include="CShells.AspNetCore" Version="0.0.29-preview.147" />
     <PackageVersion Include="CShells.AspNetCore.Abstractions" Version="0.0.29-preview.147" />

@@ -10,114 +10,95 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  dotnet:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
-
-      - name: Install pinned Spec Kit
-        run: python -m pip install --disable-pip-version-check "specify-cli==1.0.1"
-
-      - name: Validate Program Kit components
-        run: python tests/validate_components.py
-
-      - name: Set up pinned UI acceptance Node
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - name: Set up .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
-          node-version: "24.20.0"
+          global-json-file: global.json
+      - name: Restore and build
+        run: |
+          dotnet restore Orbyss.Forms.slnx --locked-mode --configfile NuGet.config
+          dotnet build Orbyss.Forms.slnx -c Release --no-restore
+      - name: Validate contracts
+        run: |
+          python tests/validate_forms_management.py
+          python tests/validate_forms_operations.py
+          python tests/validate_forms_localization_contracts.py
+          python tests/validate_inmemory_storage.py
+      - name: Pack NuGet family
+        shell: bash
+        run: |
+          dotnet pack Orbyss.Forms.slnx -c Release --no-build -p:PackageOutputPath="$PWD/artifacts/nuget"
+          shopt -s nullglob
+          packages=(artifacts/nuget/*.nupkg)
+          [[ ${#packages[@]} -eq 27 ]] || { echo "Expected 27 Forms/Localization NuGet packages, found ${#packages[@]}." >&2; exit 1; }
+          python tests/validate_package_metadata.py --packages artifacts/nuget
 
-      - name: Set up pinned UI acceptance npm
-        run: npm install --global npm@11.19.0 --ignore-scripts --no-audit --no-fund
-
-      - name: Validate UI experience and public content contracts
-        run: python tests/validate_ui_experience.py
-
-      - name: Validate UI accessibility, keyboard and analytics in Chromium
-        run: python tests/validate_ui_browser.py --install --install-browser
-
-      - name: Validate web security assurance evidence
-        run: python tests/validate_web_security_assurance.py
-
-      - name: Validate provider-neutral authentication boundaries
-        run: python tests/validate_authentication_provider_boundary.py
-
-      - name: Validate Codex agent bootstrap boundary
-        run: python tests/validate_codex_bootstrap.py
-
-      - name: Validate governance-state transitions
-        run: python tests/validate_governance_state.py
-
-      - name: Validate sequential offline/local upgrade
-        run: python tests/validate_local_upgrade.py
-
-      - name: Validate bootstrap context generation
-        run: python tests/validate_bootstrap_context.py
-
-      - name: Validate conversational bootstrap intake and architecture map
-        run: python tests/validate_bootstrap_intake.py
-
-      - name: Validate C4 projection viewing and cleanup
-        run: python tests/validate_c4_view.py
-
-      - name: Validate live bootstrap acceptance contracts without running agents
-        run: python tests/validate_live_bootstrap_acceptance.py
-
-      - name: Validate profile-gated .NET scaffold
-        run: python tests/validate_dotnet_scaffold.py
-
-      - name: Validate .NET runtime version coherence
-        run: python tests/validate_dotnet_runtime.py
-
-      - name: Validate solution test-project discovery
-        run: python tests/validate_dotnet_test_discovery.py
-
-      - name: Validate bundle manifest
-        run: specify bundle validate --path . --offline
-
-      - name: Build release assets
-        run: python scripts/build_release.py
-
-      - name: Validate packaged UI in a clean consumer
-        run: python tests/validate_packaged_ui.py
-
-      - name: Validate clean-consumer bootstrap consistency
-        run: python tests/validate_bootstrap_consistency_e2e.py
-
-      - name: Test packaged components and bundle graph
-        run: python tests/validate_release_install.py
-
-      - name: Test candidate upgrade from previous stable release
-        run: python tests/validate_public_upgrade.py --candidate-dir artifacts
-
-      - name: Upload validation artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: program-kit-${{ github.sha }}
-          path: artifacts/
-          if-no-files-found: error
-          retention-days: 14
-
-  windows-bootstrap:
-    runs-on: windows-latest
+  frontend:
+    runs-on: ubuntu-latest
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24.20.0"
+      - name: Set up pinned npm
+        run: npm install --global npm@11.19.0 --ignore-scripts --no-audit --no-fund
+      - name: Validate frontend contracts
+        run: |
+          python tests/validate_forms_frontend_ci.py
+          python tests/validate_frontend_publication.py
+          python tests/validate_forms_frontend.py --install
+          python tests/validate_forms_frontend_packages.py
+          python tests/validate_forms_physical_acceptance.py
+      - name: Pack npm family
+        working-directory: src/typescript
+        shell: bash
+        run: |
+          mkdir -p ../../artifacts/npm
+          npm pack --workspaces --pack-destination "$PWD/../../artifacts/npm" --ignore-scripts --json > "$PWD/../../artifacts/npm/pack.json"
+          shopt -s nullglob
+          packages=(../../artifacts/npm/*.tgz)
+          [[ ${#packages[@]} -eq 12 ]] || { echo "Expected 12 Forms npm packages, found ${#packages[@]}." >&2; exit 1; }
 
-      - name: Install pinned Spec Kit
-        run: python -m pip install --disable-pip-version-check "specify-cli==1.0.1"
-
-      - name: Validate Python-flavor Codex bootstrap on Windows
-        run: python tests/validate_codex_bootstrap.py
+  browser:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24.20.0"
+      - name: Set up pinned npm
+        run: npm install --global npm@11.19.0 --ignore-scripts --no-audit --no-fund
+      - name: Validate Forms in ${{ matrix.engine }}
+        run: python tests/validate_forms_browser.py --install --install-browser --engines ${{ matrix.engine }}
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: forms-browser-${{ matrix.engine }}-${{ github.sha }}
+          path: artifacts/forms-browser/
+          if-no-files-found: ignore

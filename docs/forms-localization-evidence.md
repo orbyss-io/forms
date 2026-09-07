@@ -4,7 +4,7 @@ Evidence date: 2026-09-06
 
 ## Backend boundaries
 
-- `ProgramKit.Forms.Abstractions` and `ProgramKit.Localization.Abstractions` expose public semantic
+- `Orbyss.Forms.Abstractions` and `Orbyss.Localization.Abstractions` expose public semantic
   contracts without implementation dependencies.
 - Forms validation, deterministic JSON Schema/JSON Forms compilation, compatibility analysis,
   editable definitions, evidence-bound review, approval, immutable releases and retirement are
@@ -14,7 +14,7 @@ Evidence date: 2026-09-06
 - Complete in-memory adapters provide deterministic non-durable testing. Filesystem adapters provide
   explicit persistence without selecting an ORM, database, migration tool or cloud provider.
 - Management, runtime and submission HTTP surfaces are independent endpoint-only CShells features.
-  `ProgramKit.Host` owns none of their middleware or response formats.
+  `Orbyss.Foundation.Host` owns none of their middleware or response formats.
 - One authenticated stateless MCP transport composes separate Forms operations, Forms management and
   Localization tool contributors. Tools invoke the same application services as HTTP endpoints and
   derive identity from the validated transport principal.
@@ -38,7 +38,7 @@ The isolated `src/typescript` workspace contains twelve independently packable e
 - thin React, Vue and Angular JSON Forms bindings; and
 - optional application-wide semantic theme tokens.
 
-Program Kit publishes no form controls, action bars, wizard/stepper UI, searchable-select renderer,
+Orbyss Forms publishes no form controls, action bars, wizard/stepper UI, searchable-select renderer,
 CodeMirror adapter, Monaco adapter, component CSS, form modeler, schema modeler or localization
 management UI. React, Vue and Angular bindings require the consuming application to provide its
 renderer set. Editor consumers implement the dependency-free editor contract using their preferred
@@ -73,10 +73,10 @@ Local Chromium and WebKit cover six desktop/phone/tablet emulation profiles. The
 binary cannot launch on this Windows installation (`spawn UNKNOWN` before page load), so Linux CI
 remains the required Firefox engine evidence.
 
-Because Program Kit 0.9.9 publishes no visual components, the earlier physical showcase report is
+Because Orbyss Forms 0.9.9 publishes no visual components, the earlier physical showcase report is
 not a release gate. Consuming applications own physical-device, virtual-keyboard, screen-reader,
 appearance and responsive-layout acceptance for their selected renderer/design system. A future
-Program Kit-owned visual component must restore component-specific physical evidence.
+Orbyss Forms-owned visual component must restore component-specific physical evidence.
 
 ## Deterministic suites
 

@@ -7,7 +7,7 @@ are verification artifacts, not permission to publish another candidate under an
 
 ## Delivered boundary
 
-- Versioned consumer profile and content schemas, `/speckit.program-kit-governance.ui`, bootstrap
+- Versioned consumer profile and content schemas, `/speckit.orbyss-forms-governance.ui`, bootstrap
   decision/toolchain authority and lifecycle instructions; no frontend stack is silently replaced.
 - Five responsive archetypes with independent navigation/density/brand/CSS choices. DTCG color
   primitives/semantic/component aliases, light/dark/system CSS, contrast validation, focus,
@@ -21,7 +21,7 @@ are verification artifacts, not permission to publish another candidate under an
   consume the same tokens; their framework-specific adapter remains consumer-owned.
 - Independent consent-gated analytics controller and GA4 injected-transport adapter. No transport,
   automatic tracking or remote fonts are loaded by the default pages.
-- Provider-neutral `ProgramKit.Web.Discovery.Abstractions` plus optional `ProgramKit.Web.Discovery`
+- Provider-neutral `Orbyss.Web.Discovery.Abstractions` plus optional `Orbyss.Web.Discovery`
   CShells feature. Exact public GET/HEAD allowlist; bounded, hash-verified files; no Host edits.
 - Optional local multi-provider evaluation scorer, with lexical/citation metrics explicitly
   distinguished from factual entailment, ranking or universal model compatibility.
@@ -40,13 +40,13 @@ It checks four analytics contracts, Chromium/Firefox/WebKit desktop archetype/li
 combinations with axe, keyboard dialog/focus, reduced motion and RTL/enlarged-text reflow; Chromium
 forced colors; Chromium touch-phone and WebKit touch-tablet portrait/landscape journeys; and real
 compiled Tailwind/native semantic parity in both color schemes. Evidence and screenshots are preserved under
-`artifacts/ui-browser/web/generated/program-kit/acceptance/browser-evidence/`; toolchain/lock hash
+`artifacts/ui-browser/web/generated/orbyss-forms/acceptance/browser-evidence/`; toolchain/lock hash
 is in `artifacts/ui-browser/toolchain-evidence.json`.
 
 On this Windows host, all 20 Chromium and all 20 WebKit engine/archetype/device combinations pass.
 The complete command remains red because the pinned Playwright Firefox 153 bundle cannot start:
 Windows SideBySide event 33 reports that its packaged `mozglue` assembly cannot be activated before
-any Program Kit page is opened. The harness does not downgrade this to a skip. A Linux CI run or a
+any Orbyss Forms page is opened. The harness does not downgrade this to a skip. A Linux CI run or a
 subsequent stable pinned Playwright graph must complete Firefox before multi-device hardening is
 marked delivered.
 
@@ -61,7 +61,7 @@ feature's public configuration/endpoint contracts. It verifies all 16 generated 
 body/content type/indexing headers, private/build-internal 404s, unsupported methods, hostile
 manifest paths/types/hashes/visibility and consumer adapter replacement. No friend assemblies.
 
-The deterministic `scripts/Test-ProgramKit.ps1` aggregate includes the UI tests and all existing
+The deterministic `scripts/Test-Orbyss.ps1` aggregate includes the UI tests and all existing
 governance/authentication/local build-and-install regressions. The .NET solution is restored in
 locked mode and built in Release; NuGet packing is verified separately under `artifacts/ui-nuget`.
 CI and the release gate include the new UI/browser/public-discovery tests. These local results do

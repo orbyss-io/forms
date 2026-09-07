@@ -1,6 +1,6 @@
-# Program Kit application theming
+# Orbyss Forms application theming
 
-Program Kit publishes an optional framework-neutral semantic-token contract. It does not publish
+Orbyss Forms publishes an optional framework-neutral semantic-token contract. It does not publish
 form controls, modelers, action bars, steppers, lookup widgets or editor components. Applications
 own their renderer package, CSS and design system.
 
@@ -9,7 +9,7 @@ own their renderer package, CSS and design system.
 Import the token defaults once when they are useful to the wider application:
 
 ```ts
-import "@orbyss-io/program-kit-ui-theme/default.css";
+import "@orbyss-io/forms-ui-theme/default.css";
 ```
 
 Scope the light, dark or operating-system-responsive values to an application region:
@@ -20,7 +20,7 @@ Scope the light, dark or operating-system-responsive values to an application re
 </main>
 ```
 
-The defaults use the `program-kit.theme` cascade layer. Unlayered application CSS can override the
+The defaults use the `orbyss-forms.theme` cascade layer. Unlayered application CSS can override the
 variables without specificity escalation.
 
 ```css
@@ -43,5 +43,5 @@ variables without specificity escalation.
 
 Consumer-supplied renderers remain responsible for focus visibility, accessible error relations,
 minimum target size, forced-colors behavior, reduced motion, logical directions and responsive
-reflow. Program Kit's forms engine supplies validated state and translation data, not markup or
+reflow. Orbyss Forms's forms engine supplies validated state and translation data, not markup or
 visual acceptance for the consumer's selected component library.

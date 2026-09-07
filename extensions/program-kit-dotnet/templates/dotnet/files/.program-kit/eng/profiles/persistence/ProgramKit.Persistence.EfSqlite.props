@@ -1,8 +1,0 @@
-<Project>
-  <PropertyGroup><ProgramKitPersistenceProfile>ef-sqlite</ProgramKitPersistenceProfile></PropertyGroup>
-  <ItemGroup>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.11" />
-  </ItemGroup>
-</Project>

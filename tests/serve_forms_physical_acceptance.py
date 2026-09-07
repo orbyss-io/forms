@@ -15,7 +15,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src/typescript"
 OUTPUT = ROOT / "artifacts/forms-browser"
-TOOLCHAIN = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng"
+TOOLCHAIN = ROOT / "eng"
 sys.path.insert(0, str(TOOLCHAIN))
 import js_toolchain
 
@@ -82,7 +82,7 @@ def build_fixture(install: bool) -> str:
 
 
 class AcceptanceHandler(BaseHTTPRequestHandler):
-    server_version = "ProgramKitPhysicalAcceptance/1"
+    server_version = "OrbyssPhysicalAcceptance/1"
     sys_version = ""
 
     def do_HEAD(self) -> None:
@@ -143,7 +143,7 @@ def private_addresses() -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Serve the Program Kit Forms physical-acceptance showcase.")
+    parser = argparse.ArgumentParser(description="Serve the Orbyss Forms physical-acceptance showcase.")
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", default=4173, type=int)
     parser.add_argument("--no-build", action="store_true")
@@ -164,13 +164,13 @@ def main() -> int:
     elif args.host not in {"127.0.0.1", "localhost"}:
         urls.append(f"http://{args.host}:{port}/")
     evidence = {
-        "schema": "urn:program-kit:forms:physical-acceptance-server:1",
+        "schema": "urn:orbyss:forms:physical-acceptance-server:1",
         "host": args.host,
         "port": port,
         "urls": list(dict.fromkeys(urls)),
         "toolchainTrust": trust,
     }
-    print("PROGRAM_KIT_PHYSICAL_ACCEPTANCE=" + json.dumps(evidence, separators=(",", ":")), flush=True)
+    print("ORBYSS_FORMS_PHYSICAL_ACCEPTANCE=" + json.dumps(evidence, separators=(",", ":")), flush=True)
     print("Press Ctrl+C to stop the physical-acceptance server.", flush=True)
     try:
         server.serve_forever()

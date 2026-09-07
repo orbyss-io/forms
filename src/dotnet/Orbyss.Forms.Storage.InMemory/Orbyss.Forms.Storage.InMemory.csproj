@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Bounded in-memory reference persistence for Orbyss Forms tests and development.</Description>
+    <PackageId>Orbyss.Forms.Storage.InMemory</PackageId>
+    <PackageTags>orbyss-forms;forms;storage;in-memory;testing</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>

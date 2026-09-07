@@ -1,10 +1,10 @@
-# Program Kit frontend forms engine
+# Orbyss Forms frontend forms engine
 
 This isolated workspace contains framework-neutral form-engine packages and thin JSON Forms
 bindings. It is not injected into a consumer npm graph. Consumers install only the engine seams
 they need and bring their own renderer components, editor implementation, CSS and design system.
 
-Program Kit does not publish form-modeler, schema-modeler, localization-management, searchable
+Orbyss Forms does not publish form-modeler, schema-modeler, localization-management, searchable
 select, CodeMirror, Monaco, core-control, action-bar or wizard UI components. Server-side
 form/localization contracts, validation, management APIs and MCP operations remain in the .NET
 family.

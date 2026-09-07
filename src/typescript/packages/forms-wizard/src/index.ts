@@ -1,4 +1,4 @@
-import type { JsonObject, JsonValue, ProgramKitTranslator } from "@orbyss-io/program-kit-forms-contracts";
+import type { JsonObject, JsonValue, OrbyssTranslator } from "@orbyss-io/forms-contracts";
 
 export type WizardNavigationPolicy = "linear" | "visited" | "nonLinear";
 export type WizardNavigationPlacement = "top" | "side" | "adaptive";
@@ -20,7 +20,7 @@ export interface WizardStepDefinition {
   readonly uiSchema: JsonObject;
 }
 
-export interface ProgramKitWizardDefinition {
+export interface OrbyssWizardDefinition {
   readonly id: string;
   readonly navigationPolicy: WizardNavigationPolicy;
   readonly navigationPlacement: WizardNavigationPlacement;
@@ -66,8 +66,8 @@ export interface WizardMoveResult {
   readonly snapshot: WizardSnapshot;
 }
 
-export class ProgramKitWizardController {
-  readonly #definition: ProgramKitWizardDefinition;
+export class OrbyssWizardController {
+  readonly #definition: OrbyssWizardDefinition;
   readonly #validateStep?: WizardControllerOptions["validateStep"];
   readonly #onChange?: WizardControllerOptions["onChange"];
   readonly #visited = new Set<string>();
@@ -79,8 +79,8 @@ export class ProgramKitWizardController {
   #busy = false;
   #finished = false;
 
-  public constructor(definition: ProgramKitWizardDefinition, options: WizardControllerOptions = {}) {
-    if (definition.steps.length === 0) throw new Error("A Program Kit wizard requires at least one step.");
+  public constructor(definition: OrbyssWizardDefinition, options: WizardControllerOptions = {}) {
+    if (definition.steps.length === 0) throw new Error("A Orbyss Forms wizard requires at least one step.");
     this.#definition = definition;
     this.#validateStep = options.validateStep;
     this.#onChange = options.onChange;
@@ -262,13 +262,13 @@ export class ProgramKitWizardController {
   }
 }
 
-export function parseProgramKitWizard(
+export function parseOrbyssWizard(
   uiSchema: JsonObject,
   translate: (key: string, fallback: string) => string = (_key, fallback) => fallback
-): ProgramKitWizardDefinition {
-  if (uiSchema.type !== "Categorization") throw new Error("The Program Kit wizard root must be a JSON Forms Categorization.");
+): OrbyssWizardDefinition {
+  if (uiSchema.type !== "Categorization") throw new Error("The Orbyss Forms wizard root must be a JSON Forms Categorization.");
   const options = objectProperty(uiSchema, "options");
-  if (options.variant !== "program-kit-wizard") throw new Error("The Categorization does not select the Program Kit wizard variant.");
+  if (options.variant !== "orbyss-forms-wizard") throw new Error("The Categorization does not select the Orbyss Forms wizard variant.");
   const elements = arrayProperty(uiSchema, "elements");
   const identities = new Set<string>();
   const steps = elements.map((value, index) => {
@@ -297,7 +297,7 @@ export function parseProgramKitWizard(
       uiSchema: step
     });
   });
-  if (steps.length === 0) throw new Error("A Program Kit wizard requires at least one Category.");
+  if (steps.length === 0) throw new Error("A Orbyss Forms wizard requires at least one Category.");
   return Object.freeze({
     id: optionalString(uiSchema, "id") ?? "wizard",
     navigationPolicy: enumOption(options, "navigationPolicy", ["linear", "visited", "nonLinear"], "linear"),
@@ -310,7 +310,7 @@ export function parseProgramKitWizard(
   });
 }
 
-function validateVisibleSteps(definition: ProgramKitWizardDefinition, values: readonly string[]): Set<string> {
+function validateVisibleSteps(definition: OrbyssWizardDefinition, values: readonly string[]): Set<string> {
   const known = new Set(definition.steps.map(step => step.id));
   const visible = new Set<string>();
   for (const value of values) {

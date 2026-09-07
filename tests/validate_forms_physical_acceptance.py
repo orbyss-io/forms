@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVER = ROOT / "tests/serve_forms_physical_acceptance.py"
-PREFIX = "PROGRAM_KIT_PHYSICAL_ACCEPTANCE="
+PREFIX = "ORBYSS_FORMS_PHYSICAL_ACCEPTANCE="
 
 
 def request(port: int, path: str) -> tuple[int, dict[str, str], bytes]:
@@ -72,7 +72,7 @@ def main() -> int:
                 break
         if descriptor is None:
             raise AssertionError("Physical-acceptance server did not start:\n" + "".join(output))
-        if descriptor["schema"] != "urn:program-kit:forms:physical-acceptance-server:1":
+        if descriptor["schema"] != "urn:orbyss:forms:physical-acceptance-server:1":
             raise AssertionError("Physical-acceptance server descriptor schema changed unexpectedly.")
         port = descriptor["port"]
         status, headers, body = request(port, "/")

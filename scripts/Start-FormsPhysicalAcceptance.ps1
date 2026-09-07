@@ -26,9 +26,11 @@ if ($Install) {
     $arguments += '--install'
 }
 
-Write-Host 'Building and serving the Program Kit Forms physical-acceptance showcase.'
+Write-Host 'Building and serving the Orbyss Forms Forms physical-acceptance showcase.'
 Write-Host 'Use only on a trusted private network. Press Ctrl+C when testing is complete.'
 & $python.Source @arguments
 if ($LASTEXITCODE -ne 0) {
     throw 'The Forms physical-acceptance showcase failed.'
 }
+
+

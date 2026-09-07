@@ -1,0 +1,40 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/dotnet/">
+    <Project Path="src/dotnet/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Mcp.AspNetCore/Orbyss.Forms.Mcp.AspNetCore.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Web.Management/Orbyss.Forms.Web.Management.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Web.Runtime/Orbyss.Forms.Web.Runtime.csproj" />
+    <Project Path="src/dotnet/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Application/Orbyss.Localization.Application.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Core/Orbyss.Localization.Core.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Formats/Orbyss.Localization.Formats.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Mcp.AspNetCore/Orbyss.Localization.Mcp.AspNetCore.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Storage.FileSystem/Orbyss.Localization.Storage.FileSystem.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Storage.InMemory/Orbyss.Localization.Storage.InMemory.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Tool/Orbyss.Localization.Tool.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Web.Management/Orbyss.Localization.Web.Management.csproj" />
+    <Project Path="src/dotnet/Orbyss.Localization.Web.Runtime/Orbyss.Localization.Web.Runtime.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/dotnet/">
+    <Project Path="tests/dotnet/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj" />
+    <Project Path="tests/dotnet/Orbyss.Forms.Management.Probe/Orbyss.Forms.Management.Probe.csproj" />
+    <Project Path="tests/dotnet/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj" />
+    <Project Path="tests/dotnet/Orbyss.Forms.Storage.InMemory.Probe/Orbyss.Forms.Storage.InMemory.Probe.csproj" />
+    <Project Path="tests/dotnet/Orbyss.Localization.Web.Probe/Orbyss.Localization.Web.Probe.csproj" />
+  </Folder>
+</Solution>

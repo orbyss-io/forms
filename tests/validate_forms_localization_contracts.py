@@ -9,8 +9,8 @@ from xml.etree import ElementTree
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     projects = [
-        root / "src/dotnet/ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj",
-        root / "src/dotnet/ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj",
+        root / "src/dotnet/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+        root / "src/dotnet/Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
     ]
     for project in projects:
         parsed = ElementTree.parse(project)
@@ -26,7 +26,7 @@ def main() -> int:
             if forbidden in source:
                 raise AssertionError(f"Semantic contract package leaked {forbidden}: {project}")
 
-    core_project = root / "src/dotnet/ProgramKit.Forms.Core/ProgramKit.Forms.Core.csproj"
+    core_project = root / "src/dotnet/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj"
     core_tree = ElementTree.parse(core_project)
     package_references = [
         item.attrib["Include"]
@@ -40,10 +40,10 @@ def main() -> int:
         for item in core_tree.iter()
         if item.tag.endswith("ProjectReference")
     ]
-    if project_references != ["../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj"]:
+    if project_references != ["../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"]:
         raise AssertionError(f"Forms core has an unexpected dependency graph: {project_references}")
 
-    json_forms_project = root / "src/dotnet/ProgramKit.Forms.JsonForms/ProgramKit.Forms.JsonForms.csproj"
+    json_forms_project = root / "src/dotnet/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj"
     json_forms_tree = ElementTree.parse(json_forms_project)
     json_forms_packages = [
         item.attrib["Include"]
@@ -58,13 +58,13 @@ def main() -> int:
         if item.tag.endswith("ProjectReference")
     }
     expected_json_forms_references = {
-        "../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj",
-        "../ProgramKit.Forms.Core/ProgramKit.Forms.Core.csproj",
+        "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+        "../Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
     }
     if json_forms_references != expected_json_forms_references:
         raise AssertionError(f"JSON Forms compiler has an unexpected dependency graph: {json_forms_references}")
 
-    localization_core_project = root / "src/dotnet/ProgramKit.Localization.Core/ProgramKit.Localization.Core.csproj"
+    localization_core_project = root / "src/dotnet/Orbyss.Localization.Core/Orbyss.Localization.Core.csproj"
     localization_core_tree = ElementTree.parse(localization_core_project)
     localization_core_packages = [
         item.attrib["Include"]
@@ -78,10 +78,10 @@ def main() -> int:
         for item in localization_core_tree.iter()
         if item.tag.endswith("ProjectReference")
     ]
-    if localization_core_references != ["../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj"]:
+    if localization_core_references != ["../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"]:
         raise AssertionError(f"Localization core has an unexpected dependency graph: {localization_core_references}")
 
-    localization_application_project = root / "src/dotnet/ProgramKit.Localization.Application/ProgramKit.Localization.Application.csproj"
+    localization_application_project = root / "src/dotnet/Orbyss.Localization.Application/Orbyss.Localization.Application.csproj"
     localization_application_tree = ElementTree.parse(localization_application_project)
     localization_application_packages = [
         item.attrib["Include"]
@@ -96,14 +96,14 @@ def main() -> int:
         if item.tag.endswith("ProjectReference")
     }
     expected_localization_application_references = {
-        "../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj",
-        "../ProgramKit.Localization.Core/ProgramKit.Localization.Core.csproj",
-        "../ProgramKit.Localization.Storage.Abstractions/ProgramKit.Localization.Storage.Abstractions.csproj",
+        "../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
+        "../Orbyss.Localization.Core/Orbyss.Localization.Core.csproj",
+        "../Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj",
     }
     if localization_application_references != expected_localization_application_references:
         raise AssertionError(f"Localization application orchestration has an unexpected dependency graph: {localization_application_references}")
 
-    localization_formats_project = root / "src/dotnet/ProgramKit.Localization.Formats/ProgramKit.Localization.Formats.csproj"
+    localization_formats_project = root / "src/dotnet/Orbyss.Localization.Formats/Orbyss.Localization.Formats.csproj"
     localization_formats_tree = ElementTree.parse(localization_formats_project)
     localization_formats_packages = [
         item.attrib["Include"]
@@ -117,12 +117,12 @@ def main() -> int:
         for item in localization_formats_tree.iter()
         if item.tag.endswith("ProjectReference")
     ]
-    if localization_formats_references != ["../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj"]:
+    if localization_formats_references != ["../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"]:
         raise AssertionError(f"Localization format adapters have an unexpected dependency graph: {localization_formats_references}")
 
     localization_web_projects = {
-        "src/dotnet/ProgramKit.Localization.Web.Management/ProgramKit.Localization.Web.Management.csproj": "ProgramKitLocalizationManagementFeature.cs",
-        "src/dotnet/ProgramKit.Localization.Web.Runtime/ProgramKit.Localization.Web.Runtime.csproj": "ProgramKitLocalizationRuntimeFeature.cs",
+        "src/dotnet/Orbyss.Localization.Web.Management/Orbyss.Localization.Web.Management.csproj": "OrbyssLocalizationManagementFeature.cs",
+        "src/dotnet/Orbyss.Localization.Web.Runtime/Orbyss.Localization.Web.Runtime.csproj": "OrbyssLocalizationRuntimeFeature.cs",
     }
     for relative_project, feature_file in localization_web_projects.items():
         project = root / relative_project
@@ -139,32 +139,27 @@ def main() -> int:
             for item in tree.iter()
             if item.tag.endswith("ProjectReference")
         }
-        if project_references != {"../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj"}:
+        if project_references != {"../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"}:
             raise AssertionError(f"Localization web feature has an unexpected project graph: {relative_project}: {project_references}")
         source = (project.parent / feature_file).read_text(encoding="utf-8")
         if "IWebShellFeature" not in source or "IMiddlewareShellFeature" in source:
             raise AssertionError(f"Localization endpoint composition must remain an endpoint-only CShells feature: {feature_file}")
 
-    host_source = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in (root / "src/dotnet/ProgramKit.Host").rglob("*")
-        if path.suffix in {".cs", ".csproj"}
-    )
-    if "ProgramKit.Localization.Web" in host_source:
-        raise AssertionError("ProgramKit.Host must not own or reference localization web behavior.")
+    if any((root / "src/dotnet").glob("Orbyss.Foundation.*")):
+        raise AssertionError("Forms must consume Foundation packages instead of owning Foundation source.")
 
     storage_graphs = {
-        "src/dotnet/ProgramKit.Forms.Storage.Abstractions/ProgramKit.Forms.Storage.Abstractions.csproj": {
-            "../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj"
+        "src/dotnet/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj": {
+            "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"
         },
-        "src/dotnet/ProgramKit.Forms.Storage.FileSystem/ProgramKit.Forms.Storage.FileSystem.csproj": {
-            "../ProgramKit.Forms.Storage.Abstractions/ProgramKit.Forms.Storage.Abstractions.csproj"
+        "src/dotnet/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj": {
+            "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj"
         },
-        "src/dotnet/ProgramKit.Localization.Storage.Abstractions/ProgramKit.Localization.Storage.Abstractions.csproj": {
-            "../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj"
+        "src/dotnet/Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj": {
+            "../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"
         },
-        "src/dotnet/ProgramKit.Localization.Storage.FileSystem/ProgramKit.Localization.Storage.FileSystem.csproj": {
-            "../ProgramKit.Localization.Storage.Abstractions/ProgramKit.Localization.Storage.Abstractions.csproj"
+        "src/dotnet/Orbyss.Localization.Storage.FileSystem/Orbyss.Localization.Storage.FileSystem.csproj": {
+            "../Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj"
         },
     }
     for relative_project, expected_references in storage_graphs.items():
@@ -184,7 +179,7 @@ def main() -> int:
         if storage_references != expected_references:
             raise AssertionError(f"Storage adapter has an unexpected dependency graph: {relative_project}: {storage_references}")
 
-    bridge_project = root / "src/dotnet/ProgramKit.Forms.Localization/ProgramKit.Forms.Localization.csproj"
+    bridge_project = root / "src/dotnet/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj"
     bridge_tree = ElementTree.parse(bridge_project)
     bridge_packages = [
         item.attrib["Include"]
@@ -199,13 +194,13 @@ def main() -> int:
         if item.tag.endswith("ProjectReference")
     }
     expected_bridge_references = {
-        "../ProgramKit.Forms.Abstractions/ProgramKit.Forms.Abstractions.csproj",
-        "../ProgramKit.Localization.Abstractions/ProgramKit.Localization.Abstractions.csproj",
+        "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+        "../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
     }
     if bridge_references != expected_bridge_references:
         raise AssertionError(f"Forms/localization bridge has an unexpected dependency graph: {bridge_references}")
 
-    probe = root / "tests/dotnet/ProgramKit.Forms.Localization.Contracts.Probe/ProgramKit.Forms.Localization.Contracts.Probe.csproj"
+    probe = root / "tests/dotnet/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj"
     result = subprocess.run(
         [
             "dotnet",
@@ -253,7 +248,7 @@ def main() -> int:
     committed_fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
     if generated_fixture != committed_fixture:
         raise AssertionError("The committed frontend release fixture drifted from the .NET compiler output.")
-    web_probe = root / "tests/dotnet/ProgramKit.Localization.Web.Probe/ProgramKit.Localization.Web.Probe.csproj"
+    web_probe = root / "tests/dotnet/Orbyss.Localization.Web.Probe/Orbyss.Localization.Web.Probe.csproj"
     web_result = subprocess.run(
         [
             "dotnet",

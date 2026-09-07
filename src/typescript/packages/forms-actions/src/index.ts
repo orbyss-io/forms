@@ -2,20 +2,20 @@ import type {
   FormActionRequirement,
   JsonObject,
   JsonValue,
-  ProgramKitValidator,
+  OrbyssValidator,
   RuntimeValidationIssue
-} from "@orbyss-io/program-kit-forms-contracts";
+} from "@orbyss-io/forms-contracts";
 
 export type ActionAvailability = "enabled" | "disabled" | "hidden";
 export type ActionExecutionStatus = "idle" | "running" | "succeeded" | "failed" | "blocked" | "cancelled";
 
-export interface ProgramKitActionDefinition extends FormActionRequirement {
+export interface OrbyssActionDefinition extends FormActionRequirement {
   readonly position: number;
 }
 
-export interface ProgramKitActionBarDefinition {
+export interface OrbyssActionBarDefinition {
   readonly id: string;
-  readonly actions: readonly ProgramKitActionDefinition[];
+  readonly actions: readonly OrbyssActionDefinition[];
 }
 
 export interface ActionFailure {
@@ -24,63 +24,63 @@ export interface ActionFailure {
   readonly retryable: boolean;
 }
 
-export interface ProgramKitActionSnapshot extends ProgramKitActionDefinition {
+export interface OrbyssActionSnapshot extends OrbyssActionDefinition {
   readonly availability: ActionAvailability;
   readonly status: ActionExecutionStatus;
   readonly failure?: ActionFailure;
 }
 
-export interface ProgramKitActionBarSnapshot {
+export interface OrbyssActionBarSnapshot {
   readonly runningActionId?: string;
-  readonly actions: readonly ProgramKitActionSnapshot[];
+  readonly actions: readonly OrbyssActionSnapshot[];
 }
 
-export interface ProgramKitActionExecutionContext {
+export interface OrbyssActionExecutionContext {
   readonly data: JsonValue;
   readonly signal?: AbortSignal;
 }
 
-export interface ProgramKitActionControllerOptions {
-  readonly validate: ProgramKitValidator;
+export interface OrbyssActionControllerOptions {
+  readonly validate: OrbyssValidator;
   readonly dispatch: (actionId: string, payload: JsonValue, signal: AbortSignal) => Promise<JsonValue>;
-  readonly availability?: (action: ProgramKitActionDefinition) => ActionAvailability;
-  readonly onChange?: (snapshot: ProgramKitActionBarSnapshot) => void;
+  readonly availability?: (action: OrbyssActionDefinition) => ActionAvailability;
+  readonly onChange?: (snapshot: OrbyssActionBarSnapshot) => void;
 }
 
-export interface ProgramKitActionResult {
+export interface OrbyssActionResult {
   readonly invoked: boolean;
   readonly reason?: "busy" | "disabled" | "hidden" | "validation" | "cancelled" | "failed";
   readonly value?: JsonValue;
   readonly issues?: readonly RuntimeValidationIssue[];
-  readonly snapshot: ProgramKitActionBarSnapshot;
+  readonly snapshot: OrbyssActionBarSnapshot;
 }
 
 /** A deliberately public-safe failure; unexpected exceptions are replaced with a generic message. */
-export class ProgramKitActionError extends Error {
+export class OrbyssActionError extends Error {
   public constructor(
     public readonly code: string,
     message: string,
     public readonly retryable = false
   ) {
     super(message);
-    this.name = "ProgramKitActionError";
+    this.name = "OrbyssActionError";
   }
 }
 
-export class ProgramKitActionController {
-  readonly #definition: ProgramKitActionBarDefinition;
-  readonly #options: ProgramKitActionControllerOptions;
+export class OrbyssActionController {
+  readonly #definition: OrbyssActionBarDefinition;
+  readonly #options: OrbyssActionControllerOptions;
   readonly #states = new Map<string, { status: ActionExecutionStatus; failure?: ActionFailure }>();
   #runningActionId: string | undefined;
   #abort: AbortController | undefined;
 
-  public constructor(definition: ProgramKitActionBarDefinition, options: ProgramKitActionControllerOptions) {
+  public constructor(definition: OrbyssActionBarDefinition, options: OrbyssActionControllerOptions) {
     this.#definition = definition;
     this.#options = options;
     for (const action of definition.actions) this.#states.set(action.actionId, { status: "idle" });
   }
 
-  public snapshot(): ProgramKitActionBarSnapshot {
+  public snapshot(): OrbyssActionBarSnapshot {
     return Object.freeze({
       ...(this.#runningActionId === undefined ? {} : { runningActionId: this.#runningActionId }),
       actions: Object.freeze(this.#definition.actions.map(action => {
@@ -98,8 +98,8 @@ export class ProgramKitActionController {
   public async invoke(
     actionId: string,
     payload: JsonValue,
-    context: ProgramKitActionExecutionContext
-  ): Promise<ProgramKitActionResult> {
+    context: OrbyssActionExecutionContext
+  ): Promise<OrbyssActionResult> {
     const action = this.#action(actionId);
     if (this.#runningActionId !== undefined) return this.#result(false, "busy");
     const availability = this.#availability(action);
@@ -125,7 +125,7 @@ export class ProgramKitActionController {
     this.#runningActionId = actionId;
     this.#states.set(actionId, { status: "running" });
     this.#notify();
-    let result: Omit<ProgramKitActionResult, "snapshot">;
+    let result: Omit<OrbyssActionResult, "snapshot">;
     try {
       abort.signal.throwIfAborted();
       const value = await this.#options.dispatch(actionId, payload, abort.signal);
@@ -137,7 +137,7 @@ export class ProgramKitActionController {
         this.#states.set(actionId, { status: "cancelled" });
         result = { invoked: false, reason: "cancelled" };
       } else {
-        const failure = error instanceof ProgramKitActionError
+        const failure = error instanceof OrbyssActionError
           ? { code: error.code, message: error.message, retryable: error.retryable }
           : { code: "PKA999", message: "The action could not be completed.", retryable: false };
         this.#states.set(actionId, { status: "failed", failure });
@@ -158,7 +158,7 @@ export class ProgramKitActionController {
     return true;
   }
 
-  public reset(actionId: string): ProgramKitActionBarSnapshot {
+  public reset(actionId: string): OrbyssActionBarSnapshot {
     if (this.#runningActionId === actionId) throw new Error("A running action cannot be reset.");
     this.#action(actionId);
     this.#states.set(actionId, { status: "idle" });
@@ -166,7 +166,7 @@ export class ProgramKitActionController {
     return this.snapshot();
   }
 
-  #availability(action: ProgramKitActionDefinition): ActionAvailability {
+  #availability(action: OrbyssActionDefinition): ActionAvailability {
     try {
       return this.#options.availability?.(action) ?? "enabled";
     } catch {
@@ -174,7 +174,7 @@ export class ProgramKitActionController {
     }
   }
 
-  #action(actionId: string): ProgramKitActionDefinition {
+  #action(actionId: string): OrbyssActionDefinition {
     const action = this.#definition.actions.find(candidate => candidate.actionId === actionId);
     if (action === undefined) throw new Error(`Action '${actionId}' is not declared by this action bar.`);
     return action;
@@ -184,19 +184,19 @@ export class ProgramKitActionController {
     this.#options.onChange?.(this.snapshot());
   }
 
-  #result(invoked: boolean, reason: NonNullable<ProgramKitActionResult["reason"]>): ProgramKitActionResult {
+  #result(invoked: boolean, reason: NonNullable<OrbyssActionResult["reason"]>): OrbyssActionResult {
     return { invoked, reason, snapshot: this.snapshot() };
   }
 }
 
-export function parseProgramKitActionBar(
+export function parseOrbyssActionBar(
   uiSchema: JsonObject,
   requirements: readonly FormActionRequirement[]
-): ProgramKitActionBarDefinition {
-  if (uiSchema.type !== "ProgramKit.ActionBar") throw new Error("The UI element is not a Program Kit action bar.");
+): OrbyssActionBarDefinition {
+  if (uiSchema.type !== "Orbyss.Forms.ActionBar") throw new Error("The UI element is not a Orbyss Forms action bar.");
   const options = requireObject(uiSchema.options, "Action-bar options");
   if (!Array.isArray(options.actions) || options.actions.length === 0) {
-    throw new Error("A Program Kit action bar requires a non-empty actions array.");
+    throw new Error("A Orbyss Forms action bar requires a non-empty actions array.");
   }
   const byId = new Map(requirements.map(requirement => [requirement.actionId, requirement]));
   const seen = new Set<string>();

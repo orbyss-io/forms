@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src/typescript"
-sys.path.insert(0, str(ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng"))
+sys.path.insert(0, str(ROOT / "eng"))
 import js_toolchain
 
 
@@ -20,7 +20,7 @@ def main() -> int:
     parser.add_argument("--install", action="store_true")
     args = parser.parse_args()
     package = json.loads((WORKSPACE / "package.json").read_text(encoding="utf-8"))
-    if package.get("scripts", {}).get("build") != "tsc -b && npm run build --workspace=@orbyss-io/program-kit-forms-angular":
+    if package.get("scripts", {}).get("build") != "tsc -b && npm run build --workspace=@orbyss-io/forms-angular":
         raise AssertionError("The frontend build must include Angular partial compilation after framework-neutral TypeScript builds.")
     if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs":
         raise AssertionError("The frontend unit command must be shell-glob independent on Windows and POSIX.")
@@ -45,18 +45,18 @@ def main() -> int:
 
     package_files = sorted((WORKSPACE / "packages").glob("*/package.json"))
     expected = {
-        "@orbyss-io/program-kit-forms-contracts",
-        "@orbyss-io/program-kit-forms-renderer-registry",
-        "@orbyss-io/program-kit-forms-jsonforms-runtime",
-        "@orbyss-io/program-kit-forms-ajv-build",
-        "@orbyss-io/program-kit-forms-editor-contracts",
-        "@orbyss-io/program-kit-forms-wizard",
-        "@orbyss-io/program-kit-forms-actions",
-        "@orbyss-io/program-kit-forms-angular",
-        "@orbyss-io/program-kit-forms-lookups",
-        "@orbyss-io/program-kit-forms-react",
-        "@orbyss-io/program-kit-forms-vue",
-        "@orbyss-io/program-kit-ui-theme",
+        "@orbyss-io/forms-contracts",
+        "@orbyss-io/forms-renderer-registry",
+        "@orbyss-io/forms-jsonforms-runtime",
+        "@orbyss-io/forms-ajv-build",
+        "@orbyss-io/forms-editor-contracts",
+        "@orbyss-io/forms-wizard",
+        "@orbyss-io/forms-actions",
+        "@orbyss-io/forms-angular",
+        "@orbyss-io/forms-lookups",
+        "@orbyss-io/forms-react",
+        "@orbyss-io/forms-vue",
+        "@orbyss-io/forms-ui-theme",
     }
     manifests = [json.loads(path.read_text(encoding="utf-8")) for path in package_files]
     names = {manifest["name"] for manifest in manifests}
@@ -64,16 +64,16 @@ def main() -> int:
         raise AssertionError(f"Unexpected frontend package set: {sorted(names)}")
 
     by_name = {manifest["name"]: manifest for manifest in manifests}
-    contracts = by_name["@orbyss-io/program-kit-forms-contracts"]
+    contracts = by_name["@orbyss-io/forms-contracts"]
     if contracts.get("dependencies") or contracts.get("peerDependencies"):
         raise AssertionError("Frontend form contracts must remain dependency-free.")
 
-    runtime_manifest = by_name["@orbyss-io/program-kit-forms-jsonforms-runtime"]
+    runtime_manifest = by_name["@orbyss-io/forms-jsonforms-runtime"]
     runtime_dependencies = runtime_manifest["dependencies"]
     if runtime_manifest.get("peerDependencies") != {"@jsonforms/core": "3.8.0"} or "ajv" in runtime_dependencies:
         raise AssertionError("The JSON Forms runtime must exact-pin JSON Forms core as a peer and must not compile AJV at runtime.")
 
-    editor_contracts = by_name["@orbyss-io/program-kit-forms-editor-contracts"]
+    editor_contracts = by_name["@orbyss-io/forms-editor-contracts"]
     if editor_contracts.get("dependencies") or editor_contracts.get("peerDependencies") or editor_contracts.get("devDependencies"):
         raise AssertionError("The shared JSON editor contract must remain dependency-free.")
 
@@ -81,15 +81,15 @@ def main() -> int:
     if "tabSize: 2" not in editor_policy or "tabKeyIndents: true" not in editor_policy:
         raise AssertionError("Application-owned editors must receive the governed two-space Tab indentation policy.")
 
-    wizard_dependencies = by_name["@orbyss-io/program-kit-forms-wizard"]["dependencies"]
-    if wizard_dependencies != {"@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1"}:
+    wizard_dependencies = by_name["@orbyss-io/forms-wizard"]["dependencies"]
+    if wizard_dependencies != {"@orbyss-io/forms-contracts": "0.1.0"}:
         raise AssertionError("The shared wizard state machine must remain framework-neutral.")
 
-    action_dependencies = by_name["@orbyss-io/program-kit-forms-actions"]["dependencies"]
-    if action_dependencies != {"@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1"}:
+    action_dependencies = by_name["@orbyss-io/forms-actions"]["dependencies"]
+    if action_dependencies != {"@orbyss-io/forms-contracts": "0.1.0"}:
         raise AssertionError("The governed action controller must remain framework-neutral.")
 
-    theme = by_name["@orbyss-io/program-kit-ui-theme"]
+    theme = by_name["@orbyss-io/forms-ui-theme"]
     if theme.get("dependencies") or theme.get("peerDependencies") or theme.get("devDependencies"):
         raise AssertionError("The framework-neutral theme contract must remain dependency-free.")
     if theme.get("files") != ["dist", "default.css"] or theme.get("exports", {}).get("./default.css") != "./default.css":
@@ -97,10 +97,10 @@ def main() -> int:
     if theme.get("sideEffects") != ["./default.css"]:
         raise AssertionError("Only the explicitly imported default theme may be marked as a side effect.")
     theme_css = (WORKSPACE / "packages/ui-theme/default.css").read_text(encoding="utf-8")
-    if "@layer program-kit.theme" not in theme_css or "[data-pk-theme" not in theme_css:
+    if "@layer orbyss-forms.theme" not in theme_css or "[data-pk-theme" not in theme_css:
         raise AssertionError("The default theme must remain scoped and cascade-layered.")
-    lookup_dependencies = by_name["@orbyss-io/program-kit-forms-lookups"]["dependencies"]
-    if lookup_dependencies != {"@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1"}:
+    lookup_dependencies = by_name["@orbyss-io/forms-lookups"]["dependencies"]
+    if lookup_dependencies != {"@orbyss-io/forms-contracts": "0.1.0"}:
         raise AssertionError("Searchable lookups must remain framework-neutral and depend only on JSON-safe contracts.")
 
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
@@ -113,10 +113,10 @@ def main() -> int:
         if skipped != (config_path.parent.name in quarantined):
             raise AssertionError(f"Unexpected library-check quarantine: {config_path}")
 
-    react_manifest = by_name["@orbyss-io/program-kit-forms-react"]
+    react_manifest = by_name["@orbyss-io/forms-react"]
     if react_manifest.get("dependencies") != {
-        "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
-        "@orbyss-io/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
+        "@orbyss-io/forms-contracts": "0.1.0",
+        "@orbyss-io/forms-jsonforms-runtime": "0.1.0",
     }:
         raise AssertionError("The thin React binding must depend only on governed runtime integration.")
     if react_manifest.get("peerDependencies") != {
@@ -135,10 +135,10 @@ def main() -> int:
             or "./styles.css" in react_manifest.get("exports", {}):
         raise AssertionError("The thin React binding must not publish renderer components or CSS.")
 
-    vue_manifest = by_name["@orbyss-io/program-kit-forms-vue"]
+    vue_manifest = by_name["@orbyss-io/forms-vue"]
     if vue_manifest.get("dependencies") != {
-        "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
-        "@orbyss-io/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
+        "@orbyss-io/forms-contracts": "0.1.0",
+        "@orbyss-io/forms-jsonforms-runtime": "0.1.0",
     } or vue_manifest.get("peerDependencies") != {
         "@jsonforms/core": "3.8.0",
         "@jsonforms/vue": "3.8.0",
@@ -149,10 +149,10 @@ def main() -> int:
             or "./styles.css" in vue_manifest.get("exports", {}):
         raise AssertionError("The thin Vue binding must not publish renderer components or CSS.")
 
-    angular_manifest = by_name["@orbyss-io/program-kit-forms-angular"]
+    angular_manifest = by_name["@orbyss-io/forms-angular"]
     if angular_manifest.get("dependencies") != {
-        "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
-        "@orbyss-io/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1",
+        "@orbyss-io/forms-contracts": "0.1.0",
+        "@orbyss-io/forms-jsonforms-runtime": "0.1.0",
     } or angular_manifest.get("peerDependencies") != {
         "@angular/common": "22.1.5",
         "@angular/core": "22.1.5",
@@ -193,9 +193,9 @@ def main() -> int:
         source = (WORKSPACE / relative).read_text(encoding="utf-8")
         for forbidden in (
             "withJsonFormsControlProps",
-            "ProgramKitWizard",
-            "ProgramKitActionBar",
-            "ProgramKit.SearchableSelect",
+            "OrbyssWizard",
+            "OrbyssActionBar",
+            "Orbyss.SearchableSelect",
             "pk-form-control",
             "pk-form-wizard",
             "pk-form-actions",

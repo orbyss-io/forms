@@ -1,55 +1,112 @@
 {
-  "id": { "value": "registration-v7" },
+  "id": {
+    "value": "registration-v7"
+  },
   "candidate": {
-    "formId": { "value": "registration" },
-    "revision": { "value": 7 },
+    "formId": {
+      "value": "registration"
+    },
+    "revision": {
+      "value": 7
+    },
     "dataSchema": {
-      "mediaType": "application/schema+json",
-      "content": "{\r\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\r\n  \"$id\": \"urn:program-kit:forms:registration:7\",\r\n  \"title\": \"Registration\",\r\n  \"type\": \"object\",\r\n  \"properties\": {\r\n    \"name\": {\r\n      \"type\": \"string\",\r\n      \"title\": \"Name\",\r\n      \"x-i18n\": \"name\",\r\n      \"minLength\": 1,\r\n      \"maxLength\": 200\r\n    }\r\n  },\r\n  \"additionalProperties\": false,\r\n  \"required\": [\r\n    \"name\"\r\n  ]\r\n}",
-      "sha256": "e829717a74cc6b056c134502caa1bb43d1031a108c341e1d15d2b01c98a2bcb8"
+      "mediaType": "application/schema\u002Bjson",
+      "content": "{\r\n  \u0022$schema\u0022: \u0022https://json-schema.org/draft/2020-12/schema\u0022,\r\n  \u0022$id\u0022: \u0022urn:orbyss:forms:registration:7\u0022,\r\n  \u0022title\u0022: \u0022Registration\u0022,\r\n  \u0022type\u0022: \u0022object\u0022,\r\n  \u0022properties\u0022: {\r\n    \u0022name\u0022: {\r\n      \u0022type\u0022: \u0022string\u0022,\r\n      \u0022title\u0022: \u0022Name\u0022,\r\n      \u0022x-i18n\u0022: \u0022name\u0022,\r\n      \u0022minLength\u0022: 1,\r\n      \u0022maxLength\u0022: 200\r\n    }\r\n  },\r\n  \u0022additionalProperties\u0022: false,\r\n  \u0022required\u0022: [\r\n    \u0022name\u0022\r\n  ]\r\n}",
+      "sha256": "01d9c2b68c3aa31efbfa4050bdc17cb160cddb42546ade9ae4b24ec8051ae80b"
     },
     "uiSchema": {
-      "mediaType": "application/vnd.jsonforms.uischema+json",
-      "content": "{\r\n  \"type\": \"Categorization\",\r\n  \"id\": \"registration\",\r\n  \"options\": {\r\n    \"variant\": \"program-kit-wizard\",\r\n    \"navigationPolicy\": \"visited\",\r\n    \"navigationPlacement\": \"adaptive\",\r\n    \"progressStyle\": \"progress\",\r\n    \"validateBeforeAdvance\": true,\r\n    \"saveProgress\": true,\r\n    \"deepLink\": false\r\n  },\r\n  \"elements\": [\r\n    {\r\n      \"type\": \"Category\",\r\n      \"id\": \"identity\",\r\n      \"label\": \"Identity\",\r\n      \"i18n\": \"steps.identity\",\r\n      \"options\": {\r\n        \"icon\": {\r\n          \"name\": \"user\",\r\n          \"bundle\": null\r\n        }\r\n      },\r\n      \"elements\": [\r\n        {\r\n          \"type\": \"Control\",\r\n          \"id\": \"name-control\",\r\n          \"scope\": \"#/properties/name\",\r\n          \"label\": \"Name\",\r\n          \"i18n\": \"name\"\r\n        },\r\n        {\r\n          \"type\": \"ProgramKit.ActionBar\",\r\n          \"id\": \"actions\",\r\n          \"options\": {\r\n            \"actions\": [\r\n              \"finish\"\r\n            ]\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
-      "sha256": "d8ea16acd70c2bfc22850dccfdfc604149348501593e4765a28ebe2dcdf5e528"
+      "mediaType": "application/vnd.jsonforms.uischema\u002Bjson",
+      "content": "{\r\n  \u0022type\u0022: \u0022Categorization\u0022,\r\n  \u0022id\u0022: \u0022registration\u0022,\r\n  \u0022options\u0022: {\r\n    \u0022variant\u0022: \u0022orbyss-forms-wizard\u0022,\r\n    \u0022navigationPolicy\u0022: \u0022visited\u0022,\r\n    \u0022navigationPlacement\u0022: \u0022adaptive\u0022,\r\n    \u0022progressStyle\u0022: \u0022progress\u0022,\r\n    \u0022validateBeforeAdvance\u0022: true,\r\n    \u0022saveProgress\u0022: true,\r\n    \u0022deepLink\u0022: false\r\n  },\r\n  \u0022elements\u0022: [\r\n    {\r\n      \u0022type\u0022: \u0022Category\u0022,\r\n      \u0022id\u0022: \u0022identity\u0022,\r\n      \u0022label\u0022: \u0022Identity\u0022,\r\n      \u0022i18n\u0022: \u0022steps.identity\u0022,\r\n      \u0022options\u0022: {\r\n        \u0022icon\u0022: {\r\n          \u0022name\u0022: \u0022user\u0022,\r\n          \u0022bundle\u0022: null\r\n        }\r\n      },\r\n      \u0022elements\u0022: [\r\n        {\r\n          \u0022type\u0022: \u0022Control\u0022,\r\n          \u0022id\u0022: \u0022name-control\u0022,\r\n          \u0022scope\u0022: \u0022#/properties/name\u0022,\r\n          \u0022label\u0022: \u0022Name\u0022,\r\n          \u0022i18n\u0022: \u0022name\u0022\r\n        },\r\n        {\r\n          \u0022type\u0022: \u0022Orbyss.Forms.ActionBar\u0022,\r\n          \u0022id\u0022: \u0022actions\u0022,\r\n          \u0022options\u0022: {\r\n            \u0022actions\u0022: [\r\n              \u0022finish\u0022\r\n            ]\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+      "sha256": "5e8f6b6fa72a435ce383fd77b2aba51f71382fb25231f4da6c6c5578cd088446"
     },
     "renderers": [
-      { "componentId": "ProgramKit.ActionBar", "versionRange": "[1.0.0,2.0.0)" },
-      { "componentId": "ProgramKit.Wizard", "versionRange": "[1.0.0,2.0.0)" }
+      {
+        "componentId": "Orbyss.Forms.ActionBar",
+        "versionRange": "[1.0.0,2.0.0)"
+      },
+      {
+        "componentId": "Orbyss.Forms.Wizard",
+        "versionRange": "[1.0.0,2.0.0)"
+      }
     ],
     "translations": [
-      { "key": "actions.finish", "defaultText": "Finish", "sourceLocale": "en", "scope": "forms:registration", "context": null, "arguments": null },
-      { "key": "name", "defaultText": "Name", "sourceLocale": "en", "scope": "forms:registration", "context": null, "arguments": null },
-      { "key": "steps.identity", "defaultText": "Identity", "sourceLocale": "en", "scope": "forms:registration", "context": null, "arguments": null }
+      {
+        "key": "actions.finish",
+        "defaultText": "Finish",
+        "sourceLocale": "en",
+        "scope": "forms:registration",
+        "context": null,
+        "arguments": null
+      },
+      {
+        "key": "name",
+        "defaultText": "Name",
+        "sourceLocale": "en",
+        "scope": "forms:registration",
+        "context": null,
+        "arguments": null
+      },
+      {
+        "key": "steps.identity",
+        "defaultText": "Identity",
+        "sourceLocale": "en",
+        "scope": "forms:registration",
+        "context": null,
+        "arguments": null
+      }
     ],
     "actions": [
       {
         "actionId": "finish",
         "handlerId": "registration.submit",
         "kind": 5,
-        "label": { "key": "actions.finish", "defaultText": "Finish", "context": null },
+        "label": {
+          "key": "actions.finish",
+          "defaultText": "Finish",
+          "context": null
+        },
         "requiresValidForm": true,
         "icon": null
       }
     ],
     "diagnostics": [],
     "compiledAt": "1970-01-01T00:00:00+00:00",
-    "candidateSha256": "c4eeccb1618342a13a504059b28a6e3c648c5740c762824fda7223d9bc502522",
+    "candidateSha256": "fa575c5fc9a573c9329451988a6bf555ea7f2b806b7cbc2b8b9447e2936e89c4",
     "fields": [
       {
         "id": "name",
         "dataPath": "/name",
         "valueKind": 0,
         "required": true,
-        "label": { "key": "name", "defaultText": "Name", "context": null },
+        "label": {
+          "key": "name",
+          "defaultText": "Name",
+          "context": null
+        },
         "description": null,
-        "constraints": { "minimum": null, "maximum": null, "minimumLength": 1, "maximumLength": 200, "minimumItems": null, "maximumItems": null, "pattern": null, "choices": null },
+        "constraints": {
+          "minimum": null,
+          "maximum": null,
+          "minimumLength": 1,
+          "maximumLength": 200,
+          "minimumItems": null,
+          "maximumItems": null,
+          "pattern": null,
+          "choices": null
+        },
         "component": null
       }
     ]
   },
   "publishedAt": "1970-01-01T00:00:00+00:00",
-  "publishedBy": { "id": "author-1", "kind": "user", "displayName": "Form Author" },
-  "evidence": ["compiler-contract"],
+  "publishedBy": {
+    "id": "author-1",
+    "kind": "user",
+    "displayName": "Form Author"
+  },
+  "evidence": [
+    "compiler-contract"
+  ],
   "retired": false
 }
+

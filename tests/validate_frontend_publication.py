@@ -8,18 +8,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src" / "typescript"
 EXPECTED_PACKAGES = (
-    "@orbyss-io/program-kit-forms-actions",
-    "@orbyss-io/program-kit-forms-ajv-build",
-    "@orbyss-io/program-kit-forms-angular",
-    "@orbyss-io/program-kit-forms-contracts",
-    "@orbyss-io/program-kit-forms-editor-contracts",
-    "@orbyss-io/program-kit-forms-jsonforms-runtime",
-    "@orbyss-io/program-kit-forms-lookups",
-    "@orbyss-io/program-kit-forms-react",
-    "@orbyss-io/program-kit-forms-renderer-registry",
-    "@orbyss-io/program-kit-forms-vue",
-    "@orbyss-io/program-kit-forms-wizard",
-    "@orbyss-io/program-kit-ui-theme",
+    "@orbyss-io/forms-actions",
+    "@orbyss-io/forms-ajv-build",
+    "@orbyss-io/forms-angular",
+    "@orbyss-io/forms-contracts",
+    "@orbyss-io/forms-editor-contracts",
+    "@orbyss-io/forms-jsonforms-runtime",
+    "@orbyss-io/forms-lookups",
+    "@orbyss-io/forms-react",
+    "@orbyss-io/forms-renderer-registry",
+    "@orbyss-io/forms-vue",
+    "@orbyss-io/forms-wizard",
+    "@orbyss-io/forms-ui-theme",
 )
 
 
@@ -41,21 +41,20 @@ def main() -> int:
         return 0
 
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    runtime_version = (ROOT / "RUNTIME_VERSION").read_text(encoding="utf-8").strip()
     if args.tag is not None and args.tag != f"v{version}":
         raise AssertionError(f"Release tag {args.tag!r} does not match v{version}.")
 
     root_manifest = json.loads((WORKSPACE / "package.json").read_text(encoding="utf-8"))
-    if root_manifest.get("version") != runtime_version:
-        raise AssertionError("The frontend workspace version must match RUNTIME_VERSION.")
+    if root_manifest.get("version") != version:
+        raise AssertionError("The frontend workspace version must match VERSION.")
 
     manifests = load_manifests()
-    if tuple(sorted(str(manifest["name"]) for manifest in manifests)) != EXPECTED_PACKAGES:
+    if tuple(sorted(str(manifest["name"]) for manifest in manifests)) != tuple(sorted(EXPECTED_PACKAGES)):
         raise AssertionError("The publishable frontend family is not the approved exact 12-package set.")
 
     expected_repository = {
         "type": "git",
-        "url": "git+https://github.com/orbyss-io/program-kit.git",
+        "url": "git+https://github.com/orbyss-io/forms.git",
     }
     expected_publish = {
         "registry": "https://npm.pkg.github.com",
@@ -64,15 +63,15 @@ def main() -> int:
     }
     for manifest in manifests:
         name = str(manifest["name"])
-        if manifest.get("version") != runtime_version:
-            raise AssertionError(f"{name} does not match RUNTIME_VERSION.")
+        if manifest.get("version") != version:
+            raise AssertionError(f"{name} does not match VERSION.")
         if manifest.get("private") is True:
             raise AssertionError(f"{name} is unexpectedly private.")
         if manifest.get("license") != "MIT":
             raise AssertionError(f"{name} does not declare the repository license.")
         repository = manifest.get("repository")
         if not isinstance(repository, dict) or any(repository.get(key) != value for key, value in expected_repository.items()):
-            raise AssertionError(f"{name} is not linked to the Program Kit repository.")
+            raise AssertionError(f"{name} is not linked to the Orbyss Forms repository.")
         if not str(repository.get("directory", "")).startswith("src/typescript/packages/"):
             raise AssertionError(f"{name} has no package directory association.")
         if manifest.get("publishConfig") != expected_publish:
@@ -84,19 +83,18 @@ def main() -> int:
         if build_info.startswith("dist/"):
             raise AssertionError(f"{config_path.parent.name} would publish TypeScript build cache metadata.")
 
-    workflow = (ROOT / ".github" / "workflows" / "publish-frontend.yml").read_text(encoding="utf-8")
-    release = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     required = (
-        "environment: frontend-packages-production",
+        "environment: forms-packages-production",
         "packages: write",
         "registry-url: https://npm.pkg.github.com",
         'scope: "@orbyss-io"',
-        "npm ci --ignore-scripts",
+        "validate_forms_frontend.py --install",
         "npm pack --workspaces",
         "npm publish",
         "--tag=preview",
         "NODE_AUTH_TOKEN: ${{ github.token }}",
-        "Verify clean GitHub Packages installation",
+        "Verify package family",
     )
     for marker in required:
         if marker not in workflow:
@@ -111,22 +109,8 @@ def main() -> int:
     ):
         if forbidden in workflow:
             raise AssertionError(f"Frontend publication gained an unsafe trigger or credential: {forbidden}")
-    if (
-        "publish-frontend:\n    needs: release" not in release
-        or "uses: ./.github/workflows/publish-frontend.yml" not in release
-    ):
-        raise AssertionError("The tag release does not gate frontend publication on full release validation.")
-    runtime_gate = "if: ${{ needs.release.outputs.publish_runtime == 'true' }}"
-    if "publish_runtime: ${{ steps.runtime_publication.outputs.publish }}" not in release:
-        raise AssertionError("The validated release does not expose its immutable-runtime publication decision.")
-    if "git show \"${previous_tag}:RUNTIME_VERSION\"" not in release:
-        raise AssertionError("Runtime publication is not classified against the previous stable release.")
-    if release.count(runtime_gate) != 3:
-        raise AssertionError("Every immutable runtime publication job must use the shared version-change gate.")
-    if "publish-nuget:\n    needs: [release, publish-frontend]" not in release:
-        raise AssertionError("NuGet publication must wait for successful frontend publication.")
-    if "publish-host-image:\n    needs: [release, publish-frontend, publish-nuget]" not in release:
-        raise AssertionError("Host-image publication must wait for both package families.")
+    if "dotnet nuget push" not in workflow or "NuGet/login@" not in workflow:
+        raise AssertionError("The Forms release must publish its .NET family in the same validated release.")
 
     print("Tag-only GitHub Packages publication contract passed for the exact frontend engine family.")
     return 0
