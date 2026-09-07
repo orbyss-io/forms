@@ -333,7 +333,8 @@ def main() -> int:
         docker_command = viewer.build_docker_command(
             "docker.exe", profile["selected"]["docker_image"], windows_data, "program-kit-c4-abc", 8081
         )
-        if str(windows_data.resolve()) not in docker_command[-3]:
+        expected_mount = f"{os.fspath(windows_data)}:/usr/local/structurizr"
+        if docker_command[-3] != expected_mount:
             raise AssertionError("Windows path with spaces was split or lost in Docker command construction")
         rendered_windows = viewer.render_command(docker_command, "nt")
         if '"' not in rendered_windows or "latest" in docker_command:
