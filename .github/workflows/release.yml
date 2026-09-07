@@ -224,17 +224,17 @@ jobs:
       - name: Test live public catalog upgrade from previous stable release
         run: python tests/validate_public_upgrade.py
 
-  publish-nuget:
-    needs: release
-    uses: ./.github/workflows/publish-nuget.yml
-    secrets: inherit
-
   publish-frontend:
     needs: release
     uses: ./.github/workflows/publish-frontend.yml
     secrets: inherit
 
+  publish-nuget:
+    needs: [release, publish-frontend]
+    uses: ./.github/workflows/publish-nuget.yml
+    secrets: inherit
+
   publish-host-image:
-    needs: release
+    needs: [release, publish-frontend, publish-nuget]
     uses: ./.github/workflows/publish-host-image.yml
     secrets: inherit

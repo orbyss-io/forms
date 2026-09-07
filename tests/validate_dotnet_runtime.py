@@ -172,8 +172,16 @@ def main() -> int:
     for publication_workflow in ("publish-nuget.yml", "publish-host-image.yml"):
         if f"uses: ./.github/workflows/{publication_workflow}" not in release_workflow:
             raise AssertionError(f"Release does not call {publication_workflow} after validation")
-    if release_workflow.count("needs: release") < 2:
-        raise AssertionError("Registry publication jobs must depend on the validated release job")
+    publication_order = (
+        "publish-frontend:\n    needs: release",
+        "publish-nuget:\n    needs: [release, publish-frontend]",
+        "publish-host-image:\n    needs: [release, publish-frontend, publish-nuget]",
+    )
+    for marker in publication_order:
+        if marker not in release_workflow:
+            raise AssertionError(
+                "Registry publication jobs must be serialized after the validated release job"
+            )
     if "packages: write" not in release_workflow:
         raise AssertionError("Release must grant its called host-image workflow package publication access")
 

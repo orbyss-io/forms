@@ -8,9 +8,13 @@ release are intentionally preview artifacts at `0.4.0-preview.1`.
 1. Merge the implementation into the repository's default branch only after all required checks pass.
 2. In **Settings → Actions → General**, permit GitHub Actions to read and write repository contents and
    packages. Keep fork pull-request workflows read-only and approval-gated.
-3. In **Settings → Environments**, create `nuget-production` and `host-production`:
-   - add the maintainers who may approve registry publication as required reviewers to both;
-   - restrict deployment tags to `v*.*.*` in both;
+3. In **Settings → Environments**, create `frontend-packages-production`, `nuget-production`, and
+   `host-production`:
+   - add the maintainers who may approve registry publication as required reviewers;
+   - restrict deployment tags to `v*.*.*`;
+   - add `ORBYSS_PACKAGES_TOKEN` to `frontend-packages-production`. It must be a classic personal access
+     token issued by the `Orbyss` GitHub account, which owns the `@orbyss` npm namespace, with
+     `read:packages` and `write:packages` scopes;
    - add the environment variable `NUGET_USER` to `nuget-production`, set to the NuGet.org username that owns
      the trusted-publishing policy. This is a variable, not a secret or email address.
 4. On NuGet.org, configure a trusted-publishing policy for the `orbyss-io/program-kit` repository, workflow
@@ -50,25 +54,28 @@ git tag -a v0.4.0 -m "Program Kit 0.4.0"
 git push origin v0.4.0
 ```
 
-That single tag starts three independent workflows:
+That single tag starts one governed release workflow. After every deterministic and public-catalog gate passes,
+its registry publishers run in this order so a failed package family blocks later publication:
 
-- **Release** publishes and attests the Spec Kit bundle, extension, workflow, and checksums.
-- **Publish Program Kit NuGet Packages** publishes and attests the three `0.4.0-preview.1` packages through
+- **Publish Program Kit Frontend Packages** publishes the exact `@orbyss` engine family through the protected
+  `frontend-packages-production` environment.
+- **Publish Program Kit NuGet Packages** publishes and attests the `0.4.0-preview.1` packages through
   the protected `nuget-production` environment.
 - **Publish Program Kit Host Image** publishes a multi-architecture, SBOM- and provenance-bearing image as
   `ghcr.io/orbyss-io/program-kit-host:0.4.0-preview.1` and `:sha-<commit>`.
 
-Approve the NuGet and host-image environment deployments only after verifying the tag points at the reviewed release commit. Do not rerun a partially failed release blindly; inspect which
+Approve the frontend, NuGet, and host-image environment deployments only after verifying the tag points at the reviewed release commit. Do not rerun a partially failed release blindly; inspect which
 registries already accepted immutable artifacts. The NuGet push is duplicate-safe.
 
 ## Verify and enable consumers
 
 1. Verify the GitHub release contains the three Spec Kit ZIPs and `SHA256SUMS`, and that its attestations verify.
-2. Verify all three NuGet packages are `0.4.0-preview.1` and expose their repository metadata.
-3. Verify the GHCR host image has both `linux/amd64` and `linux/arm64` manifests, an SBOM, and provenance.
-4. Make the host package public so unauthenticated Docker, Kubernetes, and Azure deployments can pull it. If it
+2. Verify the exact `@orbyss` frontend package family is `0.4.0-preview.1` under the `preview` dist-tag.
+3. Verify all NuGet packages are `0.4.0-preview.1` and expose their repository metadata.
+4. Verify the GHCR host image has both `linux/amd64` and `linux/arm64` manifests, an SBOM, and provenance.
+5. Make the host package public so unauthenticated Docker, Kubernetes, and Azure deployments can pull it. If it
    must remain private, grant each consumer repository explicit Actions access to the package instead.
-5. Resolve the host image digest and set each consuming repository's Actions variable `PROGRAMKIT_HOST_IMAGE`
+6. Resolve the host image digest and set each consuming repository's Actions variable `PROGRAMKIT_HOST_IMAGE`
    to `ghcr.io/orbyss-io/program-kit-host@sha256:<digest>`. Never configure a mutable tag there.
 
 Consumers then install/update the Program Kit Spec Kit bundle, explicitly select the .NET profile, and run

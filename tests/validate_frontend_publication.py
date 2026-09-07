@@ -87,24 +87,39 @@ def main() -> int:
     workflow = (ROOT / ".github" / "workflows" / "publish-frontend.yml").read_text(encoding="utf-8")
     release = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     required = (
-        "packages: write",
         "environment: frontend-packages-production",
         "registry-url: https://npm.pkg.github.com",
+        "Verify @orbyss publisher credential",
+        "npm whoami --registry=https://npm.pkg.github.com",
         "npm ci --ignore-scripts",
         "npm pack --workspaces",
         "npm publish",
         "--tag=preview",
-        "NODE_AUTH_TOKEN: ${{ github.token }}",
+        "NODE_AUTH_TOKEN: ${{ secrets.ORBYSS_PACKAGES_TOKEN }}",
         "Verify clean GitHub Packages installation",
     )
     for marker in required:
         if marker not in workflow:
             raise AssertionError(f"Frontend publication workflow lost required behavior: {marker}")
-    for forbidden in ("pull_request:", "branches:", "workflow_dispatch:", "NPM_TOKEN", "npmjs.org"):
+    for forbidden in (
+        "pull_request:",
+        "branches:",
+        "workflow_dispatch:",
+        "NPM_TOKEN",
+        "NODE_AUTH_TOKEN: ${{ github.token }}",
+        "npmjs.org",
+    ):
         if forbidden in workflow:
             raise AssertionError(f"Frontend publication gained an unsafe trigger or credential: {forbidden}")
-    if "uses: ./.github/workflows/publish-frontend.yml" not in release or "needs: release" not in release:
+    if (
+        "publish-frontend:\n    needs: release" not in release
+        or "uses: ./.github/workflows/publish-frontend.yml" not in release
+    ):
         raise AssertionError("The tag release does not gate frontend publication on full release validation.")
+    if "publish-nuget:\n    needs: [release, publish-frontend]" not in release:
+        raise AssertionError("NuGet publication must wait for successful frontend publication.")
+    if "publish-host-image:\n    needs: [release, publish-frontend, publish-nuget]" not in release:
+        raise AssertionError("Host-image publication must wait for both package families.")
 
     print("Tag-only GitHub Packages publication contract passed for the exact frontend engine family.")
     return 0
