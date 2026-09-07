@@ -1,5 +1,5 @@
 {
-  "name": "@orbyss/program-kit-forms-jsonforms-runtime",
+  "name": "@orbyss-io/program-kit-forms-jsonforms-runtime",
   "version": "0.9.9-preview.1",
   "license": "MIT",
   "repository": {
@@ -25,8 +25,8 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
-    "@orbyss/program-kit-forms-renderer-registry": "0.9.9-preview.1"
+    "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
+    "@orbyss-io/program-kit-forms-renderer-registry": "0.9.9-preview.1"
   },
   "peerDependencies": {
     "@jsonforms/core": "3.8.0"

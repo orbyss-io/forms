@@ -1,6 +1,6 @@
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
 import * as standaloneModule from "ajv/dist/standalone/index.js";
-import type { JsonObject, JsonValue } from "@orbyss/program-kit-forms-contracts";
+import type { JsonObject, JsonValue } from "@orbyss-io/program-kit-forms-contracts";
 
 export interface AjvValidationIssue {
   readonly path: string;

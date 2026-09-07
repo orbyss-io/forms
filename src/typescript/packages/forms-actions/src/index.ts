@@ -4,7 +4,7 @@ import type {
   JsonValue,
   ProgramKitValidator,
   RuntimeValidationIssue
-} from "@orbyss/program-kit-forms-contracts";
+} from "@orbyss-io/program-kit-forms-contracts";
 
 export type ActionAvailability = "enabled" | "disabled" | "hidden";
 export type ActionExecutionStatus = "idle" | "running" | "succeeded" | "failed" | "blocked" | "cancelled";

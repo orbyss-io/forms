@@ -9,7 +9,7 @@ own their renderer package, CSS and design system.
 Import the token defaults once when they are useful to the wider application:
 
 ```ts
-import "@orbyss/program-kit-ui-theme/default.css";
+import "@orbyss-io/program-kit-ui-theme/default.css";
 ```
 
 Scope the light, dark or operating-system-responsive values to an application region:

@@ -12,9 +12,8 @@ release are intentionally preview artifacts at `0.4.0-preview.1`.
    `host-production`:
    - add the maintainers who may approve registry publication as required reviewers;
    - restrict deployment tags to `v*.*.*`;
-   - add `ORBYSS_PACKAGES_TOKEN` to `frontend-packages-production`. It must be a classic personal access
-     token issued by the `Orbyss` GitHub account, which owns the `@orbyss` npm namespace, with
-     `read:packages` and `write:packages` scopes;
+   - no frontend registry secret is required. The workflow publishes the `@orbyss-io` package scope with
+     the repository-scoped `GITHUB_TOKEN` and explicit `packages: write` permission;
    - add the environment variable `NUGET_USER` to `nuget-production`, set to the NuGet.org username that owns
      the trusted-publishing policy. This is a variable, not a secret or email address.
 4. On NuGet.org, configure a trusted-publishing policy for the `orbyss-io/program-kit` repository, workflow
@@ -57,7 +56,7 @@ git push origin v0.4.0
 That single tag starts one governed release workflow. After every deterministic and public-catalog gate passes,
 its registry publishers run in this order so a failed package family blocks later publication:
 
-- **Publish Program Kit Frontend Packages** publishes the exact `@orbyss` engine family through the protected
+- **Publish Program Kit Frontend Packages** publishes the exact `@orbyss-io` engine family through the protected
   `frontend-packages-production` environment.
 - **Publish Program Kit NuGet Packages** publishes and attests the `0.4.0-preview.1` packages through
   the protected `nuget-production` environment.
@@ -70,7 +69,7 @@ registries already accepted immutable artifacts. The NuGet push is duplicate-saf
 ## Verify and enable consumers
 
 1. Verify the GitHub release contains the three Spec Kit ZIPs and `SHA256SUMS`, and that its attestations verify.
-2. Verify the exact `@orbyss` frontend package family is `0.4.0-preview.1` under the `preview` dist-tag.
+2. Verify the exact `@orbyss-io` frontend package family is `0.4.0-preview.1` under the `preview` dist-tag.
 3. Verify all NuGet packages are `0.4.0-preview.1` and expose their repository metadata.
 4. Verify the GHCR host image has both `linux/amd64` and `linux/arm64` manifests, an SBOM, and provenance.
 5. Make the host package public so unauthenticated Docker, Kubernetes, and Azure deployments can pull it. If it

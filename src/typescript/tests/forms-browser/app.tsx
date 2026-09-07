@@ -7,8 +7,8 @@ import {
 import { withJsonFormsControlProps } from "@jsonforms/react";
 import { createRoot } from "react-dom/client";
 import { useMemo, useState, type ReactNode } from "react";
-import { ProgramKitJsonForms } from "@orbyss/program-kit-forms-react";
-import type { JsonValue, RuntimeValidationIssue } from "@orbyss/program-kit-forms-contracts";
+import { ProgramKitJsonForms } from "@orbyss-io/program-kit-forms-react";
+import type { JsonValue, RuntimeValidationIssue } from "@orbyss-io/program-kit-forms-contracts";
 import { schema } from "./schema.mjs";
 import { validate as validateGenerated } from "program-kit:validator";
 

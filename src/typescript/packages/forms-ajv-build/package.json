@@ -1,5 +1,5 @@
 {
-  "name": "@orbyss/program-kit-forms-ajv-build",
+  "name": "@orbyss-io/program-kit-forms-ajv-build",
   "version": "0.9.9-preview.1",
   "license": "MIT",
   "repository": {
@@ -25,7 +25,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
+    "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
     "ajv": "8.20.0"
   }
 }

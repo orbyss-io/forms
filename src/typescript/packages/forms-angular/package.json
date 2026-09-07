@@ -1,5 +1,5 @@
 {
-  "name": "@orbyss/program-kit-forms-angular",
+  "name": "@orbyss-io/program-kit-forms-angular",
   "version": "0.9.9-preview.1",
   "license": "MIT",
   "repository": {
@@ -25,8 +25,8 @@
     "build": "ngc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1",
-    "@orbyss/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1"
+    "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1",
+    "@orbyss-io/program-kit-forms-jsonforms-runtime": "0.9.9-preview.1"
   },
   "peerDependencies": {
     "@angular/common": "22.1.5",

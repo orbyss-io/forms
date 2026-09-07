@@ -8,18 +8,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src" / "typescript"
 EXPECTED_PACKAGES = (
-    "@orbyss/program-kit-forms-actions",
-    "@orbyss/program-kit-forms-ajv-build",
-    "@orbyss/program-kit-forms-angular",
-    "@orbyss/program-kit-forms-contracts",
-    "@orbyss/program-kit-forms-editor-contracts",
-    "@orbyss/program-kit-forms-jsonforms-runtime",
-    "@orbyss/program-kit-forms-lookups",
-    "@orbyss/program-kit-forms-react",
-    "@orbyss/program-kit-forms-renderer-registry",
-    "@orbyss/program-kit-forms-vue",
-    "@orbyss/program-kit-forms-wizard",
-    "@orbyss/program-kit-ui-theme",
+    "@orbyss-io/program-kit-forms-actions",
+    "@orbyss-io/program-kit-forms-ajv-build",
+    "@orbyss-io/program-kit-forms-angular",
+    "@orbyss-io/program-kit-forms-contracts",
+    "@orbyss-io/program-kit-forms-editor-contracts",
+    "@orbyss-io/program-kit-forms-jsonforms-runtime",
+    "@orbyss-io/program-kit-forms-lookups",
+    "@orbyss-io/program-kit-forms-react",
+    "@orbyss-io/program-kit-forms-renderer-registry",
+    "@orbyss-io/program-kit-forms-vue",
+    "@orbyss-io/program-kit-forms-wizard",
+    "@orbyss-io/program-kit-ui-theme",
 )
 
 
@@ -88,14 +88,14 @@ def main() -> int:
     release = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     required = (
         "environment: frontend-packages-production",
+        "packages: write",
         "registry-url: https://npm.pkg.github.com",
-        "Verify @orbyss publisher credential",
-        "npm whoami --registry=https://npm.pkg.github.com",
+        'scope: "@orbyss-io"',
         "npm ci --ignore-scripts",
         "npm pack --workspaces",
         "npm publish",
         "--tag=preview",
-        "NODE_AUTH_TOKEN: ${{ secrets.ORBYSS_PACKAGES_TOKEN }}",
+        "NODE_AUTH_TOKEN: ${{ github.token }}",
         "Verify clean GitHub Packages installation",
     )
     for marker in required:
@@ -106,7 +106,7 @@ def main() -> int:
         "branches:",
         "workflow_dispatch:",
         "NPM_TOKEN",
-        "NODE_AUTH_TOKEN: ${{ github.token }}",
+        "ORBYSS_PACKAGES_TOKEN",
         "npmjs.org",
     ):
         if forbidden in workflow:

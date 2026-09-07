@@ -1,7 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { build } from "esbuild";
-import { generateStandaloneValidatorModule } from "@orbyss/program-kit-forms-ajv-build";
+import { generateStandaloneValidatorModule } from "@orbyss-io/program-kit-forms-ajv-build";
 import { schema } from "./schema.mjs";
 
 const workspace = resolve(import.meta.dirname, "../..");

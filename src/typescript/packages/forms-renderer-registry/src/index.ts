@@ -3,7 +3,7 @@ import type {
   FormRendererRequirement,
   JsonObject,
   JsonValue
-} from "@orbyss/program-kit-forms-contracts";
+} from "@orbyss-io/program-kit-forms-contracts";
 
 export interface RendererRegistration<TRenderer = unknown> {
   readonly componentId: string;

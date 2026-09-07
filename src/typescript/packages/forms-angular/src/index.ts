@@ -19,7 +19,7 @@ import type {
   ProgramKitTranslator,
   ProgramKitValidator,
   RuntimeValidationIssue
-} from "@orbyss/program-kit-forms-contracts";
+} from "@orbyss-io/program-kit-forms-contracts";
 import {
   createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
@@ -27,7 +27,7 @@ import {
   type JsonFormsTranslatorAdapter,
   type JsonFormsCompatibleValidationError,
   type PrecompiledJsonFormsAjvFacade
-} from "@orbyss/program-kit-forms-jsonforms-runtime";
+} from "@orbyss-io/program-kit-forms-jsonforms-runtime";
 
 export const programKitAngularFormsAdapterVersion = "1.0.0";
 

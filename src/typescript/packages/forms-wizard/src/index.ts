@@ -1,4 +1,4 @@
-import type { JsonObject, JsonValue, ProgramKitTranslator } from "@orbyss/program-kit-forms-contracts";
+import type { JsonObject, JsonValue, ProgramKitTranslator } from "@orbyss-io/program-kit-forms-contracts";
 
 export type WizardNavigationPolicy = "linear" | "visited" | "nonLinear";
 export type WizardNavigationPlacement = "top" | "side" | "adaptive";

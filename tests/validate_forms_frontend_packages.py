@@ -121,7 +121,7 @@ def main() -> int:
             *(str(archive) for archive in archives),
         ]
         run(npm + install_arguments, consumer, environment)
-        node_names = [name for name in names if name != "@orbyss/program-kit-forms-angular"]
+        node_names = [name for name in names if name != "@orbyss-io/program-kit-forms-angular"]
         module_probe = (
             "const names=" + json.dumps(node_names) + ";"
             "for(const name of names){const value=await import(name);"
@@ -134,7 +134,7 @@ def main() -> int:
 
         angular_entry = consumer / "angular-entry.js"
         angular_entry.write_text(
-            'import { ProgramKitJsonFormsAngularComponent } from "@orbyss/program-kit-forms-angular";\n'
+            'import { ProgramKitJsonFormsAngularComponent } from "@orbyss-io/program-kit-forms-angular";\n'
             'console.log(ProgramKitJsonFormsAngularComponent);\n',
             encoding="utf-8",
         )

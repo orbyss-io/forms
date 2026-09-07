@@ -1,5 +1,5 @@
 {
-  "name": "@orbyss/program-kit-forms-wizard",
+  "name": "@orbyss-io/program-kit-forms-wizard",
   "version": "0.9.9-preview.1",
   "license": "MIT",
   "repository": {
@@ -25,6 +25,6 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss/program-kit-forms-contracts": "0.9.9-preview.1"
+    "@orbyss-io/program-kit-forms-contracts": "0.9.9-preview.1"
   }
 }

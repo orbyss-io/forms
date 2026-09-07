@@ -2,21 +2,21 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss/program-kit-forms-ajv-build";
-import { defaultRuntimeLimits } from "@orbyss/program-kit-forms-contracts";
-import { jsonEditorIndentationPolicy, normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss/program-kit-forms-editor-contracts";
+import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss-io/program-kit-forms-ajv-build";
+import { defaultRuntimeLimits } from "@orbyss-io/program-kit-forms-contracts";
+import { jsonEditorIndentationPolicy, normalizeJsonEditorDiagnostics, requireJsonEditorOptions } from "@orbyss-io/program-kit-forms-editor-contracts";
 import {
   createJsonFormsTranslator,
   createJsonFormsTranslatorAdapter,
   createPrecompiledJsonFormsAjvFacade,
   jsonFormsValidationErrorsToIssues,
   prepareJsonFormsRuntime
-} from "@orbyss/program-kit-forms-jsonforms-runtime";
-import { FormLookupController, FormLookupRegistry } from "@orbyss/program-kit-forms-lookups";
-import { FormActionRegistry, RendererRegistry } from "@orbyss/program-kit-forms-renderer-registry";
-import { ProgramKitActionController, ProgramKitActionError, parseProgramKitActionBar } from "@orbyss/program-kit-forms-actions";
-import { ProgramKitWizardController, parseProgramKitWizard } from "@orbyss/program-kit-forms-wizard";
-import { ProgramKitJsonForms } from "@orbyss/program-kit-forms-react";
+} from "@orbyss-io/program-kit-forms-jsonforms-runtime";
+import { FormLookupController, FormLookupRegistry } from "@orbyss-io/program-kit-forms-lookups";
+import { FormActionRegistry, RendererRegistry } from "@orbyss-io/program-kit-forms-renderer-registry";
+import { ProgramKitActionController, ProgramKitActionError, parseProgramKitActionBar } from "@orbyss-io/program-kit-forms-actions";
+import { ProgramKitWizardController, parseProgramKitWizard } from "@orbyss-io/program-kit-forms-wizard";
+import { ProgramKitJsonForms } from "@orbyss-io/program-kit-forms-react";
 import { rankWith, uiTypeIs } from "@jsonforms/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -25,12 +25,12 @@ import { renderToString } from "vue/server-renderer";
 import {
   ProgramKitJsonFormsVue,
   programKitVueFormsAdapterVersion
-} from "@orbyss/program-kit-forms-vue";
+} from "@orbyss-io/program-kit-forms-vue";
 import {
   joinProgramKitClassNames,
   programKitClassName,
   programKitThemeTokenNames
-} from "@orbyss/program-kit-ui-theme";
+} from "@orbyss-io/program-kit-ui-theme";
 
 const schema = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -346,7 +346,7 @@ test("searchable lookups enforce provider contracts, paging, filters, and label 
       dataSourceId: "catalog.products",
       contractVersion: "1.0.0",
       displayName: "Products",
-      providerPackage: "@orbyss/program-kit-product-lookups",
+      providerPackage: "@orbyss-io/program-kit-product-lookups",
       execution: "server",
       supportsSearch: true,
       supportsPaging: true,

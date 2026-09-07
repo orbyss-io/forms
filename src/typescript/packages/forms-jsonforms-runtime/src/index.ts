@@ -8,12 +8,12 @@ import {
   type ProgramKitValidator,
   type RuntimeValidationIssue,
   type RuntimeLimits
-} from "@orbyss/program-kit-forms-contracts";
+} from "@orbyss-io/program-kit-forms-contracts";
 import {
   FormActionRegistry,
   RendererRegistry,
   type FormActionContext
-} from "@orbyss/program-kit-forms-renderer-registry";
+} from "@orbyss-io/program-kit-forms-renderer-registry";
 
 export interface PreparedJsonFormsRuntime<TRenderer> {
   readonly schema: JsonObject;

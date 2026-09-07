@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
   id-token: write
   attestations: write
 
@@ -26,29 +27,17 @@ jobs:
         with:
           node-version: "24.20.0"
           registry-url: https://npm.pkg.github.com
-          scope: "@orbyss"
+          scope: "@orbyss-io"
 
       - name: Set up pinned frontend npm
         run: npm install --global npm@11.19.0 --ignore-scripts --no-audit --no-fund
-
-      - name: Verify @orbyss publisher credential
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.ORBYSS_PACKAGES_TOKEN }}
-        shell: bash
-        run: |
-          [[ -n "$NODE_AUTH_TOKEN" ]] || { echo "ORBYSS_PACKAGES_TOKEN is not configured." >&2; exit 1; }
-          identity="$(npm whoami --registry=https://npm.pkg.github.com)"
-          [[ "${identity,,}" == "orbyss" ]] || {
-            echo "ORBYSS_PACKAGES_TOKEN authenticates as '$identity', not the @orbyss owner." >&2
-            exit 1
-          }
 
       - name: Verify release and package metadata
         run: python tests/validate_frontend_publication.py --tag "$GITHUB_REF_NAME"
 
       - name: Build and test exact locked frontend family
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.ORBYSS_PACKAGES_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
         working-directory: src/typescript
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
@@ -67,7 +56,7 @@ jobs:
 
       - name: Publish frontend family to GitHub Packages
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.ORBYSS_PACKAGES_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           shopt -s nullglob
@@ -82,7 +71,7 @@ jobs:
 
       - name: Verify clean GitHub Packages installation
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.ORBYSS_PACKAGES_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           version="$(tr -d '\r\n' < RUNTIME_VERSION)"

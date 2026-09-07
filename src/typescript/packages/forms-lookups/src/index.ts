@@ -1,4 +1,4 @@
-import type { JsonPrimitive } from "@orbyss/program-kit-forms-contracts";
+import type { JsonPrimitive } from "@orbyss-io/program-kit-forms-contracts";
 
 export interface FormLookupContract {
   readonly dataSourceId: string;
