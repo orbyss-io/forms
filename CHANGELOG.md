@@ -7,6 +7,8 @@
 - Add a hash-aware C4 viewing skill and deterministic temporary launcher for pinned Structurizr
   Local, with localhost port conflict handling, Docker/Java discovery, explicit network consent,
   cleanup, review-packet guidance, and no mutation of the canonical architecture map.
+- Consolidate generated Program Kit engineering tooling under `.program-kit/eng/` and migrate
+  authenticated files from the opaque top-level `eng/program-kit/` layout during managed sync.
 
 ## 0.9.9 - 2026-09-05
 

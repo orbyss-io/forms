@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "contract": "program-kit-spa-serving-security-v1",
   "owners": {
-    "development": "eng/program-kit/web/vite.security.mjs",
-    "preview": "eng/program-kit/web/vite.security.mjs",
+    "development": ".program-kit/eng/web/vite.security.mjs",
+    "preview": ".program-kit/eng/web/vite.security.mjs",
     "production": "approved static server or edge translated from this contract",
     "transport": "production TLS terminator; local HTTP makes no HTTPS or HSTS claim"
   },
@@ -15,6 +15,6 @@
     "X-Content-Type-Options": "nosniff",
     "Cross-Origin-Opener-Policy": "same-origin"
   },
-  "requiredViteImport": "programKitSpaSecurity from './eng/program-kit/web/vite.security.mjs'",
+  "requiredViteImport": "programKitSpaSecurity from './.program-kit/eng/web/vite.security.mjs'",
   "cspResourceRule": "Add an exact source, nonce, or hash after review; never add unsafe-inline or a wildcard to production. Keycloak navigation does not require a CSP source, while browser token/discovery calls require the exact identity origin in connect-src."
 }

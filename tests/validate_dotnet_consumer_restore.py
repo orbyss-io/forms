@@ -19,10 +19,10 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="program-kit-consumer-restore-") as value:
         repository = Path(value)
-        managed = repository / "eng/program-kit"
+        managed = repository / ".program-kit/eng"
         managed.mkdir(parents=True)
         shutil.copyfile(
-            TEMPLATE / "eng/program-kit/ProgramKit.Packages.props",
+            TEMPLATE / ".program-kit/eng/ProgramKit.Packages.props",
             managed / "ProgramKit.Packages.props",
         )
         shutil.copyfile(TEMPLATE / "global.json", repository / "global.json")
@@ -32,7 +32,7 @@ def main() -> int:
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-  <Import Project="eng/program-kit/ProgramKit.Packages.props" />
+  <Import Project=".program-kit/eng/ProgramKit.Packages.props" />
   <ItemGroup>
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.14.0" />
     <PackageVersion Include="TngTech.ArchUnitNET" Version="0.13.4" />

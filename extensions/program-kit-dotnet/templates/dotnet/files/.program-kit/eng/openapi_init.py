@@ -33,7 +33,7 @@ def main() -> int:
         application = relative_path(args.application_directory, "application-directory")
         tsconfig = relative_path(args.application_tsconfig, "application-tsconfig")
         defaults = json.loads((repository / ".program-kit/openapi-defaults.json").read_text(encoding="utf-8"))
-        tool_manifest = json.loads((repository / "eng/program-kit/.config/dotnet-tools.json").read_text(encoding="utf-8"))
+        tool_manifest = json.loads((repository / ".program-kit/eng/.config/dotnet-tools.json").read_text(encoding="utf-8"))
         exporter = tool_manifest["tools"]["programkit.openapi.exporter"]["version"]
         oasdiff = defaults["compatibility"]["version"]
         generator_default = defaults["typescriptGenerator"]
@@ -119,7 +119,7 @@ def main() -> int:
         print(f"Created isolated {generator_package}@{generator_version} package at {generator_package_relative}.")
         print(
             "After resolving the managed toolchain, create its lockfile with: "
-            f"python eng/program-kit/js_toolchain.py --repository . npm -- --prefix {generator} "
+            f"python .program-kit/eng/js_toolchain.py --repository . npm -- --prefix {generator} "
             "install --package-lock-only --ignore-scripts --strict-peer-deps --engine-strict"
         )
         return 0

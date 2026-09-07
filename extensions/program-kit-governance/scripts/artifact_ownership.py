@@ -165,9 +165,9 @@ def task_paths(tasks: Path) -> list[tuple[int, str, str]]:
 
 
 def extension_point(path: str) -> str:
-    if path == "eng/program-kit/Build.ps1":
+    if path == ".program-kit/eng/Build.ps1":
         return "use consumer-owned Directory.Build.targets or a separate consumer build script"
-    if path.startswith("eng/program-kit/web/"):
+    if path.startswith(".program-kit/eng/web/"):
         return "import the managed SPA adapter from consumer-owned vite.config and configure exact origins there"
     return "use root Directory.Build.props/targets or a feature-owned adapter after the managed import"
 
@@ -722,7 +722,7 @@ def validate_openapi_pipeline(feature_dir: Path, manifest: dict, include_tasks: 
     if not re.search(r"\bopenapi\b", combined, re.IGNORECASE):
         return
     root = repository_root(feature_dir)
-    tool_manifest_path = root / "eng/program-kit/.config/dotnet-tools.json"
+    tool_manifest_path = root / ".program-kit/eng/.config/dotnet-tools.json"
     try:
         tool_manifest = json.loads(tool_manifest_path.read_text(encoding="utf-8"))
         exporter_version = tool_manifest["tools"]["programkit.openapi.exporter"]["version"]

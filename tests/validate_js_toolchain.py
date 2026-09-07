@@ -9,14 +9,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-JS_TOOLCHAIN = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/js_toolchain.py"
+JS_TOOLCHAIN = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/js_toolchain.py"
 NPM_GRAPH = ROOT / "extensions/program-kit-governance/scripts/npm_graph.py"
 
 
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="program-kit-js-toolchain-") as value:
         repository = Path(value)
-        managed = repository / "eng/program-kit"
+        managed = repository / ".program-kit/eng"
         managed.mkdir(parents=True)
         (managed / "js_toolchain.py").write_bytes(JS_TOOLCHAIN.read_bytes())
         exact = repository / "exact"

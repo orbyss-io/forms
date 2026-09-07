@@ -35,8 +35,8 @@ only after the owning capability's persistence admission record is complete.
    `references/persistence-profiles.md`.
 3. Report created, updated, unchanged, and conflicted files exactly as emitted by the script.
 4. Stop on conflicts. Never overwrite a consumer-modified managed file or a scaffold-once consumer file.
-5. After a successful write, report that the generated `eng/program-kit/Restore.ps1 -LockedMode` and
-   `eng/program-kit/Build.ps1 -SkipRunnableHost` access configured package sources. Do not run either command unless
+5. After a successful write, report that the generated `.program-kit/eng/Restore.ps1 -LockedMode` and
+   `.program-kit/eng/Build.ps1 -SkipRunnableHost` access configured package sources. Do not run either command unless
    the user separately authorizes networked package restore and build verification.
 6. Make clear that runtime selection is automatic for a .NET bootstrap, while applying the managed
    repository files remains a separate, reviewable synchronization action and is not a prerequisite
@@ -51,7 +51,7 @@ and can access the configured NuGet sources.
 
 The ownership record is `.program-kit/managed.json`. Root MSBuild discovery extension points, application
 `VERSION`, shell configuration, and `NuGet.config` are scaffolded once and remain consumer-owned. Program Kit
-owns the SDK, analyzer policy, `eng/program-kit`, container, schema, and generated workflow baselines.
+owns the SDK, analyzer policy, `.program-kit/eng`, container, schema, and generated workflow baselines.
 For `spa-pkce`, `.program-kit/spa-pkce.json` is the scaffold-owned typed security input and
 the shell-profile overlay, Keycloak realm, and browser contract are managed derived outputs. Configure
 exact callback, silent-renew callback, post-logout routes, origins, scopes, renewal timeout, and

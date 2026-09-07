@@ -1,9 +1,9 @@
 # Releasing Program Kit 0.9.10
 
-This governance-usability release adds a safe, directly invokable C4 projection viewer and makes
-architecture review actionable from bootstrap gates and review packets. Program Kit components
-advance to `0.9.10`; runtime packages and the host image remain `0.9.9-preview.1` because no runtime
-source or package contract changed.
+This release adds a safe, directly invokable C4 projection viewer, makes architecture review
+actionable from bootstrap gates and review packets, and consolidates generated managed tooling
+under `.program-kit/eng/`. Program Kit components advance to `0.9.10`; runtime packages and the
+host image remain `0.9.9-preview.1` because no runtime package contract changed.
 
 Before tagging, run the deterministic release gates:
 
@@ -22,6 +22,10 @@ Docker/image and Java/WAR discovery, Windows and POSIX path construction, port c
 invocation, repository immutability, and cleanup. The realistic installed-consumer test must inspect
 the generated projection without contacting an external service. Physical acceptance may use the
 exact pinned local Structurizr image only with explicit user authorization.
+
+The managed-layout regression must reconstruct an authenticated `eng/program-kit/` installation,
+migrate it to `.program-kit/eng/`, preserve unrelated consumer-owned `eng/**` files, remove only
+empty retired directories, and prove that a repeated sync converges without further changes.
 
 Create and push the stable tag only from the fully validated and explicitly approved release commit:
 

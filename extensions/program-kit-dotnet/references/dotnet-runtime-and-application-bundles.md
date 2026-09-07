@@ -20,7 +20,7 @@ The authoritative activation shape is `CShells:Shells:<shell-name>:Features:<fea
 consumer-owned `shells.json`. Add a reviewed selection deterministically with:
 
 ```text
-python eng/program-kit/feature_metadata.py activate --shells shells.json --shell <name> --feature <identity>
+python .program-kit/eng/feature_metadata.py activate --shells shells.json --shell <name> --feature <identity>
 ```
 
 An activatable implementation/provider/bridge/composition project is packable, belongs to the solution, sets `ProgramKitFeatureIdentity`, declares an exact matching `[ShellFeature("<ProgramKitFeatureIdentity>")]`, and sets
@@ -29,7 +29,7 @@ An activatable implementation/provider/bridge/composition project is packable, b
 Optional dependency, route, and dormant metadata is embedded during pack.
 
 Tasks cover the project, solution inclusion, explicit identity, `shells.json` activation, runnable-image
-inclusion, and missing/duplicate/dependency/route/dormancy tests. `eng/program-kit/runnable_host.py stage`
+inclusion, and missing/duplicate/dependency/route/dormancy tests. `.program-kit/eng/runnable_host.py stage`
 enforces those constraints while assembling image inputs. The host does not know or repeat this policy.
 
 ## Runnable-host release
@@ -51,7 +51,7 @@ Container health is also selected by the application once its feature-health con
 - Central package management, locked restore, deterministic pack, and package-source mapping are mandatory.
 - `shells.json` and `hostsettings.json` remain scaffold-once consumer-owned inputs.
 - Managed OpenAPI production runs after package-closure staging through
-  `eng/program-kit/openapi_pipeline.py`. Consumers register complete producer, compatibility,
+  `.program-kit/eng/openapi_pipeline.py`. Consumers register complete producer, compatibility,
   isolated client-generation, and application-compile contracts in
   `.program-kit/openapi-contracts.json`; the external host remains application-neutral.
 - Core and persistence guidance remains context-owned. No provider-private model, shared `DbContext`,

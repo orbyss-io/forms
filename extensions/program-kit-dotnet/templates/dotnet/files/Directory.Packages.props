@@ -3,6 +3,6 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-  <Import Project="eng/program-kit/ProgramKit.Packages.props" />
+  <Import Project=".program-kit/eng/ProgramKit.Packages.props" />
   <!-- Consumer-owned central package versions belong here. -->
 </Project>

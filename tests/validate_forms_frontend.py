@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src/typescript"
-sys.path.insert(0, str(ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit"))
+sys.path.insert(0, str(ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng"))
 import js_toolchain
 
 

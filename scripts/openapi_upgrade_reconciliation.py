@@ -32,7 +32,7 @@ def relative_path(target: Path, path: Path) -> str:
 
 
 def target_exporter_version(release: Path) -> str:
-    path = release / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/.config/dotnet-tools.json"
+    path = release / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/.config/dotnet-tools.json"
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
         version = value["tools"]["programkit.openapi.exporter"]["version"]

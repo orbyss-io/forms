@@ -345,7 +345,7 @@ def package_sources(repository: Path) -> list[str]:
 
 
 def managed_package_versions(repository: Path) -> dict[str, str]:
-    path = repository / "eng/program-kit/ProgramKit.Packages.props"
+    path = repository / ".program-kit/eng/ProgramKit.Packages.props"
     root = ElementTree.parse(path).getroot()
     return {
         element.attrib["Include"]: element.attrib["Version"]

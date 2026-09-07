@@ -41,11 +41,11 @@ jobs:
 
       - name: Run repository verification gate
         shell: pwsh
-        run: ./eng/program-kit/Invoke-RepositoryVerification.ps1 -Mode Release
+        run: ./.program-kit/eng/Invoke-RepositoryVerification.ps1 -Mode Release
 
       - name: Stage runnable host image
         shell: pwsh
-        run: ./eng/program-kit/Build.ps1 -LockedMode
+        run: ./.program-kit/eng/Build.ps1 -LockedMode
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
@@ -80,7 +80,7 @@ jobs:
       - name: Describe runnable host
         shell: bash
         run: |
-          python eng/program-kit/runnable_host.py describe \
+          python .program-kit/eng/runnable_host.py describe \
             --repository . \
             --staged artifacts/runnable-host \
             --image "${{ steps.image.outputs.repository }}" \

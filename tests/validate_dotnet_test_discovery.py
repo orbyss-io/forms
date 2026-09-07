@@ -12,8 +12,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BUILD = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/Build.ps1"
-RESTORE = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/Restore.ps1"
+BUILD = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/Build.ps1"
+RESTORE = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/Restore.ps1"
 
 
 def write_fake_dotnet(tools: Path) -> None:
@@ -130,7 +130,7 @@ def write_solution(path: Path, projects: list[Path]) -> None:
 
 def create_repository(value: str, solution_name: str, test_flags: tuple[bool, ...]) -> tuple[Path, Path]:
     repository = Path(value)
-    managed = repository / "eng/program-kit"
+    managed = repository / ".program-kit/eng"
     managed.mkdir(parents=True)
     shutil.copyfile(BUILD, managed / "Build.ps1")
     shutil.copyfile(RESTORE, managed / "Restore.ps1")
@@ -155,7 +155,7 @@ def run_build(shell: str, repository: Path, tools: Path) -> tuple[subprocess.Com
     environment["PATH"] = str(tools) + os.pathsep + environment.get("PATH", "")
     environment["PROGRAM_KIT_DISCOVERY_LOG"] = str(log)
     result = subprocess.run(
-        [shell, "-NoProfile", "-File", str(repository / "eng/program-kit/Build.ps1"), "-SkipRunnableHost"],
+        [shell, "-NoProfile", "-File", str(repository / ".program-kit/eng/Build.ps1"), "-SkipRunnableHost"],
         cwd=repository,
         env=environment,
         capture_output=True,

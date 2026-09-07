@@ -7,7 +7,7 @@ For each vertical outcome, include the task sequence that delivers and verifies 
 - **Non-goal protection**: do not add tasks for unapproved technology adoption, cross-feature implementation references, or unrelated platform work.
 - **Path and ownership protection**: every task path must be declared by the plan's
   `artifact-ownership.json`, recognized by an accepted profile, or paired with the plan's exact
-  `STRUCTURE-DELTA: <path>`. Never ask implementation to edit `eng/program-kit/**`; name the
+  `STRUCTURE-DELTA: <path>`. Never ask implementation to edit `.program-kit/eng/**`; name the
   consumer-owned extension point (`Directory.Build.props/targets`, feature adapter, `vite.config`,
   or consumer deployment configuration) instead.
 

@@ -14,7 +14,7 @@ EXPORTER = (
     ROOT
     / "src/dotnet/ProgramKit.OpenApi.Exporter/bin/Release/net10.0/ProgramKit.OpenApi.Exporter.dll"
 )
-PIPELINE = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/openapi_pipeline.py"
+PIPELINE = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/openapi_pipeline.py"
 
 
 def run(
@@ -26,7 +26,7 @@ def run(
 
 
 def write_fixture(repository: Path) -> None:
-    targets = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/ProgramKit.Build.targets"
+    targets = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/ProgramKit.Build.targets"
     (repository / "WebFeature.csproj").write_text(
         f"""<Project Sdk=\"Microsoft.NET.Sdk\">
   <PropertyGroup>
@@ -384,14 +384,14 @@ raise SystemExit(0)
         staged_profile = staged_root / ".program-kit/web-profile.shells.json"
         staged_profile.parent.mkdir(parents=True)
         shutil.copyfile(repository / ".program-kit/web-profile.shells.json", staged_profile)
-        managed = repository / "eng/program-kit"
+        managed = repository / ".program-kit/eng"
         (managed / ".config").mkdir(parents=True)
         shutil.copyfile(
-            ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/openapi_contracts.py",
+            ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/openapi_contracts.py",
             managed / "openapi_contracts.py",
         )
         shutil.copyfile(
-            ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/js_toolchain.py",
+            ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/js_toolchain.py",
             managed / "js_toolchain.py",
         )
         for name in (
@@ -402,7 +402,7 @@ raise SystemExit(0)
             "toolchain.py",
         ):
             shutil.copyfile(
-                ROOT / f"extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/{name}",
+                ROOT / f"extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/{name}",
                 managed / name,
             )
         for name in ("global.json", ".nvmrc", ".npm-version", "VERSION"):
@@ -424,7 +424,7 @@ raise SystemExit(0)
         finally:
             sys.path.remove(str(managed))
         shutil.copyfile(
-            ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/.config/dotnet-tools.json",
+            ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/.config/dotnet-tools.json",
             managed / ".config/dotnet-tools.json",
         )
         contract.update(

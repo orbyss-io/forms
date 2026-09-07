@@ -209,7 +209,7 @@ def render_shell_profile(source: bytes, configuration: dict) -> bytes:
 def render_profile(source: bytes, configuration: dict) -> bytes:
     profile = json.loads(source.decode("utf-8"))
     profile["configuration"] = CONFIGURATION_PATH
-    profile["browserSessionAdapter"] = "eng/program-kit/web/spa-session.ts"
+    profile["browserSessionAdapter"] = ".program-kit/eng/web/spa-session.ts"
     return json_bytes(profile)
 
 
@@ -294,17 +294,17 @@ def verify_outputs(repository: Path, configuration: dict) -> None:
     compose = (repository / "deploy/compose.application.yml").read_text(encoding="utf-8")
     if "ClientSecret" in compose or "local-program-kit-secret" in compose:
         raise ValueError("PKW108 SPA application composition must not receive a confidential-client secret")
-    playwright = (repository / "eng/program-kit/web/playwright.config.ts").read_text(encoding="utf-8")
+    playwright = (repository / ".program-kit/eng/web/playwright.config.ts").read_text(encoding="utf-8")
     for secure_default in ("trace: 'off'", "screenshot: 'off'", "video: 'off'"):
         if secure_default not in playwright:
             raise ValueError(f"PKW111 authentication evidence must configure {secure_default}")
-    contract = load_object(repository / "eng/program-kit/web/web-contract.json")
+    contract = load_object(repository / ".program-kit/eng/web/web-contract.json")
     client = contract.get("client", {})
     if (
         client.get("redirectUris") != configuration["redirectUris"]
         or client.get("postLogoutRedirectUris") != configuration["postLogoutRedirectUris"]
         or contract.get("session", {}).get("absoluteDeadlineClaim") != "auth_time"
-        or not (repository / "eng/program-kit/web/spa-session.ts").is_file()
+        or not (repository / ".program-kit/eng/web/spa-session.ts").is_file()
     ):
         raise ValueError("PKW112 browser runtime contract does not match the SPA-PKCE configuration")
 

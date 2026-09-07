@@ -69,7 +69,7 @@ def main() -> int:
     exporter_manifest = json.loads(
         (
             root
-            / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/.config/dotnet-tools.json"
+            / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/.config/dotnet-tools.json"
         ).read_text(encoding="utf-8")
     )
     exporter_version = exporter_manifest["tools"]["programkit.openapi.exporter"]["version"]
@@ -78,7 +78,7 @@ def main() -> int:
 
     consumer_versions = (
         root
-        / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/ProgramKit.Packages.props"
+        / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/ProgramKit.Packages.props"
     ).read_text(encoding="utf-8")
     managed_versions = {
         "ProgramKit.Analyzers": runtime_version,

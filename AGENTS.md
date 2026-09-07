@@ -1,5 +1,15 @@
 # Program Kit contributor instructions
 
+## Local Firefox limitation
+
+Firefox is not runnable on the current local Windows host. Playwright reaches
+`browserType.launch: spawn UNKNOWN` when it tries to start the installed Firefox binary. Do not
+retry Firefox repeatedly, diagnose that host error as a product regression, or change production
+code to accommodate it. Where a validator exposes `--engines`, use the non-Firefox engines locally
+(for example, `--engines=chromium,webkit`), continue the remaining deterministic validators, and
+report the known local-host limitation. Keep Firefox in the CI browser matrix; CI remains the
+authority for Firefox acceptance.
+
 ## Optional live acceptance
 
 The paid live bootstrap acceptance suite is entirely user-invoked. Do not ask whether to run it

@@ -21,7 +21,7 @@ def main() -> int:
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     parser = argparse.ArgumentParser(description="WEB-V1 check for the Program Kit SPA serving adapter.")
-    parser.add_argument("--contract", default="eng/program-kit/web/spa-security.json")
+    parser.add_argument("--contract", default=".program-kit/eng/web/spa-security.json")
     parser.add_argument("--vite-config", required=True)
     args = parser.parse_args()
     try:

@@ -336,6 +336,12 @@ packages and NuGet sources; restore/build execution is separately authorized. Th
 prerequisite for technology-neutral governance or proposed quality gates, and installing Program Kit alone
 never creates .NET files. See `docs/dotnet-runtime.md`.
 
+Generated Program Kit state and managed engineering tooling share the `.program-kit/` root. The
+operational scripts live in `.program-kit/eng/`; consumers should invoke them through the documented
+entry points rather than edit them. Sync upgrades authenticated files from the former
+`eng/program-kit/` location and removes that retired directory when it becomes empty, while preserving
+unrelated consumer-owned content under `eng/`.
+
 Authenticated browser applications adopt `bff-cookie-v1` by default and inherit the versioned
 `program-kit-web-threat-model-v1` plus `program-kit-web-security-evidence-v1`. That assurance
 baseline maps explicit attackers and threats to controls, classifies standards, drafts, formal

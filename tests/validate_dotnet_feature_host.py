@@ -82,7 +82,7 @@ public sealed class AccessApiInitializer : IShellInitializer
         encoding="utf-8",
         newline="\n",
     )
-    target = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/ProgramKit.Build.targets"
+    target = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/ProgramKit.Build.targets"
     (repository / "Directory.Build.targets").write_text(
         f'<Project><Import Project="{target.as_posix()}" /></Project>\n',
         encoding="utf-8",
@@ -213,7 +213,7 @@ def main() -> int:
                 sys.executable,
                 str(
                     ROOT
-                    / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/runnable_host.py"
+                    / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/runnable_host.py"
                 ),
                 "stage",
                 "--repository",

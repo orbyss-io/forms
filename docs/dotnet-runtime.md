@@ -33,7 +33,7 @@ that knows its selected features and operational dependencies.
 Run `speckit.program-kit-dotnet.sync` in write mode only after Accepted evidence selects .NET,
 `ProgramKit.Host`, and the disclosed preview feeds. Root `Directory.*`, `VERSION`, `shells.json`, and
 `hostsettings.json` and `NuGet.config` are scaffold-once, consumer-owned files. Program Kit hash-manages
-`global.json`, `.editorconfig`, generated workflows, and `eng/program-kit`. A changed managed file is a
+`global.json`, `.editorconfig`, generated workflows, and `.program-kit/eng`. A changed managed file is a
 reported conflict, never an overwrite.
 
 Package Source Mapping is a source-routing boundary, not a Program Kit package allowlist. The generated
@@ -52,7 +52,7 @@ commands. npm uses `.program-kit/cache/npm`, strict TLS, and either bundled or s
 `PROGRAMKIT_NODE_TRUST_MODE=system` when an organization roots TLS through the OS trust store, or set
 `PROGRAMKIT_NODE_EXTRA_CA_CERTS` to a reviewed PEM file; disabling strict SSL is rejected.
 
-Managed .NET restores use `eng/program-kit/Restore.ps1`; it selects the consumer-owned, reviewed
+Managed .NET restores use `.program-kit/eng/Restore.ps1`; it selects the consumer-owned, reviewed
 `NuGet.config` and confines package, HTTP, scratch, plugin, .NET CLI, and Windows profile state below
 `.program-kit/cache`. `dotnet restore --configfile` selects only settings from the named file, but current
 NuGet/MSBuild can still initialize proxy/user-settings infrastructure through the ambient profile. A raw
@@ -77,7 +77,7 @@ merely because its package exists. A managed feature build emits
 `program-kit/feature.json`; its package ID equals its assembly name and its host-supplied CShells/framework
 abstractions are compile-time-private.
 
-`eng/program-kit/Build.ps1` restores, builds, tests, and packs the application, then stages
+`.program-kit/eng/Build.ps1` restores, builds, tests, and packs the application, then stages
 `artifacts/runnable-host/` for an application image. The staging directory contains the validated runtime
 NuGet closure plus `hostsettings.json`, `.program-kit/web-profile.shells.json`, and `shells.json`.
 Closure, duplicate version/identity, missing
@@ -89,7 +89,7 @@ Inactive built-in feature packages are omitted, and external dependencies are re
 nearest compatible NuGet framework group.
 
 Managed CI and release workflows enter repository verification through
-`eng/program-kit/Invoke-RepositoryVerification.ps1`. If the consumer owns a regular, non-reparse
+`.program-kit/eng/Invoke-RepositoryVerification.ps1`. If the consumer owns a regular, non-reparse
 `eng/verify.ps1` inside the repository, that aggregate gate runs and any failure stops the workflow.
 When it is absent, the wrapper runs the locked managed build fallback. The hook path is fixed and is
 never read from arguments or environment variables; release staging remains a separate managed step.
@@ -112,7 +112,7 @@ welcome but are not a Program Kit correctness requirement.
 Immediately after a release, a workstation may retain stale NuGet HTTP metadata and report that the
 new exact version does not exist even after NuGet.org's public flat-container endpoint is ready. Do
 not delete global caches. Retry the approved restore once with
-`eng/program-kit/Restore.ps1 -Subject <solution> -NoCache`; subsequent normal locked restores
+`.program-kit/eng/Restore.ps1 -Subject <solution> -NoCache`; subsequent normal locked restores
 may reuse the refreshed repository-confined result. The publication workflow independently waits for
 every package at the public flat-container endpoint before declaring the NuGet release successful.
 The checked `.program-kit/runnable-host.schema.json` declares the profile overlay and its digest as
@@ -121,7 +121,7 @@ staged or absent.
 
 Managed OpenAPI verification separately remains a build concern. A consumer registers contract files in
 `.program-kit/openapi-contracts.json`; an empty registry does nothing and restores no exporter or npm
-dependencies. Initialize the first entry with `eng/program-kit/openapi_init.py`; it reads the managed
+dependencies. Initialize the first entry with `.program-kit/eng/openapi_init.py`; it reads the managed
 exporter, oasdiff, and isolated TypeScript-generator defaults and creates the registry entry and contract
 paths without requiring a tooling ADR. Each registered contract selects the managed exporter version, shell and contributing feature
 identities, the validated `artifacts/runnable-host/packages` closure, raw/canonical/baseline outputs, pinned

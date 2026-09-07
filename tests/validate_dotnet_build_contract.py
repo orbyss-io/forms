@@ -10,8 +10,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BUILD = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/Build.ps1"
-RESTORE = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/Restore.ps1"
+BUILD = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/Build.ps1"
+RESTORE = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/Restore.ps1"
 
 
 def main() -> int:
@@ -28,7 +28,7 @@ def main() -> int:
         raise AssertionError("PowerShell is required to validate the managed Build.ps1 contract")
     with tempfile.TemporaryDirectory(prefix="program-kit-build-contract-") as value:
         repository = Path(value)
-        managed = repository / "eng/program-kit"
+        managed = repository / ".program-kit/eng"
         managed.mkdir(parents=True)
         shutil.copyfile(BUILD, managed / "Build.ps1")
         shutil.copyfile(RESTORE, managed / "Restore.ps1")
@@ -118,13 +118,14 @@ def main() -> int:
             raise AssertionError(f"managed Build.ps1 did not use MTP solution syntax: {test}")
 
         consumer = repository / "eng/verify.ps1"
+        consumer.parent.mkdir(parents=True, exist_ok=True)
         consumer.write_text(
             f'"$env:APPDATA|$env:LOCALAPPDATA|$env:NUGET_PACKAGES" | Set-Content -LiteralPath "{repository / "consumer-environment.txt"}"\n',
             encoding="utf-8",
         )
         shutil.copyfile(
             ROOT
-            / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/Invoke-RepositoryVerification.ps1",
+            / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/Invoke-RepositoryVerification.ps1",
             managed / "Invoke-RepositoryVerification.ps1",
         )
         verification = subprocess.run(

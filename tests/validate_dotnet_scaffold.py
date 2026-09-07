@@ -74,14 +74,14 @@ def assert_profile(repository: Path, expected: str) -> None:
     spa_only = (
         ".program-kit/spa-pkce.json",
         ".program-kit/spa-pkce.schema.json",
-        "eng/program-kit/verify_spa_profile.py",
-        "eng/program-kit/web/spa-session.ts",
-        "eng/program-kit/web/vite.security.mjs",
+        ".program-kit/eng/verify_spa_profile.py",
+        ".program-kit/eng/web/spa-session.ts",
+        ".program-kit/eng/web/vite.security.mjs",
     )
     for relative in spa_only:
         assert (repository / relative).exists() == (expected == "spa-pkce"), relative
-    assert (repository / "eng/program-kit/web/bff-session.ts").exists() == (expected == "bff-cookie")
-    assert (repository / "eng/program-kit/web/tests/bff-session.spec.ts").exists() == (
+    assert (repository / ".program-kit/eng/web/bff-session.ts").exists() == (expected == "bff-cookie")
+    assert (repository / ".program-kit/eng/web/tests/bff-session.spec.ts").exists() == (
         expected == "bff-cookie"
     )
 
@@ -167,12 +167,13 @@ def main() -> int:
             (target / ".program-kit/web-profile.shells.json").read_text(encoding="utf-8")
         )
         assert none_shell_profile["CShells"]["Shells"]["default"]["Features"] == {}
-        assert (target / "eng/program-kit/ProgramKit.Build.props").is_file()
+        assert (target / ".program-kit/eng/ProgramKit.Build.props").is_file()
+        assert not (target / "eng").exists()
         assert (target / "Directory.Build.props").is_file()
-        build_script = (target / "eng/program-kit/Build.ps1").read_text(encoding="utf-8")
+        build_script = (target / ".program-kit/eng/Build.ps1").read_text(encoding="utf-8")
         assert "[switch]$LockedMode" in build_script
         assert "Join-Path (Join-Path $artifacts 'packages') $version" in build_script
-        runnable_builder = (target / "eng/program-kit/runnable_host.py").read_text(encoding="utf-8")
+        runnable_builder = (target / ".program-kit/eng/runnable_host.py").read_text(encoding="utf-8")
         assert "def is_runtime_package" in runnable_builder
         assert '"analyzer", "dotnettool", "template"' in runnable_builder
         application_ci = (target / ".github/workflows/application-ci.yml").read_text(encoding="utf-8")
@@ -185,7 +186,7 @@ def main() -> int:
         disabled_openapi = subprocess.run(
             [
                 sys.executable,
-                str(target / "eng/program-kit/openapi_pipeline.py"),
+                str(target / ".program-kit/eng/openapi_pipeline.py"),
                 "--repository",
                 str(target),
             ],
@@ -303,7 +304,7 @@ def main() -> int:
         clean = run("--target", str(target), "--profile-selected", "--check")
         assert clean.returncode == 0, clean.stderr
 
-        managed = target / "eng/program-kit/ProgramKit.Build.props"
+        managed = target / ".program-kit/eng/ProgramKit.Build.props"
         managed.write_text(managed.read_text(encoding="utf-8") + "<!-- consumer edit -->\n", encoding="utf-8")
         conflicted = run("--target", str(target), *approvals)
         assert conflicted.returncode == 2, conflicted.stderr
@@ -326,6 +327,52 @@ def main() -> int:
         preserved = run("--target", str(obsolete_conflict), *approvals)
         assert preserved.returncode == 2, preserved.stderr
         assert old_path.read_text(encoding="utf-8") == "consumer-owned historical tool\n"
+
+        # Managed sync moves authenticated files from the legacy layout without claiming
+        # unrelated consumer-owned engineering content in the top-level eng directory.
+        legacy_layout = target / "legacy-managed-layout"
+        legacy_installed = run(
+            "--target", str(legacy_layout), *approvals, "--web-profile", "bff-cookie"
+        )
+        assert legacy_installed.returncode == 0, legacy_installed.stderr
+        legacy_state_path = legacy_layout / ".program-kit/managed.json"
+        legacy_state = json.loads(legacy_state_path.read_text(encoding="utf-8"))
+        rekeyed_files: dict[str, dict] = {}
+        for relative, record in legacy_state["files"].items():
+            if relative.startswith(".program-kit/eng/"):
+                old_relative = relative.replace(".program-kit/eng/", "eng/program-kit/", 1)
+                source = legacy_layout / relative
+                destination = legacy_layout / old_relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                source.replace(destination)
+                rekeyed_files[old_relative] = record
+            else:
+                rekeyed_files[relative] = record
+        legacy_state["files"] = rekeyed_files
+        legacy_state_path.write_text(json.dumps(legacy_state, indent=2) + "\n", encoding="utf-8")
+        new_managed_root = legacy_layout / ".program-kit/eng"
+        for directory in sorted(
+            (path for path in new_managed_root.rglob("*") if path.is_dir()),
+            key=lambda path: len(path.parts),
+            reverse=True,
+        ):
+            directory.rmdir()
+        new_managed_root.rmdir()
+        consumer_tool = legacy_layout / "eng/consumer-tool.ps1"
+        consumer_tool.write_text("# consumer owned\n", encoding="utf-8")
+
+        migrated_layout = run(
+            "--target", str(legacy_layout), *approvals, "--web-profile", "bff-cookie"
+        )
+        assert migrated_layout.returncode == 0, migrated_layout.stderr
+        assert (legacy_layout / ".program-kit/eng/ProgramKit.Build.props").is_file()
+        assert (legacy_layout / ".program-kit/eng/web/bff-session.ts").is_file()
+        assert not (legacy_layout / "eng/program-kit").exists()
+        assert consumer_tool.read_text(encoding="utf-8") == "# consumer owned\n"
+        legacy_clean = run(
+            "--target", str(legacy_layout), "--profile-selected", "--check", "--web-profile", "bff-cookie"
+        )
+        assert legacy_clean.returncode == 0, legacy_clean.stderr
 
         browser_target = target / "browser-consumer"
         design = browser_target / "docs/initial-design.md"
@@ -362,11 +409,11 @@ def main() -> int:
         assert bff_client["attributes"]["post.logout.redirect.uris"] == (
             "http://localhost:5000/signout-callback-oidc"
         )
-        assert (browser_target / "eng/program-kit/compose_topology.py").is_file()
-        assert (browser_target / "eng/program-kit/web/bff-session.ts").is_file()
-        assert (browser_target / "eng/program-kit/web/tests/bff-session.spec.ts").is_file()
+        assert (browser_target / ".program-kit/eng/compose_topology.py").is_file()
+        assert (browser_target / ".program-kit/eng/web/bff-session.ts").is_file()
+        assert (browser_target / ".program-kit/eng/web/tests/bff-session.spec.ts").is_file()
         bff_contract = json.loads(
-            (browser_target / "eng/program-kit/web/web-contract.json").read_text(encoding="utf-8")
+            (browser_target / ".program-kit/eng/web/web-contract.json").read_text(encoding="utf-8")
         )
         authenticated_body = bff_contract["routes"]["user"]["success"]["authenticatedBody"]
         assert authenticated_body["issuer"] == "non-empty-validated-uri-string"
@@ -381,7 +428,7 @@ def main() -> int:
         assert "CShells__Shells__default__Configuration__ProgramKit__Web__BackchannelAuthority" in bff_compose
         assert "program-kit-identity:8080/realms/program-kit" in bff_compose
         assert "extra_hosts" not in bff_compose and "localhost:host-gateway" not in bff_compose
-        assert (browser_target / "eng/program-kit/web/package-lock.json").is_file()
+        assert (browser_target / ".program-kit/eng/web/package-lock.json").is_file()
         assert (browser_target / ".program-kit/security/web-security-evidence.json").is_file()
         assert (browser_target / "docs/architecture/program-kit/web-security-threat-model.md").is_file()
 
@@ -423,7 +470,7 @@ def main() -> int:
         assert "updated: 0" in consumer_extension_check.stdout
         assert "conflicts: 0" in consumer_extension_check.stdout
         assert "state changed: no" in consumer_extension_check.stdout
-        permission_spec_relative = "eng/program-kit/web/tests/authentication.spec.ts"
+        permission_spec_relative = ".program-kit/eng/web/tests/authentication.spec.ts"
         permission_spec = browser_target / permission_spec_relative
         current_permission_contract = permission_spec.read_bytes()
         assert b"expect(authorizedResponse.ok()).toBeTruthy();" in current_permission_contract
@@ -503,10 +550,10 @@ def main() -> int:
         assert "CShells__Shells__default__Configuration__ProgramKit__Web__BackchannelAuthority" in compose
         assert "program-kit-identity:8080/realms/program-kit" in compose
         assert "extra_hosts" not in compose and "localhost:host-gateway" not in compose
-        playwright = (spa_target / "eng/program-kit/web/playwright.config.ts").read_text(encoding="utf-8")
+        playwright = (spa_target / ".program-kit/eng/web/playwright.config.ts").read_text(encoding="utf-8")
         assert "trace: 'off'" in playwright and "screenshot: 'off'" in playwright and "video: 'off'" in playwright
         verifier = subprocess.run(
-            [sys.executable, str(spa_target / "eng/program-kit/verify_spa_profile.py"),
+            [sys.executable, str(spa_target / ".program-kit/eng/verify_spa_profile.py"),
              "--repository", str(spa_target)],
             capture_output=True,
             text=True,
@@ -711,10 +758,16 @@ def main() -> int:
         def seed_lost_spa_residue(repository: Path) -> None:
             for item in residue_migration["retire"]:
                 relative = item["path"]
-                source = script_source if relative == "eng/program-kit/verify_spa_profile.py" else spa_template_root / relative
+                source = (
+                    script_source
+                    if relative == "eng/program-kit/verify_spa_profile.py"
+                    else spa_template_root / relative.replace("eng/program-kit", ".program-kit/eng")
+                )
                 destination = repository / relative
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                destination.write_bytes(source.read_bytes())
+                destination.write_bytes(
+                    source.read_bytes().replace(b".program-kit/eng", b"eng/program-kit")
+                )
             managed_path = repository / ".program-kit/managed.json"
             managed = json.loads(managed_path.read_text(encoding="utf-8"))
             managed["programKitVersion"] = "0.8.11"

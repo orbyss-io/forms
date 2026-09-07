@@ -229,7 +229,7 @@ def desired_content(
     renderers = {
         ".program-kit/web-profile.shells.json": spa_profile.render_shell_profile,
         ".program-kit/web-profile.json": spa_profile.render_profile,
-        "eng/program-kit/web/web-contract.json": spa_profile.render_web_contract,
+        ".program-kit/eng/web/web-contract.json": spa_profile.render_web_contract,
     }
     renderer = renderers.get(relative)
     return renderer(content, spa_configuration) if renderer else content
@@ -274,6 +274,27 @@ def profile_paths(template_root: Path, profile: object) -> set[str]:
 def stable_plan_digest(value: dict) -> str:
     canonical = json.dumps(value, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def prune_retired_program_kit_directories(target: Path) -> list[str]:
+    """Remove only empty directories from the retired eng/program-kit tree."""
+    legacy_root = target / "eng" / "program-kit"
+    if not legacy_root.is_dir():
+        return []
+    candidates = sorted(
+        (path for path in legacy_root.rglob("*") if path.is_dir()),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    )
+    candidates.extend((legacy_root, legacy_root.parent))
+    removed: list[str] = []
+    for path in candidates:
+        try:
+            path.rmdir()
+        except OSError:
+            continue
+        removed.append(path.relative_to(target).as_posix())
+    return removed
 
 
 def main() -> int:
@@ -427,7 +448,7 @@ def main() -> int:
             and relative in {
                 ".program-kit/web-profile.shells.json",
                 ".program-kit/web-profile.json",
-                "eng/program-kit/web/web-contract.json",
+                ".program-kit/eng/web/web-contract.json",
             }
         )
         content = desired_content(
@@ -645,6 +666,15 @@ def main() -> int:
         "appliedMigrations": applied_migrations,
         "desiredManifestDigest": stable_plan_digest({"files": manifest_rows}),
     }
+    legacy_root = target / "eng" / "program-kit"
+    cleanup_directories = bool(
+        any(path == "eng/program-kit" or path.startswith("eng/program-kit/") for path in removed)
+        or (
+            legacy_root.is_dir()
+            and not any(path.is_file() for path in legacy_root.rglob("*"))
+        )
+    )
+    plan_core["cleanupDirectories"] = ["eng/program-kit"] if cleanup_directories else []
     plan_digest = stable_plan_digest(plan_core)
     plan = {**plan_core, "planDigest": plan_digest}
     if args.plan_digest and args.plan_digest != plan_digest:
@@ -690,6 +720,9 @@ def main() -> int:
             for path in paths:
                 detail = conflict_details.get(path)
                 print(f"  {marker} {path}" + (f": {detail}" if detail else ""))
+        if cleanup_directories:
+            print("empty retired Program Kit directories to remove: 1")
+            print("  - eng/program-kit")
         print(f"unchanged: {len(unchanged)}")
         print(f"state changed: {'yes' if state_changed else 'no'}")
         print(f"plan digest: {plan_digest}")
@@ -698,7 +731,7 @@ def main() -> int:
         print("Resolve conflicts explicitly; reconciliation made no consumer-file changes.", file=sys.stderr)
         return 2
     if args.check:
-        return 1 if actions or state_changed else 0
+        return 1 if actions or state_changed or cleanup_directories else 0
     if web_profile in {"bff-cookie", "spa-pkce"}:
         # Validate identity desired-state semantics against staged bytes before commit.
         realm = desired_by_path.get(identity_fixture.REALM_PATH)
@@ -712,6 +745,8 @@ def main() -> int:
         print(f"PKS203 reconciliation rolled back: {error}", file=sys.stderr)
         return 2
     print(f"committed reconciliation transaction: {transaction_id}")
+    for relative in prune_retired_program_kit_directories(target):
+        print(f"removed empty retired Program Kit directory: {relative}")
     if web_profile in {"bff-cookie", "spa-pkce"}:
         identity_fixture.verify_repository(target, web_profile, spa_configuration)
     if web_profile == "spa-pkce" and spa_configuration is not None:

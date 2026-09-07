@@ -593,8 +593,8 @@ def main() -> int:
             (project / ".program-kit/evidence/dotnet-lock-renewal.json").read_text(encoding="utf-8")
         )
         expected_commands = [
-            "pwsh -NoProfile -File eng/program-kit/Restore.ps1 -Subject Program.slnx -ForceEvaluate",
-            "pwsh -NoProfile -File eng/program-kit/Restore.ps1 -Subject Program.slnx -LockedMode",
+            "pwsh -NoProfile -File .program-kit/eng/Restore.ps1 -Subject Program.slnx -ForceEvaluate",
+            "pwsh -NoProfile -File .program-kit/eng/Restore.ps1 -Subject Program.slnx -LockedMode",
         ]
         if (
             lock_renewal.get("targetRuntimeVersion") != target_runtime

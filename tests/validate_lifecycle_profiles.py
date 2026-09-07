@@ -304,7 +304,7 @@ def validate_utf8() -> None:
 
 
 def validate_feature_activation() -> None:
-    feature = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/feature_metadata.py"
+    feature = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/feature_metadata.py"
     with tempfile.TemporaryDirectory(prefix="program-kit-feature-") as value:
         shells = Path(value) / "shells.json"
         shells.write_text(
@@ -323,7 +323,7 @@ def validate_feature_activation() -> None:
 
 def validate_release_feature_closure() -> None:
     release = module(
-        ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/runnable_host.py",
+        ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/runnable_host.py",
         "runnable_host",
     )
     with tempfile.TemporaryDirectory(prefix="program-kit-bundle-features-") as value:
@@ -426,7 +426,7 @@ def validate_release_feature_closure() -> None:
             '<configuration><packageSources><add key="test" value="https://example.invalid/v3/index.json" /></packageSources></configuration>\n',
             encoding="utf-8",
         )
-        managed = clean_repository / "eng/program-kit"
+        managed = clean_repository / ".program-kit/eng"
         managed.mkdir(parents=True)
         (managed / "ProgramKit.Packages.props").write_text(
             '<Project><ItemGroup>'
@@ -616,7 +616,7 @@ def validate_release_feature_closure() -> None:
 
 
 def validate_preflight_seams() -> None:
-    preflight = ROOT / "extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/eng/program-kit/preflight.py"
+    preflight = ROOT / "extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/.program-kit/eng/preflight.py"
     with tempfile.TemporaryDirectory(prefix="program-kit-preflight-") as value:
         tools = Path(value)
         if os.name == "nt":
@@ -657,7 +657,7 @@ def validate_preflight_seams() -> None:
 
 
 def validate_toolchain_workflow() -> None:
-    toolchain = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/toolchain.py"
+    toolchain = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/toolchain.py"
     with tempfile.TemporaryDirectory(prefix="program-kit-toolchain-") as value:
         repository = Path(value)
         tools = repository / "tools"
@@ -863,13 +863,13 @@ def validate_managed_sources() -> None:
         if source.suffix in {".props", ".targets"}:
             ElementTree.parse(source)
 
-    targets = (template / "files/eng/program-kit/ProgramKit.Build.targets").read_text(encoding="utf-8")
+    targets = (template / "files/.program-kit/eng/ProgramKit.Build.targets").read_text(encoding="utf-8")
     for phrase in ("ProgramKitFeatureMetadata", "PKF101", "feature_metadata.py"):
         if phrase not in targets:
             raise AssertionError(f"managed build target is missing {phrase}")
     if "ProgramKitApiContracts" in targets or "ProgramKitOpenApiGeneratedDocument" in targets:
         raise AssertionError("legacy consumer-supplied OpenAPI document target remains active")
-    pipeline = (template / "files/eng/program-kit/openapi_pipeline.py").read_text(encoding="utf-8")
+    pipeline = (template / "files/.program-kit/eng/openapi_pipeline.py").read_text(encoding="utf-8")
     for phrase in (
         "ProgramKit.OpenApi.Exporter",
         "artifacts/runnable-host/packages",
@@ -880,7 +880,7 @@ def validate_managed_sources() -> None:
         if phrase not in pipeline:
             raise AssertionError(f"managed OpenAPI pipeline is missing {phrase}")
     pipeline_module = module(
-        template / "files/eng/program-kit/openapi_pipeline.py", "openapi_pipeline_environment"
+        template / "files/.program-kit/eng/openapi_pipeline.py", "openapi_pipeline_environment"
     )
     observed_environment: dict[str, str] = {}
 
@@ -902,7 +902,7 @@ def validate_managed_sources() -> None:
     if observed_environment.get("APPDATA") != "consumer-fnm-profile":
         raise AssertionError("OpenAPI toolchain discovery ran after NuGet profile isolation hid fnm")
     tool_manifest = json.loads(
-        (template / "files/eng/program-kit/.config/dotnet-tools.json").read_text(encoding="utf-8")
+        (template / "files/.program-kit/eng/.config/dotnet-tools.json").read_text(encoding="utf-8")
     )
     exporter = tool_manifest.get("tools", {}).get("programkit.openapi.exporter", {})
     if exporter.get("commands") != ["programkit-openapi-export"] or not exporter.get("version"):
@@ -927,7 +927,7 @@ def validate_managed_sources() -> None:
 
 
 def validate_openapi_contracts() -> None:
-    script = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/openapi_contracts.py"
+    script = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/openapi_contracts.py"
     contracts = module(script, "openapi_contracts")
     with tempfile.TemporaryDirectory(prefix="program-kit-openapi-") as value:
         root = Path(value)
@@ -994,7 +994,7 @@ def validate_openapi_contracts() -> None:
 
 
 def validate_openapi_initialization() -> None:
-    script = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit/openapi_init.py"
+    script = ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng/openapi_init.py"
     with tempfile.TemporaryDirectory(prefix="program-kit-openapi-init-") as value:
         repository = Path(value)
         defaults = repository / ".program-kit/openapi-defaults.json"
@@ -1010,7 +1010,7 @@ def validate_openapi_initialization() -> None:
             }),
             encoding="utf-8",
         )
-        manifest = repository / "eng/program-kit/.config/dotnet-tools.json"
+        manifest = repository / ".program-kit/eng/.config/dotnet-tools.json"
         manifest.parent.mkdir(parents=True)
         manifest.write_text(
             json.dumps({
@@ -1255,14 +1255,14 @@ def validate_artifact_ownership() -> None:
             for path in sorted(ownership.CANONICAL)
         ]
         artifacts.append(
-            {"path": "eng/program-kit/Build.ps1", "ownership": "managed", "classification": "internal", "lifecycle": "source"}
+            {"path": ".program-kit/eng/Build.ps1", "ownership": "managed", "classification": "internal", "lifecycle": "source"}
         )
         manifest = {"schemaVersion": 1, "feature": "SPC-001", "profiles": ["program-kit"], "artifacts": artifacts}
         path = root / "artifact-ownership.json"
         path.write_text(json.dumps(manifest), encoding="utf-8")
         loaded = ownership.load_manifest(path)
         tasks = root / "tasks.md"
-        tasks.write_text("- [ ] Update `eng/program-kit/Build.ps1`\n", encoding="utf-8")
+        tasks.write_text("- [ ] Update `.program-kit/eng/Build.ps1`\n", encoding="utf-8")
         try:
             ownership.validate_tasks(tasks, loaded, None)
         except ValueError as error:
@@ -1359,7 +1359,7 @@ def validate_artifact_ownership() -> None:
             "- **Vertical-slice path**: request to response\n"
             "- **Artifact ownership manifest**: artifact-ownership.json\n"
             "Pack `src/Catalog/Catalog.csproj` with ProgramKitFeatureIdentity; activate it in "
-            "`shells.json`, configure `hostsettings.json`, run `eng/program-kit/runnable_host.py stage` for "
+            "`shells.json`, configure `hostsettings.json`, run `.program-kit/eng/runnable_host.py stage` for "
             "package-closure staging, and publish digest-pinned ProgramKit.Host evidence to "
             "`.program-kit/evidence/host-image.json`.\n",
             encoding="utf-8",
@@ -1473,7 +1473,7 @@ def validate_artifact_ownership() -> None:
             "- **Vertical-slice path**: request to response\n"
             "- **Artifact ownership manifest**: artifact-ownership.json\n"
             "Pack projects with ProgramKitFeatureIdentity; activate them in `shells.json`, configure "
-            "`hostsettings.json`, run `eng/program-kit/runnable_host.py stage` for package-closure staging, "
+            "`hostsettings.json`, run `.program-kit/eng/runnable_host.py stage` for package-closure staging, "
             "and publish digest-pinned ProgramKit.Host evidence to `.program-kit/evidence/host-image.json`.\n",
             encoding="utf-8",
         )
@@ -1689,7 +1689,7 @@ def validate_artifact_ownership() -> None:
             },
         }
         contract_path.write_text(json.dumps(contract), encoding="utf-8")
-        tool_manifest = root / "eng/program-kit/.config/dotnet-tools.json"
+        tool_manifest = root / ".program-kit/eng/.config/dotnet-tools.json"
         tool_manifest.parent.mkdir(parents=True)
         tool_manifest.write_text(
             json.dumps(

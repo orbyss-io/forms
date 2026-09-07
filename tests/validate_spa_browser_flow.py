@@ -188,15 +188,15 @@ public sealed class IdentityAcceptanceFeature : IWebShellFeature
         newline="\n",
     )
     (repository / "Directory.Build.targets").write_text(
-        f'<Project><Import Project="{(TEMPLATE / "files/eng/program-kit/ProgramKit.Build.targets").as_posix()}" /></Project>\n',
+        f'<Project><Import Project="{(TEMPLATE / "files/.program-kit/eng/ProgramKit.Build.targets").as_posix()}" /></Project>\n',
         encoding="utf-8",
     )
     shutil.copyfile(ROOT / "NuGet.config", repository / "NuGet.config")
     (repository / "VERSION").write_text("1.0.0\n", encoding="utf-8")
-    managed = repository / "eng/program-kit"
+    managed = repository / ".program-kit/eng"
     managed.mkdir(parents=True)
     shutil.copyfile(
-        TEMPLATE / "files/eng/program-kit/ProgramKit.Packages.props",
+        TEMPLATE / "files/.program-kit/eng/ProgramKit.Packages.props",
         managed / "ProgramKit.Packages.props",
     )
     shutil.copyfile(TEMPLATE / "files/hostsettings.json", repository / "hostsettings.json")
@@ -213,7 +213,7 @@ public sealed class IdentityAcceptanceFeature : IWebShellFeature
         }
     )
     profile_path = repository / ".program-kit/web-profile.shells.json"
-    profile_path.parent.mkdir()
+    profile_path.parent.mkdir(exist_ok=True)
     profile_path.write_text(json.dumps(profile, indent=2) + "\n", encoding="utf-8")
     (repository / "shells.json").write_text(
         json.dumps(
@@ -269,7 +269,7 @@ def stage_host(repository: Path, project: Path, packages: Path, staged: Path) ->
     run(
         [
             sys.executable,
-            str(TEMPLATE / "files/eng/program-kit/runnable_host.py"),
+            str(TEMPLATE / "files/.program-kit/eng/runnable_host.py"),
             "stage",
             "--repository",
             str(repository),
@@ -363,9 +363,9 @@ def start_spa(root: Path, port: int) -> tuple[http.server.ThreadingHTTPServer, t
 
 
 def install_browser(browser_root: Path, npm: str) -> None:
-    shutil.copyfile(TEMPLATE / "web-profiles/common/eng/program-kit/web/package.json", browser_root / "package.json")
+    shutil.copyfile(TEMPLATE / "web-profiles/common/.program-kit/eng/web/package.json", browser_root / "package.json")
     shutil.copyfile(
-        TEMPLATE / "web-profiles/common/eng/program-kit/web/package-lock.json",
+        TEMPLATE / "web-profiles/common/.program-kit/eng/web/package-lock.json",
         browser_root / "package-lock.json",
     )
     run([npm, "ci", "--ignore-scripts", "--no-audit", "--fund=false"], browser_root, timeout=300)

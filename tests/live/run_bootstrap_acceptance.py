@@ -1038,7 +1038,7 @@ MANAGED_BASELINE_PATTERNS = (
     ".agents/skills/speckit-program-kit-*/**/*",
     ".claude/skills/speckit-program-kit-*/**/*",
     ".claude/commands/speckit.program-kit-*",
-    "eng/program-kit/**/*",
+    ".program-kit/eng/**/*",
 )
 
 

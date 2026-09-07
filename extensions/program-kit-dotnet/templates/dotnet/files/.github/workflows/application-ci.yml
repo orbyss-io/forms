@@ -28,7 +28,7 @@ jobs:
 
       - name: Run repository verification gate
         shell: pwsh
-        run: ./eng/program-kit/Invoke-RepositoryVerification.ps1 -Mode CI
+        run: ./.program-kit/eng/Invoke-RepositoryVerification.ps1 -Mode CI
 
       - name: Upload packages
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

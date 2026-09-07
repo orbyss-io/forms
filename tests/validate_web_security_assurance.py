@@ -56,7 +56,7 @@ def require_nonempty(item: dict, fields: tuple[str, ...], label: str) -> None:
 def validate_compose_topology_contract(root: Path) -> None:
     path = (
         root
-        / "extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/eng/program-kit/compose_topology.py"
+        / "extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/.program-kit/eng/compose_topology.py"
     )
     specification = importlib.util.spec_from_file_location("program_kit_compose_topology", path)
     if specification is None or specification.loader is None:
@@ -227,7 +227,7 @@ def main() -> int:
         profile_root = root / "extensions/program-kit-dotnet/templates/dotnet/web-profiles" / profile_directory
         manifest = load_object(profile_root / "managed-files.json")
         files = {item["path"]: item for item in manifest["files"]}
-        if "eng/program-kit/web/persona-fixture.ts" not in files:
+        if ".program-kit/eng/web/persona-fixture.ts" not in files:
             raise AssertionError(f"{profile_directory} does not ship the validated persona-fixture loader")
         for destination, source in (
             (".program-kit/security/web-security-evidence.json", "web-security-evidence.json"),
@@ -236,7 +236,7 @@ def main() -> int:
             entry = files.get(destination)
             if not entry or entry.get("ownership") != "managed" or entry.get("source") != source:
                 raise AssertionError(f"{profile_directory} does not ship managed {destination}")
-        contract = load_object(profile_root / "eng/program-kit/web/web-contract.json")
+        contract = load_object(profile_root / ".program-kit/eng/web/web-contract.json")
         if contract.get("profile") != contract_id:
             raise AssertionError(f"Unexpected profile contract in {profile_directory}")
         if contract.get("assurance") != {
@@ -325,7 +325,7 @@ def main() -> int:
             raise AssertionError(f"CShells feature packages do not implement the web contract: {required}")
     web_profiles_root = root / "extensions/program-kit-dotnet/templates/dotnet/web-profiles"
     dev_script = (
-        web_profiles_root / "common/eng/program-kit/Dev.ps1"
+        web_profiles_root / "common/.program-kit/eng/Dev.ps1"
     ).read_text(encoding="utf-8")
     for required in (
         "compose_topology.py",
@@ -336,7 +336,7 @@ def main() -> int:
     ):
         if required not in dev_script:
             raise AssertionError(f"Managed Dev.ps1 does not reconcile Compose topology: {required}")
-    persona_fixture = web_profiles_root / "common/eng/program-kit/web/persona-fixture.ts"
+    persona_fixture = web_profiles_root / "common/.program-kit/eng/web/persona-fixture.ts"
     persona_source = persona_fixture.read_text(encoding="utf-8")
     expected_realm = (
         persona_fixture.parent / "../../../deploy/keycloak/program-kit-realm.json"
@@ -345,8 +345,8 @@ def main() -> int:
         raise AssertionError("The managed persona loader does not resolve the realm from its shipped suite directory")
     if "../../../../deploy/keycloak/program-kit-realm.json" in persona_source:
         raise AssertionError("The managed persona loader still escapes one directory above the consumer repository")
-    test_web = (web_profiles_root / "common/eng/program-kit/Test-Web.ps1").read_text(encoding="utf-8")
-    package = load_object(web_profiles_root / "common/eng/program-kit/web/package.json")
+    test_web = (web_profiles_root / "common/.program-kit/eng/Test-Web.ps1").read_text(encoding="utf-8")
+    package = load_object(web_profiles_root / "common/.program-kit/eng/web/package.json")
     fixture_script = package.get("scripts", {}).get("test:fixture", "")
     if "../../../deploy/keycloak/program-kit-realm.json" not in fixture_script:
         raise AssertionError("The managed web suite has no executable persona-fixture regression")
@@ -396,7 +396,10 @@ def main() -> int:
     for path in root.rglob("*"):
         if (
             not path.is_file()
-            or any(part in {".git", "artifacts", "bin", "obj", "node_modules", "__pycache__"} for part in path.parts)
+            or any(
+                part in {".git", "artifacts", "bin", "obj", "node_modules", "__pycache__"}
+                for part in path.relative_to(root).parts
+            )
             or path.suffix.lower() not in {".json", ".md", ".py", ".ps1", ".ts", ".cs", ".yml", ".yaml"}
         ):
             continue
@@ -416,12 +419,12 @@ def main() -> int:
         raise AssertionError("The browser contract must probe application permissions, not provider roles")
     permission_probe = (
         web_profiles_root
-        / "common/eng/program-kit/web/tests/authentication.spec.ts"
+        / "common/.program-kit/eng/web/tests/authentication.spec.ts"
     ).read_text(encoding="utf-8")
     if "../persona-fixture.js" not in permission_probe:
         raise AssertionError("The BFF browser contract does not load personas from the managed realm fixture")
     spa_probe = (
-        web_profiles_root / "spa-pkce/eng/program-kit/web/tests/authentication.spec.ts"
+        web_profiles_root / "spa-pkce/.program-kit/eng/web/tests/authentication.spec.ts"
     ).read_text(encoding="utf-8")
     if "../persona-fixture.js" not in spa_probe:
         raise AssertionError("The SPA browser contract does not load personas from the managed realm fixture")
@@ -449,11 +452,11 @@ def main() -> int:
     bff_root = web_profiles_root / "bff-cookie"
     bff_manifest = load_object(bff_root / "managed-files.json")
     bff_files = {item["path"] for item in bff_manifest["files"]}
-    if "eng/program-kit/web/bff-session.ts" not in bff_files:
+    if ".program-kit/eng/web/bff-session.ts" not in bff_files:
         raise AssertionError("The BFF profile does not ship its browser logout adapter")
-    if "eng/program-kit/web/tests/bff-session.spec.ts" not in bff_files:
+    if ".program-kit/eng/web/tests/bff-session.spec.ts" not in bff_files:
         raise AssertionError("The BFF profile does not ship direct tests for its browser logout adapter")
-    bff_contract = load_object(bff_root / "eng/program-kit/web/web-contract.json")
+    bff_contract = load_object(bff_root / ".program-kit/eng/web/web-contract.json")
     if bff_contract.get("schemaVersion") != 2:
         raise AssertionError("The browser-complete BFF contract must use schema version 2")
     routes = bff_contract.get("routes", {})

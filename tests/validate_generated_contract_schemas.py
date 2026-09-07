@@ -64,7 +64,7 @@ def validate(instance: object, schema: dict, path: str = "$") -> None:
 
 
 def main() -> int:
-    producer = load_module(TEMPLATE / "eng/program-kit/runnable_host.py")
+    producer = load_module(TEMPLATE / ".program-kit/eng/runnable_host.py")
     schema = json.loads(
         (TEMPLATE / ".program-kit/runnable-host.schema.json").read_text(encoding="utf-8")
     )

@@ -5,6 +5,12 @@ freshness, bootstrap-intake hash binding, invalid and missing DSL, Docker and Ja
 digest-pinned image availability, Keycloak port avoidance, Windows paths containing spaces, POSIX
 quoting, repeated invocation, and exact cleanup without consumer-repository mutation.
 
+The managed-layout regression reconstructs the previous authenticated `eng/program-kit/` tree,
+migrates owned files to `.program-kit/eng/`, preserves unrelated consumer `eng/**` content, prunes
+only empty retired directories, and proves that another managed sync is convergent. Component,
+workflow, governance, browser, build, package, and clean-consumer tests now resolve the consolidated
+location.
+
 Release packaging and clean installation prove that the new skill, launcher, managed tool profile,
 and supporting references survive component and bundle distribution. Governance-state and
 clean-consumer bootstrap regressions prove that assessment and final review packets expose the

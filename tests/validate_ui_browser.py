@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "extensions/program-kit-governance/scripts"))
-sys.path.insert(0, str(ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/eng/program-kit"))
+sys.path.insert(0, str(ROOT / "extensions/program-kit-dotnet/templates/dotnet/files/.program-kit/eng"))
 import ui_profile
 import js_toolchain
 

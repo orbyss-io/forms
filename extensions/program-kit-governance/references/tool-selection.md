@@ -51,7 +51,7 @@ endpoint framework requires a separate capability gap and ADR; it is not implied
 For the Program Kit .NET-to-TypeScript OpenAPI workflow, the managed exporter, oasdiff version in
 `.oasdiff-version`, and isolated `openapi-typescript` default in
 `.program-kit/openapi-defaults.json` are adopted baseline tools rather than candidates requiring a
-new consumer ADR. Run `eng/program-kit/openapi_init.py` for the first contract. Research is required
+new consumer ADR. Run `.program-kit/eng/openapi_init.py` for the first contract. Research is required
 only for an explicit override or an additional capability the managed chain does not provide.
 
 For modular dependency enforcement, evaluate a deterministic MSBuild/project-graph check and an

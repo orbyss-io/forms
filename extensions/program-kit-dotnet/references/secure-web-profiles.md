@@ -272,7 +272,7 @@ registrations are rejected before Compose starts.
   are part of the selected profile configuration.
 - Keycloak authoritatively enforces the configured idle and maximum SSO/client-session lifetimes;
   the API authoritatively enforces token `exp`; and the consumer SPA imports the managed
-  `eng/program-kit/web/spa-session.ts` adapter to enforce local idle expiry and the non-extendable
+  `.program-kit/eng/web/spa-session.ts` adapter to enforce local idle expiry and the non-extendable
   `auth_time + absoluteMinutes` deadline. A missing trusted `auth_time` is an authentication failure,
   not a reason to start a new absolute window. Silent renewal retains the original `auth_time` and
   cannot move that deadline.
@@ -280,7 +280,7 @@ registrations are rejected before Compose starts.
   session identifier between tabs. Receipt clears local authentication in the other tab. Logout
   clears local state and broadcasts first, then attempts provider logout; provider failure leaves
   every local tab signed out and produces the documented unavailable outcome.
-- `eng/program-kit/web/vite.security.mjs` owns browser-response headers for local Vite development
+- `.program-kit/eng/web/vite.security.mjs` owns browser-response headers for local Vite development
   and preview. Consumer-owned `vite.config` imports `programKitSpaSecurity` with exact API and
   identity origins. A production static server or edge must translate the checked
   `spa-security.json` contract; the production TLS terminator separately owns HTTPS and HSTS, so
@@ -297,7 +297,7 @@ registrations are rejected before Compose starts.
 
 ## Local preflight ownership
 
-`eng/program-kit/preflight.py` runs before any host or Compose command. It checks the Docker CLI,
+`.program-kit/eng/preflight.py` runs before any host or Compose command. It checks the Docker CLI,
 then calls the daemon directly with a bounded five-second Program Kit development default. The
 timeout is configurable through `PROGRAMKIT_PREFLIGHT_TIMEOUT_SECONDS`; it is a tooling hang budget,
 not a product SLO. `PKP001` through `PKP004` stop on the first invalid setting, missing CLI, timeout,
@@ -345,8 +345,8 @@ Unit mocks may test feature policy logic, but they do not replace this browser/p
 | `deploy/keycloak/program-kit-realm.json` | Managed derived local fixture composed from shared provider state and exactly one selected-profile client. Never edit it; change the selected profile (or SPA input) and sync. |
 | `deploy/compose.application.yml` | Managed API-host composition. SPA-PKCE never receives a client secret. |
 | SPA process composition | Consumer-owned Compose overlay passed to `Dev.ps1 -ComposeOverlay <path>` or an independently managed static-server process. |
-| `eng/program-kit/Dev.ps1` and `Test-Web.ps1` | Managed launch/test entry points. Use their parameters; do not fork them. |
-| `eng/program-kit/web/playwright.config.ts` | Managed secret-safe authentication-test configuration. Authentication capture remains off. |
+| `.program-kit/eng/Dev.ps1` and `Test-Web.ps1` | Managed launch/test entry points. Use their parameters; do not fork them. |
+| `.program-kit/eng/web/playwright.config.ts` | Managed secret-safe authentication-test configuration. Authentication capture remains off. |
 | Consumer `vite.config` | Consumer-owned adapter point importing `programKitSpaSecurity` and the SPA session adapter. |
 | `.program-kit/web-profile.shells.json` | Managed selected-profile contribution: activates exactly one authentication feature and supplies its shell-scoped configuration. |
 | `shells.json` | Consumer-owned CShells composition. It is loaded after the managed profile contribution, so a consumer can set `ProgramKit.Web.ProblemDetails` to `false` and activate its own exception feature. |

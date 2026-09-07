@@ -188,7 +188,7 @@ def ensure_openapi_toolchain(
 ) -> None:
     command = [
         sys.executable,
-        str(repository / "eng/program-kit/toolchain.py"),
+        str(repository / ".program-kit/eng/toolchain.py"),
         "--repository",
         str(repository),
         "--evidence",
@@ -242,7 +242,7 @@ def restore_exporter(
 
 
 def tool_version(repository: Path) -> tuple[Path, str]:
-    manifest = repository / "eng/program-kit/.config/dotnet-tools.json"
+    manifest = repository / ".program-kit/eng/.config/dotnet-tools.json"
     value = load_json(manifest, "managed .NET tool manifest")
     tools = value.get("tools")
     entry = tools.get("programkit.openapi.exporter") if isinstance(tools, dict) else None
@@ -332,11 +332,11 @@ def execute_contract(
             "--output", str(paths["raw"]),
             "--evidence", str(export_evidence),
         ],
-        repository / "eng/program-kit" if exporter is None else repository,
+        repository / ".program-kit/eng" if exporter is None else repository,
         f"OpenAPI export for {identity}",
         nuget_environment,
     )
-    normalizer = repository / "eng/program-kit/openapi_contracts.py"
+    normalizer = repository / ".program-kit/eng/openapi_contracts.py"
     normalize_command = [
         sys.executable,
         str(normalizer),

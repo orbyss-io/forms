@@ -9,5 +9,5 @@
   "cors": "exact-origin-allowlist",
   "localIdentityProvider": "keycloak-26.7.3",
   "configuration": ".program-kit/spa-pkce.json",
-  "browserSessionAdapter": "eng/program-kit/web/spa-session.ts"
+  "browserSessionAdapter": ".program-kit/eng/web/spa-session.ts"
 }

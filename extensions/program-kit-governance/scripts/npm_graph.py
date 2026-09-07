@@ -79,7 +79,7 @@ def resolve(
         if npm_command:
             command = [npm_command, "--strict-ssl=true", *arguments]
         else:
-            wrapper = repository / "eng/program-kit/js_toolchain.py"
+            wrapper = repository / ".program-kit/eng/js_toolchain.py"
             if not wrapper.is_file():
                 raise ValueError(
                     "PKN003 managed JavaScript runtime wrapper is missing; synchronize the .NET profile first."

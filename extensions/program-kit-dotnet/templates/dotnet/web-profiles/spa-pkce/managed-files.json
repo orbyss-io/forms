@@ -21,24 +21,24 @@
     { "path": "deploy/keycloak/themes/program-kit/email/html/executeActions.ftl", "ownership": "configuration", "sourceRoot": "web-profiles/common" },
     { "path": "deploy/keycloak/themes/program-kit/email/text/executeActions.ftl", "ownership": "configuration", "sourceRoot": "web-profiles/common" },
     { "path": "deploy/keycloak/themes/program-kit/email/messages/messages_en.properties", "ownership": "configuration", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/Dev.ps1", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/Test-Web.ps1", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/.gitignore", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/package.json", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/package-lock.json", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/playwright.config.ts", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/persona-fixture.ts", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/tsconfig.json", "ownership": "managed", "sourceRoot": "web-profiles/common" },
-    { "path": "eng/program-kit/web/tests/authentication.spec.ts", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" },
-    { "path": "eng/program-kit/web/web-contract.json", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
-    ,{ "path": "eng/program-kit/web/spa-security.json", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
-    ,{ "path": "eng/program-kit/web/spa-session.ts", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
-    ,{ "path": "eng/program-kit/web/tests/spa-session.spec.ts", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
-    ,{ "path": "eng/program-kit/web/vite.security.mjs", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
-    ,{ "path": "eng/program-kit/web/verify_spa_security.py", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
-    ,{ "path": "eng/program-kit/verify_spa_profile.py", "ownership": "managed", "sourceRoot": "../../scripts", "source": "spa_profile.py" }
-    ,{ "path": "eng/program-kit/preflight.py", "ownership": "managed", "sourceRoot": "web-profiles/common" }
-    ,{ "path": "eng/program-kit/compose_topology.py", "ownership": "managed", "sourceRoot": "web-profiles/common" }
+    { "path": ".program-kit/eng/Dev.ps1", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/Test-Web.ps1", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/.gitignore", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/package.json", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/package-lock.json", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/playwright.config.ts", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/persona-fixture.ts", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/tsconfig.json", "ownership": "managed", "sourceRoot": "web-profiles/common" },
+    { "path": ".program-kit/eng/web/tests/authentication.spec.ts", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" },
+    { "path": ".program-kit/eng/web/web-contract.json", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
+    ,{ "path": ".program-kit/eng/web/spa-security.json", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
+    ,{ "path": ".program-kit/eng/web/spa-session.ts", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
+    ,{ "path": ".program-kit/eng/web/tests/spa-session.spec.ts", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
+    ,{ "path": ".program-kit/eng/web/vite.security.mjs", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
+    ,{ "path": ".program-kit/eng/web/verify_spa_security.py", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
+    ,{ "path": ".program-kit/eng/verify_spa_profile.py", "ownership": "managed", "sourceRoot": "../../scripts", "source": "spa_profile.py" }
+    ,{ "path": ".program-kit/eng/preflight.py", "ownership": "managed", "sourceRoot": "web-profiles/common" }
+    ,{ "path": ".program-kit/eng/compose_topology.py", "ownership": "managed", "sourceRoot": "web-profiles/common" }
     ,{ "path": "deploy/compose.application.yml", "ownership": "managed", "sourceRoot": "web-profiles/spa-pkce" }
   ]
 }

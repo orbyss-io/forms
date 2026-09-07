@@ -106,7 +106,7 @@ contract checks the mandatory governance sections and selected runtime profile; 
   `program-kit-web-security-evidence-v1`; overrides identify the affected `WEB-Cxx`, `WEB-Dxx`, or
   residual-risk control, an owner, review condition, and executable evidence.
 - A roadmap entry is not Ready when a required ADR is unresolved, and a design task is not presented as a feature specification or application implementation task.
-- Managed `eng/program-kit/**` files are never implementation targets. OpenAPI, feature metadata,
+- Managed `.program-kit/eng/**` files are never implementation targets. OpenAPI, feature metadata,
   SPA serving security, toolchain, and persistence are configured only from their documented
   consumer-owned MSBuild, Vite, feature-adapter, or deployment extension points.
 - When the selected .NET baseline has not explicitly opted out of `ProgramKit.Host`, reject every
@@ -128,7 +128,7 @@ contract checks the mandatory governance sections and selected runtime profile; 
   pinned compatibility checking, an isolated generator package/lockfile, generated types, and the
   consuming application's own TypeScript compile. A plan that merely names a presumed generated
   JSON file is incomplete and must be rejected before implementation.
-  `eng/program-kit/openapi_init.py` is the supported empty-registry transition; the managed defaults
+  `.program-kit/eng/openapi_init.py` is the supported empty-registry transition; the managed defaults
   do not require another tooling ADR unless the consumer proposes an override.
 
 Return a structured report of errors, warnings, new decisions, and required artifact updates. Errors block the lifecycle step. Never silently edit an Accepted ADR to make a conflict disappear.

@@ -243,10 +243,10 @@ NODE_VERSION_MANIFEST = Path(
     ".specify/extensions/program-kit-dotnet/templates/dotnet/files/.nvmrc"
 )
 WEB_PACKAGE_MANIFEST = Path(
-    ".specify/extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/eng/program-kit/web/package.json"
+    ".specify/extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/.program-kit/eng/web/package.json"
 )
 WEB_PACKAGE_LOCK = Path(
-    ".specify/extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/eng/program-kit/web/package-lock.json"
+    ".specify/extensions/program-kit-dotnet/templates/dotnet/web-profiles/common/.program-kit/eng/web/package-lock.json"
 )
 TOOLCHAIN_OVERRIDE_ID = "managed-toolchain-version"
 UI_PACKAGE_MANIFEST = Path(

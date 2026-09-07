@@ -604,8 +604,8 @@ def lock_renewal_commands(target: Path, locks: list[Path]) -> list[str]:
     for subject in subjects:
         commands.extend(
             [
-                f"pwsh -NoProfile -File eng/program-kit/Restore.ps1 -Subject {subject} -ForceEvaluate",
-                f"pwsh -NoProfile -File eng/program-kit/Restore.ps1 -Subject {subject} -LockedMode",
+                f"pwsh -NoProfile -File .program-kit/eng/Restore.ps1 -Subject {subject} -ForceEvaluate",
+                f"pwsh -NoProfile -File .program-kit/eng/Restore.ps1 -Subject {subject} -LockedMode",
             ]
         )
     return commands
