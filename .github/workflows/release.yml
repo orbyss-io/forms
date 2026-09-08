@@ -61,7 +61,7 @@ jobs:
           python tests/validate_frontend_publication.py --tag "$GITHUB_REF_NAME"
           python tests/validate_forms_frontend.py --install
           python tests/validate_forms_frontend_packages.py
-          python tests/validate_forms_browser.py
+          python tests/validate_forms_browser.py --install-browser
 
       - name: Pack package families
         shell: bash
