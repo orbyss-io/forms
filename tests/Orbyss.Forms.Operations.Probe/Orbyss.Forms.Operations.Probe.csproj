@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CShells.AspNetCore.Abstractions" />
+    <PackageReference Include="Orbyss.Foundation.Mcp.AspNetCore" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Management/Orbyss.Forms.Management.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Submissions.Tool/Orbyss.Forms.Submissions.Tool.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Submissions.Mcp.AspNetCore/Orbyss.Forms.Submissions.Mcp.AspNetCore.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj" />
+  </ItemGroup>
+</Project>

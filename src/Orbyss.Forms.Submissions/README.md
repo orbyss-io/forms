@@ -8,6 +8,11 @@ Consumers select `IFormSubmissionStore`, `IFormAttachmentStore`, `IFormAttachmen
 `IFormAttachmentScanner` implementations. `RejectingFormAttachmentScanner` is deliberately
 fail-closed and is not a malware scanner. Production attachment use requires a real scanner.
 
+Select `OrbyssFormsSubmissionsFeature` to register the default draft, migration, submission,
+validation, review, and attachment services. Its default attachment policy and scanner both reject
+all content; a host must explicitly register an allowlist policy and real scanner before activating
+attachments.
+
 The built-in filesystem adapter is appropriate for local/single-process operation. Multi-instance
 deployments should use transactional database/object-storage adapters that preserve the same
 optimistic concurrency, idempotency, audit, quarantine and immutable-submission contracts.

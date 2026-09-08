@@ -8,8 +8,8 @@ adapters they select. No manual package upload is part of the release procedure.
 
 The publication workflow is enabled for the approved twelve-package engine family. It:
 
-- derives every package version from `RUNTIME_VERSION` (`0.1.0`) while requiring the
-  release tag to match `VERSION` (`v0.9.9`);
+- derives every package version from `RUNTIME_VERSION` while requiring the release tag to match
+  `VERSION`;
 - authenticate with the workflow's narrowly scoped GitHub package permission, never a committed
   token;
 - run the clean locked install, build, tests, browser acceptance and package dry runs before publish;

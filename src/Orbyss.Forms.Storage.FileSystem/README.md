@@ -11,4 +11,8 @@ process-local.
 
 Atomic, content-verified filesystem storage for immutable form releases. Release identifiers are
 SHA-256-mapped to filenames, payloads carry their own digest, and existing identifiers cannot be
-overwritten with different content. The adapter has no ASP.NET Core, DI, or Host dependency.
+overwritten with different content.
+
+Select `OrbyssFormsFileSystemStorageFeature` to register every Forms storage port. The owned root is
+configured at `Orbyss:Forms:Storage:FileSystem:RootPath` and defaults to `App_Data/forms`. The adapter
+has no ASP.NET Core dependency or host-behavior ownership.

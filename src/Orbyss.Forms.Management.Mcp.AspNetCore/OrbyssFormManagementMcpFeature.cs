@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Server;
 using Orbyss.Forms.Management.Tool;
-using Orbyss.Forms.Tool;
 using Orbyss.Foundation.Mcp.AspNetCore;
 
 namespace Orbyss.Forms.Management.Mcp.AspNetCore;

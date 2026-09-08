@@ -1,6 +1,6 @@
 {
   "name": "@orbyss-io/forms-vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,7 +14,9 @@
   },
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -25,8 +27,8 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss-io/forms-contracts": "0.1.0",
-    "@orbyss-io/forms-jsonforms-runtime": "0.1.0"
+    "@orbyss-io/forms-contracts": "0.1.1",
+    "@orbyss-io/forms-jsonforms-runtime": "0.1.1"
   },
   "peerDependencies": {
     "@jsonforms/core": "3.8.0",

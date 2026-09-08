@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <FormsVersion>0.1.0</FormsVersion>
+    <FormsVersion>0.1.1</FormsVersion>
     <Version>$(FormsVersion)</Version>
     <PackageVersion>$(FormsVersion)</PackageVersion>
     <TargetFramework>net10.0</TargetFramework>

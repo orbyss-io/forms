@@ -95,11 +95,11 @@ The .NET boundary is split into:
 
 - `Orbyss.Forms.Abstractions`: identifiers, authoring commands, immutable release contracts,
   diagnostics, compatibility manifests and narrow query ports.
-- `Orbyss.Forms.Core`: validation and release compatibility analysis.
-- `Orbyss.Forms.Application`: authoring, deterministic compilation, evidence-bound review,
-  publication, bounded queries and retirement orchestration over replaceable stores.
-- `Orbyss.Forms.JsonForms`: compilation to JSON Schema/JSON Forms UI Schema, AJV parity fixtures
-  and translation-requirement extraction.
+- `Orbyss.Forms.JsonForms`: default semantic validation, compilation to JSON Schema/JSON Forms UI
+  Schema, AJV parity fixtures and translation-requirement extraction.
+- `Orbyss.Forms.Management`: authoring, compatibility analysis, deterministic compilation,
+  evidence-bound review, publication, bounded queries and retirement orchestration over replaceable
+  stores.
 - `Orbyss.Forms.Storage.Abstractions`, `.InMemory` and `.FileSystem`: narrow consumer-owned
   persistence ports, a complete non-durable test/development reference, and an explicit filesystem
   adapter without leaking persistence models into application contracts.
@@ -109,9 +109,9 @@ The .NET boundary is split into:
   handlers; form rendering does not imply data collection.
 - `Orbyss.Foundation.Mcp.AspNetCore`: the single protected stateless Streamable HTTP transport, without
   domain tools or middleware ownership.
-- `Orbyss.Forms.Mcp.AspNetCore`, `.Tool`, `.Management.Mcp.AspNetCore` and `.Management.Tool`:
-  independently selected tool contributors over the same application services, without a second
-  rules engine or independently mapped MCP endpoints.
+- `Orbyss.Forms.Submissions.Mcp.AspNetCore`, `.Submissions.Tool`, `.Management.Mcp.AspNetCore` and
+  `.Management.Tool`: independently selected tool contributors over the same application services,
+  without a second rules engine or independently mapped MCP endpoints.
 - `Orbyss.Forms.Localization`: the optional bridge from compiled Forms translation requirements to
   the independent `Orbyss.Localization.Abstractions` contract package. Localization implementations,
   formats, storage and management features remain outside this repository.

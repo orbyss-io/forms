@@ -8,6 +8,12 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_REPOSITORY = "https://github.com/orbyss-io/forms"
+RETIRED_IDS = {
+    "Orbyss.Forms.Application",
+    "Orbyss.Forms.Core",
+    "Orbyss.Forms.Mcp.AspNetCore",
+    "Orbyss.Forms.Tool",
+}
 
 
 def local_name(tag: str) -> str:
@@ -23,16 +29,16 @@ def main() -> int:
     parser.add_argument("--packages", type=Path, default=ROOT / "artifacts/nuget")
     args = parser.parse_args()
 
-    if (ROOT / "src/dotnet").exists() or (ROOT / "eng").exists():
-        raise AssertionError("Forms must keep .NET projects directly under src/ and repository tooling under scripts/.")
+    if (ROOT / "src/dotnet").exists() or (ROOT / "tests/dotnet").exists() or (ROOT / "eng").exists():
+        raise AssertionError("Forms must keep .NET projects directly under src/ or tests/ and repository tooling under scripts/.")
 
     expected_version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     expected_ids = {
         project.stem
         for project in (ROOT / "src").glob("Orbyss.Forms.*/*.csproj")
     }
-    if len(expected_ids) != 16:
-        raise AssertionError(f"Expected 16 Forms package projects, found {len(expected_ids)}.")
+    if len(expected_ids) != 15:
+        raise AssertionError(f"Expected 15 Forms package projects, found {len(expected_ids)}.")
 
     found: set[str] = set()
     for package in sorted(args.packages.glob("*.nupkg")):
@@ -46,6 +52,11 @@ def main() -> int:
         package_id = child(metadata, "id").text or ""
         version = child(metadata, "version").text or ""
         repository = child(metadata, "repository")
+        dependencies = {
+            item.attrib.get("id", "")
+            for item in metadata.iter()
+            if local_name(item.tag) == "dependency"
+        }
         if package_id not in expected_ids:
             raise AssertionError(f"Unexpected package ID: {package_id}")
         if version != expected_version:
@@ -56,11 +67,13 @@ def main() -> int:
             raise AssertionError(f"{package_id} is outside the Forms namespace.")
         if b"ProgramKit" in nuspec:
             raise AssertionError(f"{package_id} still exposes a ProgramKit package identity.")
+        if dependencies & RETIRED_IDS:
+            raise AssertionError(f"{package_id} depends on retired package identities: {sorted(dependencies & RETIRED_IDS)}")
         found.add(package_id)
 
     if found != expected_ids:
         raise AssertionError(f"Package set mismatch. Missing={sorted(expected_ids - found)}, extra={sorted(found - expected_ids)}")
-    print("Exact 16-package Orbyss Forms NuGet metadata contract passed.")
+    print("Exact 15-package Orbyss Forms NuGet metadata contract passed.")
     return 0
 
 

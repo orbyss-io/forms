@@ -10,10 +10,10 @@ and compose Forms.
 
 ## Published families
 
-- 16 `Orbyss.Forms.*` NuGet packages, including the optional Localization integration bridge.
+- 15 `Orbyss.Forms.*` NuGet packages, including the optional Localization integration bridge.
 - 12 `@orbyss-io/forms-*` packages in GitHub Packages.
 
-The first independently versioned release is `0.1.0`. All packages in each language family share the
+The current repository version is `0.1.1`. All packages in each language family share the
 repository version so their internal contracts remain coherent.
 
 ## Local validation

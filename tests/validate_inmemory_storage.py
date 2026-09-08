@@ -16,7 +16,7 @@ def main() -> int:
     for contract in ("IFormDefinitionStore", "IFormReleaseStore", "IFormReleaseRetirementStore", "IFormSubmissionStore", "IFormAttachmentStore", "IFormAttachmentContentStore"):
         if contract not in forms_source:
             raise AssertionError(f"The in-memory Forms reference adapter does not implement {contract}")
-    probe = root / "tests/dotnet/Orbyss.Forms.Storage.InMemory.Probe/Orbyss.Forms.Storage.InMemory.Probe.csproj"
+    probe = root / "tests/Orbyss.Forms.Storage.InMemory.Probe/Orbyss.Forms.Storage.InMemory.Probe.csproj"
     result = subprocess.run(
         ["dotnet", "run", "--project", str(probe), "-c", "Release", "--no-build", "--no-restore"],
         cwd=root,

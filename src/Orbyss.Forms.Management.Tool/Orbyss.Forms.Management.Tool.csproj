@@ -8,7 +8,6 @@
   <ItemGroup>
     <PackageReference Include="ModelContextProtocol" />
     <ProjectReference Include="../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
-    <ProjectReference Include="../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj" />
   </ItemGroup>
   <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>
 </Project>

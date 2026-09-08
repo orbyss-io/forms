@@ -22,8 +22,7 @@ def main() -> int:
     # validation/compilation, releases, or MCP access.
     required_backend_projects = (
         "src/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-        "src/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj",
-        "src/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
+        "src/Orbyss.Forms.Management/Orbyss.Forms.Management.csproj",
         "src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj",
         "src/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
         "src/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj",
@@ -51,10 +50,11 @@ def main() -> int:
             raise AssertionError(f"Required management backend contract is missing {required}: {relative}")
 
     graphs = {
-        "src/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj": (
-            set(),
+        "src/Orbyss.Forms.Management/Orbyss.Forms.Management.csproj": (
+            {"CShells.Abstractions", "Microsoft.Extensions.DependencyInjection.Abstractions"},
             {
                 "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+                "../Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj",
                 "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
             },
         ),
@@ -68,10 +68,7 @@ def main() -> int:
         ),
         "src/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj": (
             {"ModelContextProtocol"},
-            {
-                "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-                "../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj",
-            },
+            {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
         "src/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj": (
             {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore", "Orbyss.Foundation.Mcp.AspNetCore"},
@@ -129,16 +126,16 @@ def main() -> int:
     if len(names) != len(set(names)):
         raise AssertionError("Orbyss Forms MCP contributors contain colliding tool names")
 
-    application = (root / "src/Orbyss.Forms.Application/DefaultFormCatalogService.cs").read_text(encoding="utf-8")
+    management = (root / "src/Orbyss.Forms.Management/DefaultFormCatalogService.cs").read_text(encoding="utf-8")
     for required in ("ReplayAsync", "RequireExpectedVersion", "SubmitForReviewAsync", "WriteAsync(release", "RetireAsync"):
-        if required not in application:
-            raise AssertionError(f"Forms application lifecycle is missing {required}")
+        if required not in management:
+            raise AssertionError(f"Forms management lifecycle is missing {required}")
     store = (root / "src/Orbyss.Forms.Storage.FileSystem/FileSystemFormDefinitionStore.cs").read_text(encoding="utf-8")
     for required in ("WriteGates", "RequireConcurrency", "AuditTrail", "Commands", "failed content verification"):
         if required not in store:
             raise AssertionError(f"Forms filesystem aggregate store is missing {required}")
 
-    probe = root / "tests/dotnet/Orbyss.Forms.Management.Probe/Orbyss.Forms.Management.Probe.csproj"
+    probe = root / "tests/Orbyss.Forms.Management.Probe/Orbyss.Forms.Management.Probe.csproj"
     result = subprocess.run(
         ["dotnet", "run", "--project", str(probe), "--configuration", "Release", "--no-build"],
         cwd=root,

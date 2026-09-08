@@ -1,6 +1,6 @@
 {
   "name": "@orbyss-io/forms-wizard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,7 +14,9 @@
   },
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -25,6 +27,6 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss-io/forms-contracts": "0.1.0"
+    "@orbyss-io/forms-contracts": "0.1.1"
   }
 }

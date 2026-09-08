@@ -53,6 +53,7 @@ jobs:
           python tests/validate_forms_operations.py
           python tests/validate_forms_localization_contracts.py
           python tests/validate_inmemory_storage.py
+          python tests/validate_package_retirement.py
 
       - name: Build and test frontend family
         env:
@@ -78,7 +79,7 @@ jobs:
           shopt -s nullglob
           nuget_packages=(artifacts/nuget/*.nupkg)
           npm_packages=(artifacts/npm/*.tgz)
-          [[ ${#nuget_packages[@]} -eq 16 ]] || { echo "Expected 16 Forms NuGet packages, found ${#nuget_packages[@]}." >&2; exit 1; }
+          [[ ${#nuget_packages[@]} -eq 15 ]] || { echo "Expected 15 Forms NuGet packages, found ${#nuget_packages[@]}." >&2; exit 1; }
           [[ ${#npm_packages[@]} -eq 12 ]] || { echo "Expected 12 npm packages, found ${#npm_packages[@]}." >&2; exit 1; }
           python tests/validate_package_metadata.py --packages artifacts/nuget
 

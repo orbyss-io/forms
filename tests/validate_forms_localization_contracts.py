@@ -64,18 +64,9 @@ def main() -> int:
 
     require_graph(
         root,
-        "src/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
-        set(),
-        {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
-    )
-    require_graph(
-        root,
         "src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj",
-        set(),
-        {
-            "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-            "../Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
-        },
+        {"CShells.Abstractions", "Microsoft.Extensions.DependencyInjection.Abstractions"},
+        {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
     )
     require_graph(
         root,
@@ -86,15 +77,22 @@ def main() -> int:
     require_graph(
         root,
         "src/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj",
-        set(),
+        {"CShells.Abstractions", "Microsoft.Extensions.DependencyInjection.Abstractions"},
         {"../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj"},
     )
     require_graph(
         root,
         "src/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj",
-        {"Orbyss.Localization.Abstractions"},
+        {
+            "CShells.Abstractions",
+            "Microsoft.Extensions.DependencyInjection.Abstractions",
+            "Orbyss.Localization.Abstractions",
+        },
         {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
     )
+
+    if (root / "src/Orbyss.Forms.Core").exists():
+        raise AssertionError("The retired Orbyss.Forms.Core project must not remain in the source tree")
 
     owned_localization = sorted(path.name for path in (root / "src").glob("Orbyss.Localization*"))
     if owned_localization:
@@ -110,7 +108,7 @@ def main() -> int:
     if "Orbyss.Localization.Abstractions" not in package_versions:
         raise AssertionError("The Forms bridge must pin released Orbyss.Localization.Abstractions centrally")
 
-    probe = root / "tests/dotnet/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj"
+    probe = root / "tests/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj"
     probe_result = run_probe(root, probe)
     if probe_result.returncode != 0:
         raise AssertionError(

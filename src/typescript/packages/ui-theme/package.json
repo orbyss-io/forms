@@ -1,6 +1,6 @@
 {
   "name": "@orbyss-io/forms-ui-theme",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,8 +13,13 @@
     "tag": "latest"
   },
   "type": "module",
-  "sideEffects": ["./default.css"],
-  "files": ["dist", "default.css"],
+  "sideEffects": [
+    "./default.css"
+  ],
+  "files": [
+    "dist",
+    "default.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

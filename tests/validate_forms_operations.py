@@ -19,7 +19,7 @@ def main() -> int:
     root = Path(__file__).resolve().parents[1]
     graphs = {
         "src/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj": (
-            set(),
+            {"CShells.Abstractions", "Microsoft.Extensions.DependencyInjection.Abstractions"},
             {
                 "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
                 "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
@@ -29,14 +29,14 @@ def main() -> int:
             {"CShells.AspNetCore.Abstractions"},
             {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj": (
+        "src/Orbyss.Forms.Submissions.Tool/Orbyss.Forms.Submissions.Tool.csproj": (
             {"ModelContextProtocol"},
             {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/Orbyss.Forms.Mcp.AspNetCore/Orbyss.Forms.Mcp.AspNetCore.csproj": (
+        "src/Orbyss.Forms.Submissions.Mcp.AspNetCore/Orbyss.Forms.Submissions.Mcp.AspNetCore.csproj": (
             {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore", "Orbyss.Foundation.Mcp.AspNetCore"},
             {
-                "../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj",
+                "../Orbyss.Forms.Submissions.Tool/Orbyss.Forms.Submissions.Tool.csproj",
             },
         ),
     }
@@ -66,7 +66,7 @@ def main() -> int:
 
     mcp_source = (
         root
-        / "src/Orbyss.Forms.Mcp.AspNetCore/OrbyssFormMcpFeature.cs"
+        / "src/Orbyss.Forms.Submissions.Mcp.AspNetCore/OrbyssFormSubmissionsMcpFeature.cs"
     ).read_text(encoding="utf-8")
     for required in ("IShellFeature", "DependsOn", "WithTools<FormOperationsTools>"):
         if required not in mcp_source:
@@ -79,7 +79,7 @@ def main() -> int:
         raise AssertionError("Forms must consume Foundation packages instead of owning Foundation source.")
 
     tool_source = (
-        root / "src/Orbyss.Forms.Tool/FormOperationsTools.cs"
+        root / "src/Orbyss.Forms.Submissions.Tool/FormOperationsTools.cs"
     ).read_text(encoding="utf-8")
     names = re.findall(r'McpServerTool\(Name = "([^"]+)"', tool_source)
     if len(names) != 11 or len(set(names)) != len(names):
@@ -114,7 +114,7 @@ def main() -> int:
         if required not in submission_source:
             raise AssertionError(f"The governed draft migration path is missing: {required}")
 
-    probe = root / "tests/dotnet/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj"
+    probe = root / "tests/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj"
     result = subprocess.run(
         ["dotnet", "run", "--project", str(probe), "--configuration", "Release", "--no-build"],
         cwd=root,

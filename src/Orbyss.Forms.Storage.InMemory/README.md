@@ -8,3 +8,6 @@ optimistic versions follow the same public contracts as durable adapters.
 State is process-local and intentionally disappears when the process ends. It is not a production
 durability default. Consumers retain ownership of production persistence by implementing the narrow
 storage abstractions or explicitly selecting a separate adapter such as the filesystem package.
+
+Select `OrbyssFormsInMemoryStorageFeature` to register all definition, release, submission,
+attachment-metadata, and attachment-content storage ports as shared process-local services.

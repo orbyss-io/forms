@@ -1,27 +1,25 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
-    <Project Path="src/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj" />
-    <Project Path="src/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj" />
     <Project Path="src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj" />
     <Project Path="src/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj" />
+    <Project Path="src/Orbyss.Forms.Management/Orbyss.Forms.Management.csproj" />
     <Project Path="src/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj" />
     <Project Path="src/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj" />
-    <Project Path="src/Orbyss.Forms.Mcp.AspNetCore/Orbyss.Forms.Mcp.AspNetCore.csproj" />
     <Project Path="src/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj" />
     <Project Path="src/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj" />
     <Project Path="src/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj" />
     <Project Path="src/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj" />
-    <Project Path="src/Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj" />
+    <Project Path="src/Orbyss.Forms.Submissions.Mcp.AspNetCore/Orbyss.Forms.Submissions.Mcp.AspNetCore.csproj" />
+    <Project Path="src/Orbyss.Forms.Submissions.Tool/Orbyss.Forms.Submissions.Tool.csproj" />
     <Project Path="src/Orbyss.Forms.Web.Management/Orbyss.Forms.Web.Management.csproj" />
     <Project Path="src/Orbyss.Forms.Web.Runtime/Orbyss.Forms.Web.Runtime.csproj" />
     <Project Path="src/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
-  <Folder Name="/tests/dotnet/">
-    <Project Path="tests/dotnet/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj" />
-    <Project Path="tests/dotnet/Orbyss.Forms.Management.Probe/Orbyss.Forms.Management.Probe.csproj" />
-    <Project Path="tests/dotnet/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj" />
-    <Project Path="tests/dotnet/Orbyss.Forms.Storage.InMemory.Probe/Orbyss.Forms.Storage.InMemory.Probe.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj" />
+    <Project Path="tests/Orbyss.Forms.Management.Probe/Orbyss.Forms.Management.Probe.csproj" />
+    <Project Path="tests/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj" />
+    <Project Path="tests/Orbyss.Forms.Storage.InMemory.Probe/Orbyss.Forms.Storage.InMemory.Probe.csproj" />
   </Folder>
 </Solution>

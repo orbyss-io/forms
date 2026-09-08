@@ -82,11 +82,11 @@ def main() -> int:
         raise AssertionError("Application-owned editors must receive the governed two-space Tab indentation policy.")
 
     wizard_dependencies = by_name["@orbyss-io/forms-wizard"]["dependencies"]
-    if wizard_dependencies != {"@orbyss-io/forms-contracts": "0.1.0"}:
+    if wizard_dependencies != {"@orbyss-io/forms-contracts": "0.1.1"}:
         raise AssertionError("The shared wizard state machine must remain framework-neutral.")
 
     action_dependencies = by_name["@orbyss-io/forms-actions"]["dependencies"]
-    if action_dependencies != {"@orbyss-io/forms-contracts": "0.1.0"}:
+    if action_dependencies != {"@orbyss-io/forms-contracts": "0.1.1"}:
         raise AssertionError("The governed action controller must remain framework-neutral.")
 
     theme = by_name["@orbyss-io/forms-ui-theme"]
@@ -100,7 +100,7 @@ def main() -> int:
     if "@layer orbyss-forms.theme" not in theme_css or "[data-pk-theme" not in theme_css:
         raise AssertionError("The default theme must remain scoped and cascade-layered.")
     lookup_dependencies = by_name["@orbyss-io/forms-lookups"]["dependencies"]
-    if lookup_dependencies != {"@orbyss-io/forms-contracts": "0.1.0"}:
+    if lookup_dependencies != {"@orbyss-io/forms-contracts": "0.1.1"}:
         raise AssertionError("Searchable lookups must remain framework-neutral and depend only on JSON-safe contracts.")
 
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
@@ -115,8 +115,8 @@ def main() -> int:
 
     react_manifest = by_name["@orbyss-io/forms-react"]
     if react_manifest.get("dependencies") != {
-        "@orbyss-io/forms-contracts": "0.1.0",
-        "@orbyss-io/forms-jsonforms-runtime": "0.1.0",
+        "@orbyss-io/forms-contracts": "0.1.1",
+        "@orbyss-io/forms-jsonforms-runtime": "0.1.1",
     }:
         raise AssertionError("The thin React binding must depend only on governed runtime integration.")
     if react_manifest.get("peerDependencies") != {
@@ -137,8 +137,8 @@ def main() -> int:
 
     vue_manifest = by_name["@orbyss-io/forms-vue"]
     if vue_manifest.get("dependencies") != {
-        "@orbyss-io/forms-contracts": "0.1.0",
-        "@orbyss-io/forms-jsonforms-runtime": "0.1.0",
+        "@orbyss-io/forms-contracts": "0.1.1",
+        "@orbyss-io/forms-jsonforms-runtime": "0.1.1",
     } or vue_manifest.get("peerDependencies") != {
         "@jsonforms/core": "3.8.0",
         "@jsonforms/vue": "3.8.0",
@@ -151,8 +151,8 @@ def main() -> int:
 
     angular_manifest = by_name["@orbyss-io/forms-angular"]
     if angular_manifest.get("dependencies") != {
-        "@orbyss-io/forms-contracts": "0.1.0",
-        "@orbyss-io/forms-jsonforms-runtime": "0.1.0",
+        "@orbyss-io/forms-contracts": "0.1.1",
+        "@orbyss-io/forms-jsonforms-runtime": "0.1.1",
     } or angular_manifest.get("peerDependencies") != {
         "@angular/common": "22.1.5",
         "@angular/core": "22.1.5",
