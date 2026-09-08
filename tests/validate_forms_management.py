@@ -19,28 +19,18 @@ def main() -> int:
     root = Path(__file__).resolve().parents[1]
     # Physical review rejected the optional management UI, not the governed backend.
     # Keep this list explicit so a future UI cleanup cannot silently remove drafts,
-    # validation/compilation, releases, localization administration, or MCP access.
+    # validation/compilation, releases, or MCP access.
     required_backend_projects = (
-        "src/dotnet/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-        "src/dotnet/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj",
-        "src/dotnet/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
-        "src/dotnet/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj",
-        "src/dotnet/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
-        "src/dotnet/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj",
-        "src/dotnet/Orbyss.Forms.Web.Management/Orbyss.Forms.Web.Management.csproj",
-        "src/dotnet/Orbyss.Forms.Web.Runtime/Orbyss.Forms.Web.Runtime.csproj",
-        "src/dotnet/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj",
-        "src/dotnet/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj",
-        "src/dotnet/Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
-        "src/dotnet/Orbyss.Localization.Application/Orbyss.Localization.Application.csproj",
-        "src/dotnet/Orbyss.Localization.Core/Orbyss.Localization.Core.csproj",
-        "src/dotnet/Orbyss.Localization.Formats/Orbyss.Localization.Formats.csproj",
-        "src/dotnet/Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj",
-        "src/dotnet/Orbyss.Localization.Storage.InMemory/Orbyss.Localization.Storage.InMemory.csproj",
-        "src/dotnet/Orbyss.Localization.Web.Management/Orbyss.Localization.Web.Management.csproj",
-        "src/dotnet/Orbyss.Localization.Web.Runtime/Orbyss.Localization.Web.Runtime.csproj",
-        "src/dotnet/Orbyss.Localization.Tool/Orbyss.Localization.Tool.csproj",
-        "src/dotnet/Orbyss.Localization.Mcp.AspNetCore/Orbyss.Localization.Mcp.AspNetCore.csproj",
+        "src/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+        "src/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj",
+        "src/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
+        "src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj",
+        "src/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
+        "src/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj",
+        "src/Orbyss.Forms.Web.Management/Orbyss.Forms.Web.Management.csproj",
+        "src/Orbyss.Forms.Web.Runtime/Orbyss.Forms.Web.Runtime.csproj",
+        "src/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj",
+        "src/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj",
     )
     solution = (root / "Orbyss.Forms.slnx").read_text(encoding="utf-8").replace("\\", "/")
     for relative in required_backend_projects:
@@ -50,11 +40,10 @@ def main() -> int:
             raise AssertionError(f"Required management backend project left the solution: {relative}")
 
     required_contracts = {
-        "src/dotnet/Orbyss.Forms.Abstractions/IFormAuthoring.cs": "ValidateAsync",
-        "src/dotnet/Orbyss.Forms.Abstractions/IFormReleaseLifecycle.cs": "CompileAsync",
-        "src/dotnet/Orbyss.Forms.Abstractions/IFormDraftOperations.cs": "SaveAsync",
-        "src/dotnet/Orbyss.Forms.Management.Tool/FormManagementTools.cs": "forms.management.create",
-        "src/dotnet/Orbyss.Localization.Tool/LocalizationManagementTools.cs": "localization.catalogs.create",
+        "src/Orbyss.Forms.Abstractions/IFormAuthoring.cs": "ValidateAsync",
+        "src/Orbyss.Forms.Abstractions/IFormReleaseLifecycle.cs": "CompileAsync",
+        "src/Orbyss.Forms.Abstractions/IFormDraftOperations.cs": "SaveAsync",
+        "src/Orbyss.Forms.Management.Tool/FormManagementTools.cs": "forms.management.create",
     }
     for relative, required in required_contracts.items():
         source = (root / relative).read_text(encoding="utf-8")
@@ -62,42 +51,32 @@ def main() -> int:
             raise AssertionError(f"Required management backend contract is missing {required}: {relative}")
 
     graphs = {
-        "src/dotnet/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj": (
+        "src/Orbyss.Forms.Application/Orbyss.Forms.Application.csproj": (
             set(),
             {
                 "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
                 "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
             },
         ),
-        "src/dotnet/Orbyss.Forms.Web.Management/Orbyss.Forms.Web.Management.csproj": (
+        "src/Orbyss.Forms.Web.Management/Orbyss.Forms.Web.Management.csproj": (
             {"CShells.AspNetCore.Abstractions"},
             {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/dotnet/Orbyss.Forms.Web.Runtime/Orbyss.Forms.Web.Runtime.csproj": (
+        "src/Orbyss.Forms.Web.Runtime/Orbyss.Forms.Web.Runtime.csproj": (
             {"CShells.AspNetCore.Abstractions"},
             {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/dotnet/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj": (
+        "src/Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj": (
             {"ModelContextProtocol"},
             {
                 "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
                 "../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj",
             },
         ),
-        "src/dotnet/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj": (
+        "src/Orbyss.Forms.Management.Mcp.AspNetCore/Orbyss.Forms.Management.Mcp.AspNetCore.csproj": (
             {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore", "Orbyss.Foundation.Mcp.AspNetCore"},
             {
                 "../Orbyss.Forms.Management.Tool/Orbyss.Forms.Management.Tool.csproj",
-            },
-        ),
-        "src/dotnet/Orbyss.Localization.Tool/Orbyss.Localization.Tool.csproj": (
-            {"ModelContextProtocol"},
-            {"../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"},
-        ),
-        "src/dotnet/Orbyss.Localization.Mcp.AspNetCore/Orbyss.Localization.Mcp.AspNetCore.csproj": (
-            {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore", "Orbyss.Foundation.Mcp.AspNetCore"},
-            {
-                "../Orbyss.Localization.Tool/Orbyss.Localization.Tool.csproj",
             },
         ),
     }
@@ -111,8 +90,8 @@ def main() -> int:
             )
 
     for relative in (
-        "src/dotnet/Orbyss.Forms.Web.Management/OrbyssFormManagementFeature.cs",
-        "src/dotnet/Orbyss.Forms.Web.Runtime/OrbyssFormRuntimeFeature.cs",
+        "src/Orbyss.Forms.Web.Management/OrbyssFormManagementFeature.cs",
+        "src/Orbyss.Forms.Web.Runtime/OrbyssFormRuntimeFeature.cs",
     ):
         source = (root / relative).read_text(encoding="utf-8")
         if "IWebShellFeature" not in source or "IMiddlewareShellFeature" in source:
@@ -121,12 +100,11 @@ def main() -> int:
             if forbidden in source:
                 raise AssertionError(f"{relative} owns host behavior: {forbidden}")
 
-    if any((root / "src/dotnet").glob("Orbyss.Foundation.*")):
+    if any((root / "src").glob("Orbyss.Foundation.*")):
         raise AssertionError("Forms must consume Foundation packages instead of owning Foundation source.")
 
     contributors = {
-        "src/dotnet/Orbyss.Forms.Management.Mcp.AspNetCore/OrbyssFormManagementMcpFeature.cs": "WithTools<FormManagementTools>",
-        "src/dotnet/Orbyss.Localization.Mcp.AspNetCore/OrbyssLocalizationMcpFeature.cs": "WithTools<LocalizationManagementTools>",
+        "src/Orbyss.Forms.Management.Mcp.AspNetCore/OrbyssFormManagementMcpFeature.cs": "WithTools<FormManagementTools>",
     }
     for relative, required in contributors.items():
         source = (root / relative).read_text(encoding="utf-8")
@@ -137,8 +115,7 @@ def main() -> int:
                 raise AssertionError(f"{relative} contains unsafe transport behavior: {forbidden}")
 
     catalogs = {
-        "src/dotnet/Orbyss.Forms.Management.Tool/FormManagementTools.cs": 12,
-        "src/dotnet/Orbyss.Localization.Tool/LocalizationManagementTools.cs": 16,
+        "src/Orbyss.Forms.Management.Tool/FormManagementTools.cs": 12,
     }
     names: list[str] = []
     for relative, expected_count in catalogs.items():
@@ -152,11 +129,11 @@ def main() -> int:
     if len(names) != len(set(names)):
         raise AssertionError("Orbyss Forms MCP contributors contain colliding tool names")
 
-    application = (root / "src/dotnet/Orbyss.Forms.Application/DefaultFormCatalogService.cs").read_text(encoding="utf-8")
+    application = (root / "src/Orbyss.Forms.Application/DefaultFormCatalogService.cs").read_text(encoding="utf-8")
     for required in ("ReplayAsync", "RequireExpectedVersion", "SubmitForReviewAsync", "WriteAsync(release", "RetireAsync"):
         if required not in application:
             raise AssertionError(f"Forms application lifecycle is missing {required}")
-    store = (root / "src/dotnet/Orbyss.Forms.Storage.FileSystem/FileSystemFormDefinitionStore.cs").read_text(encoding="utf-8")
+    store = (root / "src/Orbyss.Forms.Storage.FileSystem/FileSystemFormDefinitionStore.cs").read_text(encoding="utf-8")
     for required in ("WriteGates", "RequireConcurrency", "AuditTrail", "Commands", "failed content verification"):
         if required not in store:
             raise AssertionError(f"Forms filesystem aggregate store is missing {required}")
@@ -175,7 +152,7 @@ def main() -> int:
             "Forms management/shared-MCP public-contract probe failed.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         )
-    print("Orbyss Forms management and shared MCP validation passed.")
+    print("Orbyss Forms management and MCP validation passed.")
     return 0
 
 

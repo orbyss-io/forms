@@ -39,7 +39,7 @@ jobs:
           dotnet pack Orbyss.Forms.slnx -c Release --no-build -p:PackageOutputPath="$PWD/artifacts/nuget"
           shopt -s nullglob
           packages=(artifacts/nuget/*.nupkg)
-          [[ ${#packages[@]} -eq 27 ]] || { echo "Expected 27 Forms/Localization NuGet packages, found ${#packages[@]}." >&2; exit 1; }
+          [[ ${#packages[@]} -eq 16 ]] || { echo "Expected 16 Forms NuGet packages, found ${#packages[@]}." >&2; exit 1; }
           python tests/validate_package_metadata.py --packages artifacts/nuget
 
   frontend:

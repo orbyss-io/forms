@@ -3,7 +3,7 @@
 Decision date: 2026-09-06
 
 Orbyss Forms frontend packages will publish from the tagged GitHub Actions release workflow to
-GitHub Packages at `npm.pkg.github.com` under the `@orbyss` scope. Consumers will install only the
+GitHub Packages at `npm.pkg.github.com` under the `@orbyss-io` scope. Consumers will install only the
 adapters they select. No manual package upload is part of the release procedure.
 
 The publication workflow is enabled for the approved twelve-package engine family. It:

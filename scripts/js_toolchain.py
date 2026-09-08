@@ -244,7 +244,7 @@ def context(repository: Path, evidence_path: Path) -> tuple[list[str], dict[str,
         or resolved.get("npm") != required.get("npm")
     ):
         raise ValueError(
-            "PKT016 exact Node/npm command evidence is missing or stale; run .orbyss-forms/eng/toolchain.py first."
+            "PKT016 exact Node/npm command evidence is missing or stale; run scripts/js_toolchain.py first."
         )
     if any(not isinstance(item, str) or not item for item in npm):
         raise ValueError("PKT016 recorded npm command is invalid.")
@@ -331,5 +331,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
 

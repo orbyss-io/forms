@@ -8,7 +8,13 @@
         "resolved": "0.1.0",
         "contentHash": "eGRExasVN58KAE8gd5/AHo6ySmypKD6QLxRivM3ufLnUWRchoPVaclwFktX6QINmyDzzrtio7HX1aXnqqlxtCw=="
       },
-      "orbyss.localization.abstractions": {
+      "Orbyss.Localization.Abstractions": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "/Z9dfX1RzTzujY9JbG4Qineyb7cAxDVnuZsM04/Owpt9J9iTydzaWHjlP0hLVheq7eRlLA99yhwAZ67+Ez1XgA=="
+      },
+      "orbyss.forms.abstractions": {
         "type": "Project"
       }
     }

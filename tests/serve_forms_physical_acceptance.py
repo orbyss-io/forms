@@ -15,7 +15,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src/typescript"
 OUTPUT = ROOT / "artifacts/forms-browser"
-TOOLCHAIN = ROOT / "eng"
+TOOLCHAIN = ROOT / "scripts"
 sys.path.insert(0, str(TOOLCHAIN))
 import js_toolchain
 

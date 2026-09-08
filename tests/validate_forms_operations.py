@@ -18,22 +18,22 @@ def references(project: Path, kind: str) -> set[str]:
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     graphs = {
-        "src/dotnet/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj": (
+        "src/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj": (
             set(),
             {
                 "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
                 "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
             },
         ),
-        "src/dotnet/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj": (
+        "src/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj": (
             {"CShells.AspNetCore.Abstractions"},
             {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/dotnet/Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj": (
+        "src/Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj": (
             {"ModelContextProtocol"},
             {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
         ),
-        "src/dotnet/Orbyss.Forms.Mcp.AspNetCore/Orbyss.Forms.Mcp.AspNetCore.csproj": (
+        "src/Orbyss.Forms.Mcp.AspNetCore/Orbyss.Forms.Mcp.AspNetCore.csproj": (
             {"CShells.AspNetCore.Abstractions", "ModelContextProtocol.AspNetCore", "Orbyss.Foundation.Mcp.AspNetCore"},
             {
                 "../Orbyss.Forms.Tool/Orbyss.Forms.Tool.csproj",
@@ -57,7 +57,7 @@ def main() -> int:
 
     web_source = (
         root
-        / "src/dotnet/Orbyss.Forms.Web.Submissions/OrbyssFormSubmissionsFeature.cs"
+        / "src/Orbyss.Forms.Web.Submissions/OrbyssFormSubmissionsFeature.cs"
     ).read_text(encoding="utf-8")
     if "IWebShellFeature" not in web_source or "IMiddlewareShellFeature" in web_source:
         raise AssertionError("Form submission HTTP composition must remain endpoint-only")
@@ -66,7 +66,7 @@ def main() -> int:
 
     mcp_source = (
         root
-        / "src/dotnet/Orbyss.Forms.Mcp.AspNetCore/OrbyssFormMcpFeature.cs"
+        / "src/Orbyss.Forms.Mcp.AspNetCore/OrbyssFormMcpFeature.cs"
     ).read_text(encoding="utf-8")
     for required in ("IShellFeature", "DependsOn", "WithTools<FormOperationsTools>"):
         if required not in mcp_source:
@@ -75,11 +75,11 @@ def main() -> int:
         if forbidden in mcp_source:
             raise AssertionError(f"The form MCP contributor contains unsafe composition: {forbidden}")
 
-    if any((root / "src/dotnet").glob("Orbyss.Foundation.*")):
+    if any((root / "src").glob("Orbyss.Foundation.*")):
         raise AssertionError("Forms must consume Foundation packages instead of owning Foundation source.")
 
     tool_source = (
-        root / "src/dotnet/Orbyss.Forms.Tool/FormOperationsTools.cs"
+        root / "src/Orbyss.Forms.Tool/FormOperationsTools.cs"
     ).read_text(encoding="utf-8")
     names = re.findall(r'McpServerTool\(Name = "([^"]+)"', tool_source)
     if len(names) != 11 or len(set(names)) != len(names):
@@ -101,7 +101,7 @@ def main() -> int:
         raise AssertionError("The operational MCP surface must expose governed draft migration")
 
     submission_source = (
-        root / "src/dotnet/Orbyss.Forms.Submissions/DefaultFormSubmissionService.cs"
+        root / "src/Orbyss.Forms.Submissions/DefaultFormSubmissionService.cs"
     ).read_text(encoding="utf-8")
     for required in (
         "IFormDraftMigrationOperations",

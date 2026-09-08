@@ -122,62 +122,6 @@
           "Orbyss.Forms.Abstractions": "[0.1.0, )"
         }
       },
-      "orbyss.localization.abstractions": {
-        "type": "Project"
-      },
-      "orbyss.localization.application": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Abstractions": "[0.1.0, )",
-          "Orbyss.Localization.Core": "[0.1.0, )",
-          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.core": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.formats": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.mcp.aspnetcore": {
-        "type": "Project",
-        "dependencies": {
-          "ModelContextProtocol.AspNetCore": "[2.2.0, )",
-          "Orbyss.Foundation.Mcp.AspNetCore": "[0.1.0, )",
-          "Orbyss.Localization.Tool": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.storage.abstractions": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.storage.filesystem": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.storage.inmemory": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.tool": {
-        "type": "Project",
-        "dependencies": {
-          "ModelContextProtocol": "[2.2.0, )",
-          "Orbyss.Localization.Abstractions": "[0.1.0, )"
-        }
-      },
       "CShells.Abstractions": {
         "type": "CentralTransitive",
         "requested": "[0.0.29-preview.147, )",

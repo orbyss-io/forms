@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT / "src/typescript"
-sys.path.insert(0, str(ROOT / "eng"))
+sys.path.insert(0, str(ROOT / "scripts"))
 import js_toolchain
 
 

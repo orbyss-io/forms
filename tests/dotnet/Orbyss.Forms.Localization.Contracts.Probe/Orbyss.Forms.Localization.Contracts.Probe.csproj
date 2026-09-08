@@ -4,15 +4,11 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Localization.Application/Orbyss.Localization.Application.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Localization.Core/Orbyss.Localization.Core.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Localization.Formats/Orbyss.Localization.Formats.csproj" />
-    <ProjectReference Include="../../../src/dotnet/Orbyss.Localization.Storage.FileSystem/Orbyss.Localization.Storage.FileSystem.csproj" />
+    <ProjectReference Include="../../../src/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj" />
+    <ProjectReference Include="../../../src/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj" />
+    <ProjectReference Include="../../../src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj" />
+    <ProjectReference Include="../../../src/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj" />
+    <ProjectReference Include="../../../src/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj" />
+    <PackageReference Include="Orbyss.Localization.Abstractions" />
   </ItemGroup>
 </Project>

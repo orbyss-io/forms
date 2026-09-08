@@ -22,21 +22,6 @@
         "dependencies": {
           "Orbyss.Forms.Storage.Abstractions": "[0.1.0, )"
         }
-      },
-      "orbyss.localization.abstractions": {
-        "type": "Project"
-      },
-      "orbyss.localization.storage.abstractions": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Abstractions": "[0.1.0, )"
-        }
-      },
-      "orbyss.localization.storage.inmemory": {
-        "type": "Project",
-        "dependencies": {
-          "Orbyss.Localization.Storage.Abstractions": "[0.1.0, )"
-        }
       }
     }
   }

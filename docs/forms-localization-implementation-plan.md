@@ -1,8 +1,8 @@
-# Forms and localization implementation plan
+# Forms implementation plan
 
 Status: approved on 2026-09-06. This plan does not authorize publication or remote operations.
 
-Frontend publication is fixed to GitHub Packages under `@orbyss`; the workflow will be enabled only
+Frontend publication is fixed to GitHub Packages under `@orbyss-io`; the workflow will be enabled only
 after the package set is complete. See `docs/frontend-package-publication.md`.
 
 ## Physical-review decision
@@ -21,9 +21,9 @@ As of 2026-09-06:
   desktop, orientation, touch, reflow, RTL and theme coverage. Local Firefox launch remains blocked
   before page load by the Playwright 1.62.1 Windows bundle activation defect recorded in
   `docs/ui-experience-evidence.md`; CI retains the Firefox requirement.
-- Slice 2 is complete: independent Forms and Localization semantic contracts, lifecycle,
-  concurrency, idempotency, audit, wizard, icon, action, import and runtime ports compile with no
-  implementation dependencies.
+- Slice 2 is complete: independent Forms semantic contracts, lifecycle, concurrency, idempotency,
+  audit, wizard, icon, action and runtime ports compile with no implementation dependencies. The
+  optional Forms/Localization bridge consumes the separately released Localization abstractions.
 - Slice 3 is implemented through provider-neutral validation, deterministic JSON Schema/JSON Forms
   UI Schema compilation, renderer/action/translation manifests, compatibility analysis, and atomic
   digest-verified immutable filesystem release stores. AJV 2020-12 parity and hostile runtime
@@ -37,10 +37,9 @@ As of 2026-09-06:
 - Slice 5 retains only headless capabilities: the portable wizard parser/state machine,
   manifest-backed action controller and trusted searchable-lookup controller. Orbyss Forms publishes
   no wizard, action-bar, lookup or core-control renderer.
-- Slice 6 is complete on the server: locale/fallback validation, structured scopes, ICU-style
-  placeholder/plural/select checks, exact/fallback immutable resolution, deterministic bundles,
-  bounded CSV/JSON/XLSX/XLIFF/PO adapters, hash-bound imports and authenticated CShells/MCP
-  management surfaces. No frontend localization-management package is shipped.
+- Slice 6 moved the Localization implementation, formats, storage and management surfaces to the
+  independent Localization repository. Forms retains only its explicit translation-manifest bridge
+  to `Orbyss.Localization.Abstractions`.
 - Slice 7 now has its provider-neutral operational core and filesystem proof: owner-scoped
   resumable drafts, canonical bounded JSON, partial-save versus authoritative-submit validation,
   exact immutable-release binding, clean-attachment snapshots, withdrawal and separately
@@ -57,9 +56,10 @@ As of 2026-09-06:
   aggregates, deterministic compilation, evidence-bound review, approval, immutable publication,
   retirement sidecars, compatibility queries, authenticated management endpoints, cacheable
   runtime endpoints, and twelve governed management MCP tools. The shared endpoint-only MCP
-  transport composes independently selected Forms and Localization contributors without Host
-  behavior. Complete bounded in-memory adapters now drive the public-contract, management HTTP,
-  runtime, and shared MCP probes.
+  transport composes independently selected Forms contributors without Host behavior. Consumers
+  may independently select the Localization contributor in their application composition root.
+  Complete bounded in-memory adapters drive the Forms public-contract, management HTTP, runtime,
+  and MCP probes.
 - Slice 8 includes package-isolation architecture checks, shell-portable frontend tests, real
   tarball inspection, a disposable consumer of all twelve engine packages, and read-only
   Chromium/Firefox/WebKit CI using a fixture-owned renderer. Orbyss Forms-owned UI prototypes were
@@ -68,7 +68,7 @@ As of 2026-09-06:
 
 ## Fixed decisions
 
-- Orbyss Forms owns framework-neutral form, localization, action, release and compatibility
+- Orbyss Forms owns framework-neutral form, action, release and compatibility
   contracts. JSON Forms and AJV remain adapter boundaries; renderer libraries and editors are
   consumer choices.
 - The optional `ui-theme` package contains application-wide semantic tokens only. It is not a
@@ -79,12 +79,12 @@ As of 2026-09-06:
   Physical layout, touch, screen-reader and appearance acceptance belongs to the consuming
   application and its selected renderer/design system.
 - Management and runtime boundaries are separate CShells features. The Host does not register form,
-  localization, submission, editor or action middleware/endpoints.
+  submission, editor or action middleware/endpoints.
 - In-memory persistence is the deterministic test/development reference. It is never represented as
   durable. Filesystem persistence is an explicit adapter. Orbyss Forms does not select a production
   database, ORM, migration system, or object-storage provider for consumers.
 - Every mutation uses optimistic concurrency, an idempotency key and audit metadata. Published form
-  and localization releases are immutable.
+  releases are immutable.
 - Server-side validation and authorization remain authoritative. Schemas, UI schemas, translations,
   renderer options and actions are data; none may carry scripts, arbitrary callbacks or executable
   markup.
@@ -112,11 +112,9 @@ The .NET boundary is split into:
 - `Orbyss.Forms.Mcp.AspNetCore`, `.Tool`, `.Management.Mcp.AspNetCore` and `.Management.Tool`:
   independently selected tool contributors over the same application services, without a second
   rules engine or independently mapped MCP endpoints.
-- `Orbyss.Localization.Abstractions`, `.Core`, `.Formats`, `.Storage.*`, `.Web.Management`,
-  `.Web.Runtime`, `.Application`, `.Mcp.AspNetCore` and `.Tool`: an independent application-wide
-  localization bounded context.
-- Format adapters for CSV, XLSX, JSON, XLIFF 2.1 and PO. Remote imports are a separately enabled,
-  SSRF-hardened connector rather than a core URL field.
+- `Orbyss.Forms.Localization`: the optional bridge from compiled Forms translation requirements to
+  the independent `Orbyss.Localization.Abstractions` contract package. Localization implementations,
+  formats, storage and management features remain outside this repository.
 
 Frontend packages mirror those seams: contracts, JSON Forms runtime integration, renderer registry,
 governed actions, wizard state, lookups, editor contracts, semantic theme tokens and thin framework
@@ -136,12 +134,10 @@ form release that accepted it. Compatibility analysis reports breaking schema, r
 translation changes and requires an explicit migration for resumable drafts affected by a breaking
 release.
 
-`LocalizationCatalog` owns locales, structured scopes, messages, context, placeholders, provenance,
-workflow state and fallback policy. `LocalizationRelease` is immutable and can be deployed
-independently. Forms emit `TranslationRequirementManifest` entries and reference stable keys; they
-do not own translation values. A form-local scope serializes as `forms:{formId}`, while APIs retain
-the structured scope kind and resource identifier so clients can filter all forms or one selected
-form without parsing strings.
+The independent Localization bounded context owns locales, structured scopes, messages, context,
+placeholders, provenance, workflow state and fallback policy. Forms emit translation-requirement
+manifest entries and reference stable keys; they do not own translation values. The optional bridge
+maps those requirements through dependency-free Localization contracts.
 
 Messages preserve typed arguments and plural/select behavior behind an adapter compatible with
 Unicode/CLDR semantics. Locale identifiers use BCP 47. Language and direction metadata travel
@@ -170,11 +166,12 @@ registered public CORS-safe sources. Submitted values are always revalidated ser
 Applications implement the combobox or other visual control and consume only the headless lookup
 state. Dependent filters are read only from declared rooted data JSON Pointers.
 
-## Authoring and localization experience
+## Authoring and localization integration
 
-Orbyss Forms supplies backend form/localization management contracts, validation, import/export,
-review, publication, runtime and MCP capabilities. Consumers build any human administration UI in
-their own design system. Orbyss Forms does not publish a modeler or localization-management UI.
+Orbyss Forms supplies backend form management contracts, validation, review, publication, runtime
+and MCP capabilities. Consumers build any human administration UI in their own design system.
+Localization management and import/export capabilities come from the independent Localization
+package family.
 
 Forms integrate through narrow query ports: localization can resolve form display names for its
 filter, and forms can request completeness/preview information. Neither core package references the
@@ -206,15 +203,15 @@ consumer's selected UI library.
 
 1. **UI contract hardening**: make the multi-device matrix normative and extend the generated UI
    acceptance harness beyond Chromium-only narrow-viewport approximation.
-2. **Contracts**: canonical form/localization models, commands, queries, diagnostics, lifecycle,
+2. **Contracts**: canonical form models, commands, queries, diagnostics, lifecycle,
    concurrency/idempotency/audit contracts and architecture tests.
 3. **Compiler and storage**: JSON Forms compilation, translation manifests, compatibility analysis,
    immutable file-system stores and deterministic fixtures.
 4. **Runtime**: JSON Forms runtime adapter, renderer registry, editor contract and thin framework
    bindings requiring application-supplied renderers.
 5. **Runtime composition**: headless actions, trusted lookups and wizard state.
-6. **Localization**: backend management/runtime features, imports/exports, scopes, fallbacks,
-   plural/select messages and forms integration.
+6. **Localization integration**: an optional bridge from Forms translation requirements to the
+   independently released Localization abstractions.
 7. **Operational capabilities**: resumable drafts, optional submissions/attachments, MCP/tool
    surfaces, complete in-memory reference persistence, and consumer-owned provider contracts.
 8. **Release proof**: clean pack/install probes, cross-engine/device suites, security fixtures,

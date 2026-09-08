@@ -78,7 +78,7 @@ jobs:
           shopt -s nullglob
           nuget_packages=(artifacts/nuget/*.nupkg)
           npm_packages=(artifacts/npm/*.tgz)
-          [[ ${#nuget_packages[@]} -eq 27 ]] || { echo "Expected 27 NuGet packages, found ${#nuget_packages[@]}." >&2; exit 1; }
+          [[ ${#nuget_packages[@]} -eq 16 ]] || { echo "Expected 16 Forms NuGet packages, found ${#nuget_packages[@]}." >&2; exit 1; }
           [[ ${#npm_packages[@]} -eq 12 ]] || { echo "Expected 12 npm packages, found ${#npm_packages[@]}." >&2; exit 1; }
           python tests/validate_package_metadata.py --packages artifacts/nuget
 

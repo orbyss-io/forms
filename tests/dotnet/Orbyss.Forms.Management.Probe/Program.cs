@@ -8,9 +8,6 @@ using Orbyss.Forms;
 using Orbyss.Forms.Management.Mcp.AspNetCore;
 using Orbyss.Forms.Web.Management;
 using Orbyss.Forms.Web.Runtime;
-using Orbyss.Localization;
-using Orbyss.Localization.Formats;
-using Orbyss.Localization.Mcp.AspNetCore;
 using Orbyss.Foundation.Mcp.AspNetCore;
 
 var root = Path.Combine(Path.GetTempPath(), "orbyss-forms-form-management-" + Guid.NewGuid().ToString("N"));
@@ -53,17 +50,6 @@ try
     var inMemoryPublished = await inMemoryForms.PublishAsync(definition.Id, definition.Revision, Mutation("memory-publish", inMemoryApproval.Version.Value, new FormAuditActor("publisher-1", "user"), 4));
     Require(inMemoryPublished.Value.Candidate.CandidateSha256 == published.Value.Candidate.CandidateSha256, "in-memory and filesystem compilation diverged");
 
-    var localizationValidator = new LocalizationCatalogValidator();
-    var importAdapter = new JsonLocalizationImportAdapter();
-    var localizationReleaseStore = new InMemoryLocalizationReleaseStore();
-    var localization = new DefaultLocalizationCatalogService(
-        new InMemoryLocalizationCatalogStore(),
-        localizationReleaseStore,
-        localizationReleaseStore,
-        localizationValidator,
-        new LocalizationImportCoordinator([importAdapter], localizationValidator));
-    var localizationRelease = FixtureLocalizationRelease();
-
     var builder = WebApplication.CreateBuilder();
     builder.Logging.ClearProviders();
     builder.Services.AddAuthentication("probe").AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>("probe", _ => { });
@@ -72,24 +58,15 @@ try
     builder.Services.AddSingleton<IFormCatalogQueries>(inMemoryForms);
     builder.Services.AddSingleton<IFormReleaseLifecycle>(inMemoryForms);
     builder.Services.AddSingleton<IFormCompatibilityAnalyzer, DefaultFormCompatibilityAnalyzer>();
-    builder.Services.AddSingleton<ILocalizationCatalogManagement>(localization);
-    builder.Services.AddSingleton<ILocalizationCatalogQueries>(localization);
-    builder.Services.AddSingleton<ILocalizationReleaseLifecycle>(localization);
-    builder.Services.AddSingleton<ILocalizationReleaseDiffer, DefaultLocalizationReleaseDiffer>();
-    builder.Services.AddSingleton<ILocalizationImportFormatAdapter>(importAdapter);
-    builder.Services.AddSingleton<ILocalizationExportFormatAdapter, JsonLocalizationExportAdapter>();
-    builder.Services.AddSingleton<ILocalizationRuntime>(new InMemoryLocalizationRuntime(localizationRelease));
-    var settings = new ShellSettings(new ShellId("management"), ["Orbyss.Forms.Web.Management", "Orbyss.Forms.Web.Runtime", "Orbyss.Foundation.Mcp.AspNetCore", "Orbyss.Forms.Management.Mcp.AspNetCore", "Orbyss.Localization.Mcp.AspNetCore"]);
+    var settings = new ShellSettings(new ShellId("management"), ["Orbyss.Forms.Web.Management", "Orbyss.Forms.Web.Runtime", "Orbyss.Foundation.Mcp.AspNetCore", "Orbyss.Forms.Management.Mcp.AspNetCore"]);
     var formWeb = new OrbyssFormManagementFeature(settings);
     var formRuntime = new OrbyssFormRuntimeFeature(settings);
     var mcp = new FoundationMcpFeature(settings);
     var formTools = new OrbyssFormManagementMcpFeature(settings);
-    var localizationTools = new OrbyssLocalizationMcpFeature(settings);
     formWeb.ConfigureServices(builder.Services);
     formRuntime.ConfigureServices(builder.Services);
     mcp.ConfigureServices(builder.Services);
     formTools.ConfigureServices(builder.Services);
-    localizationTools.ConfigureServices(builder.Services);
 
     await using var app = builder.Build();
     app.Urls.Add("http://127.0.0.1:0");
@@ -128,11 +105,9 @@ try
         });
         await using var mcpClient = await McpClient.CreateAsync(transport);
         var tools = await mcpClient.ListToolsAsync();
-        Require(tools.Count == 28 && tools.Any(tool => tool.Name == "forms.management.get") && tools.Any(tool => tool.Name == "localization.catalogs.get"), "shared MCP did not compose both bounded-context tool catalogs");
+        Require(tools.Count == 12 && tools.Any(tool => tool.Name == "forms.management.get"), "shared MCP did not compose the Forms management tool catalog");
         var formCall = await mcpClient.CallToolAsync("forms.management.get", new Dictionary<string, object?> { ["formId"] = "registration" });
         Require(formCall.IsError != true, "authenticated Forms management MCP call failed");
-        var localizationCall = await mcpClient.CallToolAsync("localization.catalogs.list", new Dictionary<string, object?> { ["search"] = null, ["first"] = 0, ["maximum"] = 10 });
-        Require(localizationCall.IsError != true, "authenticated Localization MCP call failed");
     }
     finally { await app.StopAsync(); }
 
@@ -151,20 +126,13 @@ finally
     if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
 }
 
-Console.WriteLine("Orbyss Forms form management and shared MCP probe passed.");
+Console.WriteLine("Orbyss Forms form management and MCP probe passed.");
 
 static FormDefinition FixtureDefinition()
 {
     var field = new FormFieldDefinition("email", "/email", FormValueKind.String, true, new LocalizedTextReference("fields.email", "Email"), Constraints: new FormConstraints(MinimumLength: 3, MaximumLength: 320));
     var layout = new FormElementDefinition("root", FormElementKind.VerticalLayout, [new FormElementDefinition("email-control", FormElementKind.Control, [], FieldId: "email")]);
     return new FormDefinition(new FormId("registration"), new FormRevision(1), "Registration", "en", FormLifecycleState.Draft, [field], layout, []);
-}
-
-static LocalizationRelease FixtureLocalizationRelease()
-{
-    var scope = new LocalizationScope(LocalizationScopeKind.Application);
-    var actor = new LocalizationAuditActor("publisher", "service");
-    return new LocalizationRelease(new LocalizationReleaseId("fixture-v1"), new LocalizationCatalogId("fixture"), new LocalizationRevision(1), "en", [new LocaleDefinition("en", TextDirection.LeftToRight, RequiredForPublication: true)], [new LocalizationReleaseEntry("hello", scope, "en", TextDirection.LeftToRight, "Hello", [])], new string('a', 64), DateTimeOffset.UnixEpoch, actor);
 }
 
 static FormMutationContext Mutation(string key, string? version, FormAuditActor actor, int minute) => new(key, version is null ? null : new FormConcurrencyToken(version), actor, DateTimeOffset.UnixEpoch.AddMinutes(minute));

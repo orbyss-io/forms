@@ -6,241 +6,119 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 
+def references(project: Path, kind: str) -> set[str]:
+    tree = ElementTree.parse(project)
+    return {
+        item.attrib["Include"].replace("\\", "/")
+        for item in tree.iter()
+        if item.tag.endswith(kind)
+    }
+
+
+def require_graph(
+    root: Path,
+    relative: str,
+    packages: set[str],
+    projects: set[str],
+) -> None:
+    project = root / relative
+    actual_packages = references(project, "PackageReference")
+    actual_projects = references(project, "ProjectReference")
+    if actual_packages != packages or actual_projects != projects:
+        raise AssertionError(
+            f"Unexpected package graph for {relative}: "
+            f"packages={sorted(actual_packages)}, projects={sorted(actual_projects)}"
+        )
+
+
+def run_probe(root: Path, probe: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            "dotnet",
+            "run",
+            "--project",
+            str(probe),
+            "--configuration",
+            "Release",
+            "--no-build",
+            "--no-restore",
+            *arguments,
+        ],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=180,
+        check=False,
+    )
+
+
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
-    projects = [
-        root / "src/dotnet/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-        root / "src/dotnet/Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
-    ]
-    for project in projects:
-        parsed = ElementTree.parse(project)
-        references = [
-            item.attrib["Include"]
-            for item in parsed.iter()
-            if item.tag.endswith("PackageReference") or item.tag.endswith("ProjectReference")
-        ]
-        if references:
-            raise AssertionError(f"Semantic contract package leaked dependencies: {project}: {references}")
-        source = "\n".join(path.read_text(encoding="utf-8") for path in project.parent.glob("*.cs"))
-        for forbidden in ("Microsoft.AspNetCore", "EntityFrameworkCore", "JsonForms", "CodeMirror", "Monaco", "CShells"):
-            if forbidden in source:
-                raise AssertionError(f"Semantic contract package leaked {forbidden}: {project}")
 
-    core_project = root / "src/dotnet/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj"
-    core_tree = ElementTree.parse(core_project)
-    package_references = [
-        item.attrib["Include"]
-        for item in core_tree.iter()
-        if item.tag.endswith("PackageReference")
-    ]
-    if package_references:
-        raise AssertionError(f"Forms core leaked package dependencies: {package_references}")
-    project_references = [
-        item.attrib["Include"].replace("\\", "/")
-        for item in core_tree.iter()
-        if item.tag.endswith("ProjectReference")
-    ]
-    if project_references != ["../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"]:
-        raise AssertionError(f"Forms core has an unexpected dependency graph: {project_references}")
+    abstractions = root / "src/Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"
+    require_graph(root, str(abstractions.relative_to(root)), set(), set())
+    source = "\n".join(path.read_text(encoding="utf-8") for path in abstractions.parent.glob("*.cs"))
+    for forbidden in ("Microsoft.AspNetCore", "EntityFrameworkCore", "JsonForms", "CodeMirror", "Monaco", "CShells"):
+        if forbidden in source:
+            raise AssertionError(f"Forms semantic contracts leaked {forbidden}")
 
-    json_forms_project = root / "src/dotnet/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj"
-    json_forms_tree = ElementTree.parse(json_forms_project)
-    json_forms_packages = [
-        item.attrib["Include"]
-        for item in json_forms_tree.iter()
-        if item.tag.endswith("PackageReference")
-    ]
-    if json_forms_packages:
-        raise AssertionError(f"JSON Forms compiler leaked package dependencies: {json_forms_packages}")
-    json_forms_references = {
-        item.attrib["Include"].replace("\\", "/")
-        for item in json_forms_tree.iter()
-        if item.tag.endswith("ProjectReference")
-    }
-    expected_json_forms_references = {
-        "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-        "../Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
-    }
-    if json_forms_references != expected_json_forms_references:
-        raise AssertionError(f"JSON Forms compiler has an unexpected dependency graph: {json_forms_references}")
+    require_graph(
+        root,
+        "src/Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
+        set(),
+        {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
+    )
+    require_graph(
+        root,
+        "src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj",
+        set(),
+        {
+            "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
+            "../Orbyss.Forms.Core/Orbyss.Forms.Core.csproj",
+        },
+    )
+    require_graph(
+        root,
+        "src/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj",
+        set(),
+        {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
+    )
+    require_graph(
+        root,
+        "src/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj",
+        set(),
+        {"../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj"},
+    )
+    require_graph(
+        root,
+        "src/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj",
+        {"Orbyss.Localization.Abstractions"},
+        {"../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"},
+    )
 
-    localization_core_project = root / "src/dotnet/Orbyss.Localization.Core/Orbyss.Localization.Core.csproj"
-    localization_core_tree = ElementTree.parse(localization_core_project)
-    localization_core_packages = [
-        item.attrib["Include"]
-        for item in localization_core_tree.iter()
-        if item.tag.endswith("PackageReference")
-    ]
-    if localization_core_packages:
-        raise AssertionError(f"Localization core leaked package dependencies: {localization_core_packages}")
-    localization_core_references = [
-        item.attrib["Include"].replace("\\", "/")
-        for item in localization_core_tree.iter()
-        if item.tag.endswith("ProjectReference")
-    ]
-    if localization_core_references != ["../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"]:
-        raise AssertionError(f"Localization core has an unexpected dependency graph: {localization_core_references}")
-
-    localization_application_project = root / "src/dotnet/Orbyss.Localization.Application/Orbyss.Localization.Application.csproj"
-    localization_application_tree = ElementTree.parse(localization_application_project)
-    localization_application_packages = [
-        item.attrib["Include"]
-        for item in localization_application_tree.iter()
-        if item.tag.endswith("PackageReference")
-    ]
-    if localization_application_packages:
-        raise AssertionError(f"Localization application orchestration leaked package dependencies: {localization_application_packages}")
-    localization_application_references = {
-        item.attrib["Include"].replace("\\", "/")
-        for item in localization_application_tree.iter()
-        if item.tag.endswith("ProjectReference")
-    }
-    expected_localization_application_references = {
-        "../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
-        "../Orbyss.Localization.Core/Orbyss.Localization.Core.csproj",
-        "../Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj",
-    }
-    if localization_application_references != expected_localization_application_references:
-        raise AssertionError(f"Localization application orchestration has an unexpected dependency graph: {localization_application_references}")
-
-    localization_formats_project = root / "src/dotnet/Orbyss.Localization.Formats/Orbyss.Localization.Formats.csproj"
-    localization_formats_tree = ElementTree.parse(localization_formats_project)
-    localization_formats_packages = [
-        item.attrib["Include"]
-        for item in localization_formats_tree.iter()
-        if item.tag.endswith("PackageReference")
-    ]
-    if localization_formats_packages:
-        raise AssertionError(f"Localization format adapters leaked package dependencies: {localization_formats_packages}")
-    localization_formats_references = [
-        item.attrib["Include"].replace("\\", "/")
-        for item in localization_formats_tree.iter()
-        if item.tag.endswith("ProjectReference")
-    ]
-    if localization_formats_references != ["../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"]:
-        raise AssertionError(f"Localization format adapters have an unexpected dependency graph: {localization_formats_references}")
-
-    localization_web_projects = {
-        "src/dotnet/Orbyss.Localization.Web.Management/Orbyss.Localization.Web.Management.csproj": "OrbyssLocalizationManagementFeature.cs",
-        "src/dotnet/Orbyss.Localization.Web.Runtime/Orbyss.Localization.Web.Runtime.csproj": "OrbyssLocalizationRuntimeFeature.cs",
-    }
-    for relative_project, feature_file in localization_web_projects.items():
-        project = root / relative_project
-        tree = ElementTree.parse(project)
-        package_references = {
-            item.attrib["Include"]
-            for item in tree.iter()
-            if item.tag.endswith("PackageReference")
+    owned_localization = sorted(path.name for path in (root / "src").glob("Orbyss.Localization*"))
+    if owned_localization:
+        raise AssertionError(f"Forms must not own Localization source projects: {owned_localization}")
+    for project in (root / "src").glob("Orbyss.Forms.*/*.csproj"):
+        localization_projects = {
+            reference for reference in references(project, "ProjectReference") if "Orbyss.Localization" in reference
         }
-        if package_references != {"CShells.AspNetCore.Abstractions"}:
-            raise AssertionError(f"Localization web feature has an unexpected package graph: {relative_project}: {package_references}")
-        project_references = {
-            item.attrib["Include"].replace("\\", "/")
-            for item in tree.iter()
-            if item.tag.endswith("ProjectReference")
-        }
-        if project_references != {"../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"}:
-            raise AssertionError(f"Localization web feature has an unexpected project graph: {relative_project}: {project_references}")
-        source = (project.parent / feature_file).read_text(encoding="utf-8")
-        if "IWebShellFeature" not in source or "IMiddlewareShellFeature" in source:
-            raise AssertionError(f"Localization endpoint composition must remain an endpoint-only CShells feature: {feature_file}")
+        if localization_projects:
+            raise AssertionError(f"Forms project references Localization implementation source: {project}: {localization_projects}")
 
-    if any((root / "src/dotnet").glob("Orbyss.Foundation.*")):
-        raise AssertionError("Forms must consume Foundation packages instead of owning Foundation source.")
-
-    storage_graphs = {
-        "src/dotnet/Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj": {
-            "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj"
-        },
-        "src/dotnet/Orbyss.Forms.Storage.FileSystem/Orbyss.Forms.Storage.FileSystem.csproj": {
-            "../Orbyss.Forms.Storage.Abstractions/Orbyss.Forms.Storage.Abstractions.csproj"
-        },
-        "src/dotnet/Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj": {
-            "../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj"
-        },
-        "src/dotnet/Orbyss.Localization.Storage.FileSystem/Orbyss.Localization.Storage.FileSystem.csproj": {
-            "../Orbyss.Localization.Storage.Abstractions/Orbyss.Localization.Storage.Abstractions.csproj"
-        },
-    }
-    for relative_project, expected_references in storage_graphs.items():
-        storage_tree = ElementTree.parse(root / relative_project)
-        storage_packages = [
-            item.attrib["Include"]
-            for item in storage_tree.iter()
-            if item.tag.endswith("PackageReference")
-        ]
-        if storage_packages:
-            raise AssertionError(f"Storage adapter leaked package dependencies: {relative_project}: {storage_packages}")
-        storage_references = {
-            item.attrib["Include"].replace("\\", "/")
-            for item in storage_tree.iter()
-            if item.tag.endswith("ProjectReference")
-        }
-        if storage_references != expected_references:
-            raise AssertionError(f"Storage adapter has an unexpected dependency graph: {relative_project}: {storage_references}")
-
-    bridge_project = root / "src/dotnet/Orbyss.Forms.Localization/Orbyss.Forms.Localization.csproj"
-    bridge_tree = ElementTree.parse(bridge_project)
-    bridge_packages = [
-        item.attrib["Include"]
-        for item in bridge_tree.iter()
-        if item.tag.endswith("PackageReference")
-    ]
-    if bridge_packages:
-        raise AssertionError(f"Forms/localization bridge leaked package dependencies: {bridge_packages}")
-    bridge_references = {
-        item.attrib["Include"].replace("\\", "/")
-        for item in bridge_tree.iter()
-        if item.tag.endswith("ProjectReference")
-    }
-    expected_bridge_references = {
-        "../Orbyss.Forms.Abstractions/Orbyss.Forms.Abstractions.csproj",
-        "../Orbyss.Localization.Abstractions/Orbyss.Localization.Abstractions.csproj",
-    }
-    if bridge_references != expected_bridge_references:
-        raise AssertionError(f"Forms/localization bridge has an unexpected dependency graph: {bridge_references}")
+    package_versions = references(root / "Directory.Packages.props", "PackageVersion")
+    if "Orbyss.Localization.Abstractions" not in package_versions:
+        raise AssertionError("The Forms bridge must pin released Orbyss.Localization.Abstractions centrally")
 
     probe = root / "tests/dotnet/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj"
-    result = subprocess.run(
-        [
-            "dotnet",
-            "run",
-            "--project",
-            str(probe),
-            "--configuration",
-            "Release",
-            "--no-build",
-        ],
-        cwd=root,
-        capture_output=True,
-        text=True,
-        timeout=180,
-        check=False,
-    )
-    if result.returncode != 0:
+    probe_result = run_probe(root, probe)
+    if probe_result.returncode != 0:
         raise AssertionError(
-            "Forms/localization public-contract probe failed.\n"
-            f"stdout:\n{result.stdout}\n"
-            f"stderr:\n{result.stderr}"
+            "Forms contracts and Localization bridge probe failed.\n"
+            f"stdout:\n{probe_result.stdout}\nstderr:\n{probe_result.stderr}"
         )
-    fixture_result = subprocess.run(
-        [
-            "dotnet",
-            "run",
-            "--project",
-            str(probe),
-            "--configuration",
-            "Release",
-            "--no-build",
-            "--",
-            "--print-frontend-fixture",
-        ],
-        cwd=root,
-        capture_output=True,
-        text=True,
-        timeout=180,
-        check=False,
-    )
+
+    fixture_result = run_probe(root, probe, "--", "--print-frontend-fixture")
     if fixture_result.returncode != 0:
         raise AssertionError(f"Forms frontend fixture export failed.\n{fixture_result.stderr}")
     generated_fixture = json.loads(fixture_result.stdout)
@@ -248,31 +126,8 @@ def main() -> int:
     committed_fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
     if generated_fixture != committed_fixture:
         raise AssertionError("The committed frontend release fixture drifted from the .NET compiler output.")
-    web_probe = root / "tests/dotnet/Orbyss.Localization.Web.Probe/Orbyss.Localization.Web.Probe.csproj"
-    web_result = subprocess.run(
-        [
-            "dotnet",
-            "run",
-            "--project",
-            str(web_probe),
-            "--configuration",
-            "Release",
-            "--no-build",
-        ],
-        cwd=root,
-        capture_output=True,
-        text=True,
-        timeout=180,
-        check=False,
-    )
-    if web_result.returncode != 0:
-        raise AssertionError(
-            "Localization web composition probe failed.\n"
-            f"stdout:\n{web_result.stdout}\n"
-            f"stderr:\n{web_result.stderr}"
-        )
-    print(result.stdout.strip())
-    print(web_result.stdout.strip())
+
+    print(probe_result.stdout.strip())
     return 0
 
 

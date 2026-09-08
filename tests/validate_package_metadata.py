@@ -23,13 +23,16 @@ def main() -> int:
     parser.add_argument("--packages", type=Path, default=ROOT / "artifacts/nuget")
     args = parser.parse_args()
 
+    if (ROOT / "src/dotnet").exists() or (ROOT / "eng").exists():
+        raise AssertionError("Forms must keep .NET projects directly under src/ and repository tooling under scripts/.")
+
     expected_version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     expected_ids = {
         project.stem
-        for project in (ROOT / "src/dotnet").glob("*/*.csproj")
+        for project in (ROOT / "src").glob("Orbyss.Forms.*/*.csproj")
     }
-    if len(expected_ids) != 27:
-        raise AssertionError(f"Expected 27 source package projects, found {len(expected_ids)}.")
+    if len(expected_ids) != 16:
+        raise AssertionError(f"Expected 16 Forms package projects, found {len(expected_ids)}.")
 
     found: set[str] = set()
     for package in sorted(args.packages.glob("*.nupkg")):
@@ -49,15 +52,15 @@ def main() -> int:
             raise AssertionError(f"{package_id} has version {version}, expected {expected_version}.")
         if repository.attrib.get("url") != EXPECTED_REPOSITORY:
             raise AssertionError(f"{package_id} has the wrong repository URL.")
-        if not package_id.startswith(("Orbyss.Forms.", "Orbyss.Localization.")):
-            raise AssertionError(f"{package_id} is outside the approved package namespaces.")
+        if not package_id.startswith("Orbyss.Forms."):
+            raise AssertionError(f"{package_id} is outside the Forms namespace.")
         if b"ProgramKit" in nuspec:
             raise AssertionError(f"{package_id} still exposes a ProgramKit package identity.")
         found.add(package_id)
 
     if found != expected_ids:
         raise AssertionError(f"Package set mismatch. Missing={sorted(expected_ids - found)}, extra={sorted(found - expected_ids)}")
-    print("Exact 27-package Orbyss Forms/Localization NuGet metadata contract passed.")
+    print("Exact 16-package Orbyss Forms NuGet metadata contract passed.")
     return 0
 
 

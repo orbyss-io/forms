@@ -1,7 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <FormsVersion>0.1.0</FormsVersion>
-    <Version>$(FormsVersion)</Version>
-    <PackageVersion>$(FormsVersion)</PackageVersion>
-  </PropertyGroup>
-</Project>
