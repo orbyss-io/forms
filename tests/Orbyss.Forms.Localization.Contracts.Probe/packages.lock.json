@@ -27,7 +27,7 @@
         "type": "Direct",
         "requested": "[0.1.0, )",
         "resolved": "0.1.0",
-        "contentHash": "ZvUgpYEWT6O4mMa7wutL1TQnPtlcXldqPDZKI2Ex7nWk2rbmdRS6lQVU1e5EMdL3OkERNsyftMaC7fNFBgEc1g=="
+        "contentHash": "eGRExasVN58KAE8gd5/AHo6ySmypKD6QLxRivM3ufLnUWRchoPVaclwFktX6QINmyDzzrtio7HX1aXnqqlxtCw=="
       },
       "Orbyss.Localization.Abstractions": {
         "type": "Direct",
