@@ -60,7 +60,11 @@ def main() -> int:
     run([str(node), "tests/forms-browser/browser.mjs", f"--engines={args.engines}"])
     evidence = json.loads((ROOT / "artifacts/forms-browser/build-evidence.json").read_text(encoding="utf-8"))
     if evidence != {
-        "schema": "urn:orbyss:forms:browser-acceptance:1",
+        "schema": "urn:orbyss:forms:synthetic-product:1",
+        "release": "synthetic-product-v1",
+        "releaseSha256": evidence["releaseSha256"],
+        "validatorSha256": evidence["validatorSha256"],
+        "locales": ["en", "nl", "de", "ar"],
         "bytes": evidence["bytes"],
         "dynamicCodeGeneration": False,
         "sourceMaps": False,

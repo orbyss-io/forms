@@ -11,7 +11,12 @@
 html.pk-text-200 { font-size: 200%; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--fixture-background); color: var(--fixture-text); }
-button, input { font: inherit; min-block-size: 44px; }
+button, input, select { font: inherit; min-block-size: 44px; }
+button { min-inline-size: 44px; }
+.consumer-layout { display: grid; gap: 1rem; }
+.fixture-navigation { display: flex; flex-wrap: wrap; gap: .5rem; }
+select { max-inline-size: 100%; color: inherit; background: var(--fixture-surface); }
+.consumer-field input[type="checkbox"] { inline-size: 44px; }
 button:focus-visible, input:focus-visible { outline: 3px solid CanvasText; outline-offset: 3px; }
 main { inline-size: min(100% - 2rem, 56rem); margin-inline: auto; padding-block: 2rem; }
 .fixture-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }

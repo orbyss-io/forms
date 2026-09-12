@@ -109,6 +109,16 @@ public sealed class JsonFormsCompiler : IFormCompiler
             AddFieldSchema(root, field, diagnostics);
         }
 
+        var conditional = new JsonArray();
+        foreach (var field in definition.Fields.Where(field => field.RequiredWhen is not null).OrderBy(field => field.Id, StringComparer.Ordinal))
+        {
+            conditional.Add(new JsonObject
+            {
+                ["if"] = BuildConditionSchema(field.RequiredWhen!, definition),
+                ["then"] = AtRequiredPath(field.DataPath, new JsonObject())
+            });
+        }
+        if (conditional.Count > 0) root["allOf"] = conditional;
         return root;
     }
 
@@ -186,6 +196,7 @@ public sealed class JsonFormsCompiler : IFormCompiler
     private static void MergeFieldSchema(JsonObject schema, FormFieldDefinition field)
     {
         schema["type"] = JsonType(field.ValueKind);
+        if (field.ReadOnly) schema["readOnly"] = true;
         var format = JsonFormat(field.ValueKind);
         if (format is not null)
         {
@@ -244,9 +255,11 @@ public sealed class JsonFormsCompiler : IFormCompiler
     private static JsonObject BuildUiElement(
         FormElementDefinition element,
         FormDefinition definition,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyList<FormCondition>? inheritedEnablement = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        var enablement = (inheritedEnablement ?? []).Concat(element.EnabledWhen is null ? [] : new[] { element.EnabledWhen }).ToArray();
         var result = new JsonObject
         {
             ["type"] = UiType(element.Kind),
@@ -261,6 +274,7 @@ public sealed class JsonFormsCompiler : IFormCompiler
                 result["scope"] = SchemaScope(field.DataPath);
                 result["label"] = field.Label.DefaultText;
                 result["i18n"] = field.Label.Key;
+                if (field.ReadOnly) EnsureObject(result, "options")["readonly"] = true;
                 if (field.Component is not null)
                 {
                     var options = EnsureObject(result, "options");
@@ -302,11 +316,12 @@ public sealed class JsonFormsCompiler : IFormCompiler
         {
             result["rule"] = BuildRule(element.Visibility, definition);
         }
+        if (element.VisibleWhen is not null) result["rule"] = TypedRule("SHOW", element.VisibleWhen, definition);
 
         if (element.Elements.Count > 0)
         {
             result["elements"] = new JsonArray(element.Elements
-                .Select(child => (JsonNode)BuildUiElement(child, definition, cancellationToken))
+                .Select(child => (JsonNode)BuildUiElement(child, definition, cancellationToken, enablement))
                 .ToArray());
         }
 
@@ -315,6 +330,70 @@ public sealed class JsonFormsCompiler : IFormCompiler
             result.Remove("options");
         }
 
+        var readOnly = element.Kind == FormElementKind.Control && definition.Fields.Any(field => field.Id == element.FieldId && field.ReadOnly);
+        if (enablement.Length > 0 && !readOnly)
+        {
+            var enabled = new JsonObject
+            {
+                ["effect"] = "ENABLE",
+                ["condition"] = new JsonObject
+                {
+                    ["scope"] = "#", ["failWhenUndefined"] = true,
+                    ["schema"] = new JsonObject { ["allOf"] = new JsonArray(enablement.Select(condition => (JsonNode)BuildConditionSchema(condition, definition)).ToArray()) }
+                }
+            };
+            if (result["rule"] is { } visibility)
+            {
+                // Containers keep their structural identity (especially wizard Categories).
+                // Descendants already carry all ancestor enablement predicates.
+                if (element.Elements.Count > 0) return result;
+                result.Remove("rule");
+                result["rule"] = enabled;
+                return new JsonObject
+                {
+                    ["type"] = "VerticalLayout",
+                    ["rule"] = visibility,
+                    ["elements"] = new JsonArray(result)
+                };
+            }
+            result["rule"] = enabled;
+        }
+        return result;
+    }
+
+    /// <summary>Compiles a typed UI predicate at the data root, including explicit missing-value behavior.</summary>
+    private static JsonObject TypedRule(string effect, FormCondition condition, FormDefinition definition) => new()
+    {
+        ["effect"] = effect,
+        ["condition"] = new JsonObject { ["scope"] = "#", ["schema"] = BuildConditionSchema(condition, definition), ["failWhenUndefined"] = true }
+    };
+
+    /// <summary>Builds a bounded scalar predicate shared by validation and presentation compilation.</summary>
+    private static JsonObject BuildConditionSchema(FormCondition condition, FormDefinition definition)
+    {
+        var field = definition.Fields.FirstOrDefault(field => field.Id == condition.FieldId);
+        if (field is null) return new JsonObject { ["not"] = new JsonObject() };
+        var present = AtRequiredPath(field.DataPath, new JsonObject { ["not"] = new JsonObject { ["type"] = "null" } });
+        if (condition.Operator == FormConditionOperator.IsPresent) return present;
+        if (condition.Operator == FormConditionOperator.IsAbsent) return new JsonObject { ["not"] = present };
+        var comparison = new JsonObject { ["const"] = condition.Value is { } value ? JsonNode.Parse(value.GetRawText()) : null };
+        var leaf = new JsonObject { ["type"] = JsonType(field.ValueKind) };
+        if (condition.Operator == FormConditionOperator.NotEquals) leaf["not"] = comparison;
+        else leaf["const"] = comparison["const"]?.DeepClone();
+        return AtRequiredPath(field.DataPath, leaf);
+    }
+
+    /// <summary>Requires every object ancestor and the leaf of an object-only data pointer.</summary>
+    private static JsonObject AtRequiredPath(string path, JsonObject leaf)
+    {
+        var result = leaf;
+        foreach (var segment in PointerSegments(path).Reverse())
+            result = new JsonObject
+            {
+                ["type"] = "object",
+                ["properties"] = new JsonObject { [segment] = result },
+                ["required"] = new JsonArray(JsonValue.Create(segment))
+            };
         return result;
     }
 

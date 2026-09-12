@@ -34,6 +34,12 @@ public sealed class FormDefinitionValidator : IFormDefinitionValidator
         ValidateIdentity(definition, diagnostics);
         var translationDefaults = new Dictionary<string, string>(StringComparer.Ordinal);
         var fields = ValidateFields(definition.Fields, translationDefaults, diagnostics, cancellationToken);
+        foreach (var field in definition.Fields)
+        {
+            ValidateCondition(field.RequiredWhen, fields, $"/fields/{field.Id}/requiredWhen", diagnostics);
+            if (field.Required && field.RequiredWhen is not null)
+                diagnostics.Add(Error("PKF080", "Choose unconditional or conditional requiredness, not both.", $"/fields/{field.Id}"));
+        }
         ValidateActions(definition.Actions, translationDefaults, diagnostics);
         var actionIds = definition.Actions
             .Where(action => !string.IsNullOrWhiteSpace(action.Id))
@@ -310,6 +316,10 @@ public sealed class FormDefinitionValidator : IFormDefinitionValidator
         }
 
         ValidateElementKind(element, fields, placements, actionIds, diagnostics, parentKind, path);
+        ValidateCondition(element.VisibleWhen, fields, $"{path}/visibleWhen", diagnostics);
+        ValidateCondition(element.EnabledWhen, fields, $"{path}/enabledWhen", diagnostics);
+        if (element.Visibility is not null && element.VisibleWhen is not null)
+            diagnostics.Add(Error("PKF081", "Choose legacy visibility or a typed visibility condition, not both.", path));
         foreach (var child in element.Elements)
         {
             ValidateElement(
@@ -325,6 +335,22 @@ public sealed class FormDefinitionValidator : IFormDefinitionValidator
                 ref elementCount,
                 cancellationToken);
         }
+    }
+
+    /// <summary>Applies invariants specific to controls, wizards, and wizard steps.</summary>
+    private static void ValidateCondition(FormCondition? condition, IReadOnlyDictionary<string, FormFieldDefinition> fields, string path, ICollection<FormDiagnostic> diagnostics)
+    {
+        if (condition is null) return;
+        if (!fields.TryGetValue(condition.FieldId, out var field) || field.ValueKind is FormValueKind.Object or FormValueKind.Array)
+        {
+            diagnostics.Add(Error("PKF082", "A condition must reference a declared scalar field.", path));
+            return;
+        }
+        var compares = condition.Operator is FormConditionOperator.Equals or FormConditionOperator.NotEquals;
+        if (!Enum.IsDefined(condition.Operator)
+            || (compares && (condition.Value is not { } value || !FormCondition.MatchesScalar(field.ValueKind, value)))
+            || (!compares && condition.Value is not null))
+            diagnostics.Add(Error("PKF083", "A condition requires a compatible typed comparison value, or no value for presence tests.", path));
     }
 
     /// <summary>Applies invariants specific to controls, wizards, and wizard steps.</summary>

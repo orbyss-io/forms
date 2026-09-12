@@ -1,6 +1,6 @@
 {
   "name": "@orbyss-io/forms-react",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -27,8 +27,8 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@orbyss-io/forms-contracts": "0.1.1",
-    "@orbyss-io/forms-jsonforms-runtime": "0.1.1"
+    "@orbyss-io/forms-contracts": "0.2.0",
+    "@orbyss-io/forms-jsonforms-runtime": "0.2.0"
   },
   "peerDependencies": {
     "@jsonforms/core": "3.8.0",

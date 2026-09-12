@@ -17,6 +17,7 @@
     <Project Path="src/Orbyss.Forms.Web.Submissions/Orbyss.Forms.Web.Submissions.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Orbyss.Forms.ReleaseIntegration.Probe/Orbyss.Forms.ReleaseIntegration.Probe.csproj" />
     <Project Path="tests/Orbyss.Forms.Localization.Contracts.Probe/Orbyss.Forms.Localization.Contracts.Probe.csproj" />
     <Project Path="tests/Orbyss.Forms.Management.Probe/Orbyss.Forms.Management.Probe.csproj" />
     <Project Path="tests/Orbyss.Forms.Operations.Probe/Orbyss.Forms.Operations.Probe.csproj" />

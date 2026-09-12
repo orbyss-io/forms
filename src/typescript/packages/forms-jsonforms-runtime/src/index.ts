@@ -15,6 +15,8 @@ import {
   type FormActionContext
 } from "@orbyss-io/forms-renderer-registry";
 
+export { admitFormRelease, type AdmittedFormRelease } from "./admission.js";
+
 export interface PreparedJsonFormsRuntime<TRenderer> {
   readonly schema: JsonObject;
   readonly uiSchema: JsonObject;
@@ -48,9 +50,12 @@ export async function prepareJsonFormsRuntime<TRenderer>(
   const schema = parseBoundedObject(release.candidate.dataSchema.content, limits, "data schema");
   const uiSchema = parseBoundedObject(release.candidate.uiSchema.content, limits, "UI schema");
   rejectExternalReferences(schema);
+  rejectExternalReferences(uiSchema);
   validateUiSchema(uiSchema, release.candidate.renderers, limits);
   renderers.require(release.candidate.renderers);
   actions.require(release.candidate.actions);
+  freezeJson(schema);
+  freezeJson(uiSchema);
   const actionById = new Map(release.candidate.actions.map(action => [action.actionId, action]));
   return {
     schema,
@@ -114,9 +119,14 @@ export function createJsonFormsTranslatorAdapter(
   translate: OrbyssTranslator
 ): JsonFormsTranslatorAdapter {
   return ((key: string, fallback?: string) => {
-    if (fallback !== undefined) return translate(key, fallback);
     const translated = translate(key, missingTranslationSentinel);
-    return translated === missingTranslationSentinel ? undefined : translated;
+    if (translated !== missingTranslationSentinel) return translated;
+    // Compiler manifests declare the label's base key; JSON Forms probes `<i18n>.label`.
+    if (key.endsWith(".label")) {
+      const label = translate(key.slice(0, -6), missingTranslationSentinel);
+      if (label !== missingTranslationSentinel) return label;
+    }
+    return fallback;
   }) as JsonFormsTranslatorAdapter;
 }
 
@@ -255,7 +265,7 @@ function inspectGraph(root: JsonValue, limits: RuntimeLimits): void {
       for (const value of current.value) pending.push({ value, depth: current.depth + 1 });
     } else if (isJsonObject(current.value)) {
       for (const [key, value] of Object.entries(current.value)) {
-        if (key === "__proto__" || key === "prototype" || key === "constructor" || /^on/i.test(key)) {
+        if (key === "__proto__" || key === "prototype" || key === "constructor" || (/^on/i.test(key) && key !== "oneOf")) {
           throw new Error(`Executable or prototype-sensitive key '${key}' is forbidden.`);
         }
         pending.push({ value, depth: current.depth + 1 });
@@ -266,7 +276,7 @@ function inspectGraph(root: JsonValue, limits: RuntimeLimits): void {
 
 function rejectExternalReferences(root: JsonValue): void {
   walk(root, (key, value) => {
-    if (key === "$ref" && typeof value === "string" && !value.startsWith("#")) {
+    if ((key === "$ref" || key === "$dynamicRef" || key === "$recursiveRef") && typeof value === "string" && !value.startsWith("#")) {
       throw new Error(`External schema reference '${value}' must be bundled before runtime.`);
     }
   });
@@ -279,10 +289,20 @@ function validateUiSchema(
 ): void {
   const builtIn = new Set(["Control", "Group", "HorizontalLayout", "VerticalLayout", "Categorization", "Category", "Label"]);
   const custom = new Set(requirements.map(requirement => requirement.componentId));
+  const elements: JsonObject[] = [root];
+  while (elements.length > 0) {
+    const element = elements.pop()!;
+    if (typeof element.type !== "string" || (!builtIn.has(element.type) && !custom.has(element.type))) throw new Error("UI Schema element type is not allowlisted by the release manifest.");
+    if (element.elements !== undefined) {
+      if (!Array.isArray(element.elements) || !element.elements.every(isJsonObject)) throw new Error("Malformed UI Schema elements.");
+      elements.push(...element.elements);
+    }
+  }
   walk(root, (key, value, owner) => {
     if ((key === "html" || key === "script" || key === "href" || key === "src" || key === "url") && value !== null) {
       throw new Error(`UI Schema property '${key}' is forbidden.`);
     }
+    if (key === "component" && (typeof value !== "string" || !custom.has(value))) throw new Error("UI component is not declared by the release manifest.");
     if (key === "type" && typeof value === "string" && owner !== undefined && "id" in owner
       && !builtIn.has(value) && !custom.has(value)) {
       throw new Error(`UI Schema element type '${value}' is not allowlisted by the release manifest.`);
@@ -317,6 +337,13 @@ function walk(
 
 function isJsonObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function freezeJson(value: JsonValue): void {
+  if (Array.isArray(value) || isJsonObject(value)) {
+    for (const child of Object.values(value)) freezeJson(child);
+    Object.freeze(value);
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

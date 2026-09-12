@@ -19,10 +19,11 @@ def main() -> int:
     parser.add_argument("--renew-lock", action="store_true")
     parser.add_argument("--install", action="store_true")
     args = parser.parse_args()
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     package = json.loads((WORKSPACE / "package.json").read_text(encoding="utf-8"))
     if package.get("scripts", {}).get("build") != "tsc -b && npm run build --workspace=@orbyss-io/forms-angular":
         raise AssertionError("The frontend build must include Angular partial compilation after framework-neutral TypeScript builds.")
-    if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs":
+    if package.get("scripts", {}).get("test") != "npm run build && node --test tests/runtime.test.mjs tests/release-integration.test.mjs":
         raise AssertionError("The frontend unit command must be shell-glob independent on Windows and POSIX.")
     if package["devDependencies"] != {
         "@axe-core/playwright": "4.13.0",
@@ -82,11 +83,11 @@ def main() -> int:
         raise AssertionError("Application-owned editors must receive the governed two-space Tab indentation policy.")
 
     wizard_dependencies = by_name["@orbyss-io/forms-wizard"]["dependencies"]
-    if wizard_dependencies != {"@orbyss-io/forms-contracts": "0.1.1"}:
+    if wizard_dependencies != {"@orbyss-io/forms-contracts": version}:
         raise AssertionError("The shared wizard state machine must remain framework-neutral.")
 
     action_dependencies = by_name["@orbyss-io/forms-actions"]["dependencies"]
-    if action_dependencies != {"@orbyss-io/forms-contracts": "0.1.1"}:
+    if action_dependencies != {"@orbyss-io/forms-contracts": version}:
         raise AssertionError("The governed action controller must remain framework-neutral.")
 
     theme = by_name["@orbyss-io/forms-ui-theme"]
@@ -100,7 +101,7 @@ def main() -> int:
     if "@layer orbyss-forms.theme" not in theme_css or "[data-pk-theme" not in theme_css:
         raise AssertionError("The default theme must remain scoped and cascade-layered.")
     lookup_dependencies = by_name["@orbyss-io/forms-lookups"]["dependencies"]
-    if lookup_dependencies != {"@orbyss-io/forms-contracts": "0.1.1"}:
+    if lookup_dependencies != {"@orbyss-io/forms-contracts": version}:
         raise AssertionError("Searchable lookups must remain framework-neutral and depend only on JSON-safe contracts.")
 
     base_config = json.loads((WORKSPACE / "tsconfig.base.json").read_text(encoding="utf-8"))
@@ -115,8 +116,8 @@ def main() -> int:
 
     react_manifest = by_name["@orbyss-io/forms-react"]
     if react_manifest.get("dependencies") != {
-        "@orbyss-io/forms-contracts": "0.1.1",
-        "@orbyss-io/forms-jsonforms-runtime": "0.1.1",
+        "@orbyss-io/forms-contracts": version,
+        "@orbyss-io/forms-jsonforms-runtime": version,
     }:
         raise AssertionError("The thin React binding must depend only on governed runtime integration.")
     if react_manifest.get("peerDependencies") != {
@@ -137,8 +138,8 @@ def main() -> int:
 
     vue_manifest = by_name["@orbyss-io/forms-vue"]
     if vue_manifest.get("dependencies") != {
-        "@orbyss-io/forms-contracts": "0.1.1",
-        "@orbyss-io/forms-jsonforms-runtime": "0.1.1",
+        "@orbyss-io/forms-contracts": version,
+        "@orbyss-io/forms-jsonforms-runtime": version,
     } or vue_manifest.get("peerDependencies") != {
         "@jsonforms/core": "3.8.0",
         "@jsonforms/vue": "3.8.0",
@@ -151,8 +152,8 @@ def main() -> int:
 
     angular_manifest = by_name["@orbyss-io/forms-angular"]
     if angular_manifest.get("dependencies") != {
-        "@orbyss-io/forms-contracts": "0.1.1",
-        "@orbyss-io/forms-jsonforms-runtime": "0.1.1",
+        "@orbyss-io/forms-contracts": version,
+        "@orbyss-io/forms-jsonforms-runtime": version,
     } or angular_manifest.get("peerDependencies") != {
         "@angular/common": "22.1.5",
         "@angular/core": "22.1.5",
@@ -257,6 +258,7 @@ def main() -> int:
         raise AssertionError("The npm lockfile still contains a withdrawn editor component dependency.")
 
     run(["test", "--ignore-scripts", "--no-audit", "--no-fund"])
+    run(["exec", "--", "tsc", "--project", "tests/forms-browser/tsconfig.json"])
     angular_output = (WORKSPACE / "packages/forms-angular/dist/index.js").read_text(encoding="utf-8")
     if "ɵɵngDeclareComponent" not in angular_output or 'version: "22.1.5"' not in angular_output:
         raise AssertionError("The Angular package was not partial-compiled by the exact Angular compiler.")

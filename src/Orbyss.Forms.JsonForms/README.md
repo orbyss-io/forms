@@ -10,3 +10,8 @@ before activating the feature.
 
 The emitted `Orbyss.Forms.Wizard` and `Orbyss.Forms.ActionBar` requirements are resolved by separately
 installed frontend renderer packages.
+
+Typed required conditions compile to JSON Schema `if`/`then`. Combined presentation conditions
+preserve ancestor enablement and read-only precedence; leaf visibility may introduce a standard
+`VerticalLayout`. Consumer renderers must honor visibility and propagate enabled state. See
+`docs/immutable-release-integration.md` in the repository for the public producer and adoption recipe.

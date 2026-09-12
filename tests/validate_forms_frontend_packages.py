@@ -132,6 +132,35 @@ def main() -> int:
         if f"Imported {len(node_names)} Orbyss Forms frontend packages." not in imported.stdout:
             raise AssertionError("The clean frontend consumer did not import every Node-loadable package.")
 
+        # Exercise admission and preparation using only packed public entry points.
+        fixture = json.loads((WORKSPACE / "tests/fixtures/published-product.json").read_text(encoding="utf-8"))
+        (consumer / "release.json").write_text(fixture["releaseJson"], encoding="utf-8")
+        (consumer / "locales.mjs").write_bytes((WORKSPACE / "tests/forms-browser/locales.mjs").read_bytes())
+        (consumer / "release-probe.mjs").write_text('''
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { compileBuildTimeValidator, generateStandaloneValidatorModule } from "@orbyss-io/forms-ajv-build";
+import { admitFormRelease, prepareJsonFormsRuntime, createJsonFormsTranslator } from "@orbyss-io/forms-jsonforms-runtime";
+import { FormActionRegistry, RendererRegistry } from "@orbyss-io/forms-renderer-registry";
+import { dictionaries } from "./locales.mjs";
+const hash = value => createHash("sha256").update(value).digest("hex");
+const bytes = await readFile("release.json", "utf8");
+const release = JSON.parse(bytes);
+const schema = JSON.parse(release.candidate.dataSchema.content);
+const localeJson = Object.fromEntries(Object.entries(dictionaries).map(([key,value]) => [key,JSON.stringify(value)]));
+const binding = { sha256: hash(generateStandaloneValidatorModule(schema)), schemaSha256: release.candidate.dataSchema.sha256 };
+const manifest = { formatVersion: 1, formId: release.candidate.formId.value, releaseId: release.id.value, revision: release.candidate.revision.value, releaseSha256: hash(bytes), locales: Object.fromEntries(Object.entries(localeJson).map(([key,value]) => [key,hash(value)])), validator: binding, retired: false };
+const admitted = await admitFormRelease(bytes, localeJson, manifest, { ...binding, validate: compileBuildTimeValidator(schema) });
+const registry = new RendererRegistry(release.candidate.renderers.map(r => ({ componentId: r.componentId, version: "1.0.0", rank: () => 1, renderer: {} })));
+const runtime = await prepareJsonFormsRuntime(admitted.release, registry, new FormActionRegistry({ "synthetic.calculate": async value => value }), admitted.validate, createJsonFormsTranslator(admitted.translations.en));
+assert.equal(runtime.validate({ name: "Ada", kind: "standard", quantity: 1 }).length, 0);
+assert(runtime.validate({ name: "Ada", kind: "custom", quantity: 1 }).length > 0);
+await assert.rejects(admitFormRelease(bytes + " ", localeJson, manifest, { ...binding, validate: admitted.validate }));
+console.log("Packed release admission and conditional validation passed.");
+''', encoding="utf-8")
+        run([str(node), "release-probe.mjs"], consumer, environment)
+
         angular_entry = consumer / "angular-entry.js"
         angular_entry.write_text(
             'import { OrbyssJsonFormsAngularComponent } from "@orbyss-io/forms-angular";\n'

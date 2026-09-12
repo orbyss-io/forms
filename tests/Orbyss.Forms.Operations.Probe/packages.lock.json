@@ -14,15 +14,15 @@
       },
       "Orbyss.Foundation.Analyzers": {
         "type": "Direct",
-        "requested": "[0.1.0, )",
-        "resolved": "0.1.0",
-        "contentHash": "eGRExasVN58KAE8gd5/AHo6ySmypKD6QLxRivM3ufLnUWRchoPVaclwFktX6QINmyDzzrtio7HX1aXnqqlxtCw=="
+        "requested": "[0.2.0, )",
+        "resolved": "0.2.0",
+        "contentHash": "kjh7m4X6SAh5Kqrf0rr9vm46DZtLn0Q91s7ZZtf/IYSuFHZuQWeUZUJhAb2fHjsuq42xEewKRJsYdLqfRkWA/g=="
       },
       "Orbyss.Foundation.Mcp.AspNetCore": {
         "type": "Direct",
-        "requested": "[0.1.0, )",
-        "resolved": "0.1.0",
-        "contentHash": "LdDacVDmZne7Bms9ryczvSHndhPApC3VkS/ZYKF29hWfp4prYlDY/FO3Raz5x+i2NptsTtTCwsc/OzU6mHS2LQ==",
+        "requested": "[0.2.0, )",
+        "resolved": "0.2.0",
+        "contentHash": "hoe+Kk+WdXUSwrieJ+bpma/EWW5umFYZ2s+WvgOeF1dUXWLvpvhq/pUvGVHy+6+lMsXW8LSGrmWHqBUEVKlmVA==",
         "dependencies": {
           "ModelContextProtocol": "2.2.0",
           "ModelContextProtocol.AspNetCore": "2.2.0"
@@ -52,61 +52,61 @@
       "orbyss.forms.jsonforms": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.management": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.1.1, )",
-          "Orbyss.Forms.JsonForms": "[0.1.1, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )",
+          "Orbyss.Forms.JsonForms": "[0.2.0, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.storage.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.storage.filesystem": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Storage.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.storage.inmemory": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Storage.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.submissions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.1.1, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.submissions.mcp.aspnetcore": {
         "type": "Project",
         "dependencies": {
           "ModelContextProtocol.AspNetCore": "[2.2.0, )",
-          "Orbyss.Forms.Submissions.Tool": "[0.1.1, )",
-          "Orbyss.Foundation.Mcp.AspNetCore": "[0.1.0, )"
+          "Orbyss.Forms.Submissions.Tool": "[0.2.0, )",
+          "Orbyss.Foundation.Mcp.AspNetCore": "[0.2.0, )"
         }
       },
       "orbyss.forms.submissions.tool": {
         "type": "Project",
         "dependencies": {
           "ModelContextProtocol": "[2.2.0, )",
-          "Orbyss.Forms.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.web.submissions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )"
         }
       },
       "CShells.Abstractions": {

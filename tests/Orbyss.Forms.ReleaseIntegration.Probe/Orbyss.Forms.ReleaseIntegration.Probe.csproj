@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Orbyss.Forms.Management/Orbyss.Forms.Management.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.JsonForms/Orbyss.Forms.JsonForms.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Storage.InMemory/Orbyss.Forms.Storage.InMemory.csproj" />
+    <ProjectReference Include="../../src/Orbyss.Forms.Submissions/Orbyss.Forms.Submissions.csproj" />
+  </ItemGroup>
+</Project>

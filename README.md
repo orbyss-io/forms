@@ -13,12 +13,16 @@ and compose Forms.
 - 15 `Orbyss.Forms.*` NuGet packages, including the optional Localization integration bridge.
 - 12 `@orbyss-io/forms-*` packages in GitHub Packages.
 
-The current repository version is `0.1.1`. All packages in each language family share the
+The current repository version is `0.2.0`. All packages in each language family share the
 repository version so their internal contracts remain coherent.
+
+The [immutable release integration reference](docs/immutable-release-integration.md) documents the
+build-time producer, trusted deployment binding, admission and React composition added in source.
+These capabilities are introduced in `0.2.0`; they are not in the previously published `0.1.1` packages.
 
 ## Local validation
 
-Foundation `0.1.0` and Localization Abstractions `0.1.0` must be publicly available from NuGet.org.
+Foundation `0.2.0` and Localization Abstractions `0.1.0` must be publicly available from NuGet.org.
 
 ```powershell
 dotnet restore Orbyss.Forms.slnx --locked-mode --configfile NuGet.config
@@ -26,6 +30,7 @@ dotnet build Orbyss.Forms.slnx -c Release --no-restore
 python tests/validate_forms_management.py
 python tests/validate_forms_operations.py
 python tests/validate_forms_localization_contracts.py
+python tests/validate_forms_release_integration.py
 python tests/validate_inmemory_storage.py
 python tests/validate_forms_frontend.py --install
 python tests/validate_forms_frontend_packages.py

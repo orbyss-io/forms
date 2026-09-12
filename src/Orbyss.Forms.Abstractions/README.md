@@ -11,6 +11,11 @@ an audit actor. Implementations must validate identifiers, bounds, lifecycle tra
 content, renderer/action allowlists, and authorization; these transport-friendly records do not
 make untrusted input safe by construction.
 
+New authored conditions use `FormCondition` with typed scalar comparisons. Fields may declare
+`RequiredWhen` or unconditional `Required`, plus `ReadOnly`; layout elements may declare
+`VisibleWhen` and `EnabledWhen`. Validation and presentation remain independent. Existing serialized
+`FormVisibilityCondition` definitions retain their legacy semantics.
+
 Optional operational contracts distinguish partial draft validation from authoritative final
 submission validation. Drafts and submissions bind to an exact immutable release; access contexts
 are server-derived and owner-scoped unless a trusted administrative adapter explicitly broadens

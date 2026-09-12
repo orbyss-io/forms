@@ -54,6 +54,8 @@ export interface FormDiagnostic {
 }
 
 export interface FormCandidate {
+  /** Complete provider-neutral server field metadata, absent only on legacy candidates. */
+  readonly fields?: readonly JsonObject[];
   readonly formId: { readonly value: string };
   readonly revision: { readonly value: number };
   readonly dataSchema: FormArtifact;
@@ -72,6 +74,26 @@ export interface FormRelease {
   readonly publishedAt: string;
   readonly evidence: readonly string[];
   readonly retired: boolean;
+}
+
+/** Trusted deployment metadata. Distribute independently of any untrusted artifact input. */
+export interface FormDeploymentManifest {
+  readonly formatVersion: 1;
+  readonly formId: string;
+  readonly releaseId: string;
+  readonly revision: number;
+  /** SHA-256 of the complete UTF-8 release JSON, including server field metadata. */
+  readonly releaseSha256: string;
+  readonly locales: Readonly<Record<string, string>>;
+  readonly validator: { readonly sha256: string; readonly schemaSha256: string };
+  readonly retired: boolean;
+}
+
+/** Constructed by a trusted build from a verified, statically imported validator module. */
+export interface BoundFormValidator {
+  readonly sha256: string;
+  readonly schemaSha256: string;
+  readonly validate: OrbyssValidator;
 }
 
 export interface RuntimeLimits {

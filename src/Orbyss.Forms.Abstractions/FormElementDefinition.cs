@@ -11,4 +11,6 @@ public sealed record FormElementDefinition(
     FormVisibilityCondition? Visibility = null,
     FormWizardOptions? Wizard = null,
     IReadOnlyDictionary<string, string>? Presentation = null,
-    FormActionBarOptions? ActionBar = null);
+    FormActionBarOptions? ActionBar = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] FormCondition? VisibleWhen = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] FormCondition? EnabledWhen = null);

@@ -32,6 +32,7 @@ jobs:
           python tests/validate_forms_management.py
           python tests/validate_forms_operations.py
           python tests/validate_forms_localization_contracts.py
+          python tests/validate_forms_release_integration.py
           python tests/validate_inmemory_storage.py
           python tests/validate_package_retirement.py
       - name: Pack NuGet family
@@ -42,6 +43,7 @@ jobs:
           packages=(artifacts/nuget/*.nupkg)
           [[ ${#packages[@]} -eq 15 ]] || { echo "Expected 15 Forms NuGet packages, found ${#packages[@]}." >&2; exit 1; }
           python tests/validate_package_metadata.py --packages artifacts/nuget
+          python tests/validate_forms_release_packages.py --packages artifacts/nuget
 
   frontend:
     runs-on: ubuntu-latest

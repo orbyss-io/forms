@@ -25,9 +25,9 @@
       },
       "Orbyss.Foundation.Analyzers": {
         "type": "Direct",
-        "requested": "[0.1.0, )",
-        "resolved": "0.1.0",
-        "contentHash": "eGRExasVN58KAE8gd5/AHo6ySmypKD6QLxRivM3ufLnUWRchoPVaclwFktX6QINmyDzzrtio7HX1aXnqqlxtCw=="
+        "requested": "[0.2.0, )",
+        "resolved": "0.2.0",
+        "contentHash": "kjh7m4X6SAh5Kqrf0rr9vm46DZtLn0Q91s7ZZtf/IYSuFHZuQWeUZUJhAb2fHjsuq42xEewKRJsYdLqfRkWA/g=="
       },
       "Orbyss.Localization.Abstractions": {
         "type": "Direct",
@@ -78,28 +78,28 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.localization": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.1.1, )",
+          "Orbyss.Forms.Abstractions": "[0.2.0, )",
           "Orbyss.Localization.Abstractions": "[0.1.0, )"
         }
       },
       "orbyss.forms.storage.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Abstractions": "[0.2.0, )"
         }
       },
       "orbyss.forms.storage.filesystem": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.1.1, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {

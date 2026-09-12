@@ -52,6 +52,7 @@ jobs:
           python tests/validate_forms_management.py
           python tests/validate_forms_operations.py
           python tests/validate_forms_localization_contracts.py
+          python tests/validate_forms_release_integration.py
           python tests/validate_inmemory_storage.py
           python tests/validate_package_retirement.py
 
@@ -82,6 +83,7 @@ jobs:
           [[ ${#nuget_packages[@]} -eq 15 ]] || { echo "Expected 15 Forms NuGet packages, found ${#nuget_packages[@]}." >&2; exit 1; }
           [[ ${#npm_packages[@]} -eq 12 ]] || { echo "Expected 12 npm packages, found ${#npm_packages[@]}." >&2; exit 1; }
           python tests/validate_package_metadata.py --packages artifacts/nuget
+          python tests/validate_forms_release_packages.py --packages artifacts/nuget
 
       - name: Attest packages
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4

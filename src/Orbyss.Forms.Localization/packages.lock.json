@@ -22,9 +22,9 @@
       },
       "Orbyss.Foundation.Analyzers": {
         "type": "Direct",
-        "requested": "[0.1.0, )",
-        "resolved": "0.1.0",
-        "contentHash": "eGRExasVN58KAE8gd5/AHo6ySmypKD6QLxRivM3ufLnUWRchoPVaclwFktX6QINmyDzzrtio7HX1aXnqqlxtCw=="
+        "requested": "[0.2.0, )",
+        "resolved": "0.2.0",
+        "contentHash": "kjh7m4X6SAh5Kqrf0rr9vm46DZtLn0Q91s7ZZtf/IYSuFHZuQWeUZUJhAb2fHjsuq42xEewKRJsYdLqfRkWA/g=="
       },
       "Orbyss.Localization.Abstractions": {
         "type": "Direct",

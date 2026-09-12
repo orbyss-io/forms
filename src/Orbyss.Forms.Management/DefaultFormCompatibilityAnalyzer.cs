@@ -77,14 +77,16 @@ public sealed class DefaultFormCompatibilityAnalyzer : IFormCompatibilityAnalyze
             }
 
             CompareConstraints(oldField, newField, issues);
+            if (newField.RequiredWhen is not null && System.Text.Json.JsonSerializer.Serialize(oldField.RequiredWhen) != System.Text.Json.JsonSerializer.Serialize(newField.RequiredWhen))
+                issues.Add(Breaking("PKFC108", $"Field '{oldField.Id}' has a new or changed required condition.", newField.DataPath));
         }
 
         foreach (var newField in newFields.Values.Where(field => !oldFields.ContainsKey(field.Id)))
         {
             issues.Add(new FormCompatibilityIssue(
-                newField.Required ? "PKFC105" : "PKFC106",
-                newField.Required ? FormCompatibilityImpact.Breaking : FormCompatibilityImpact.Compatible,
-                $"{(newField.Required ? "Required" : "Optional")} field '{newField.Id}' was added.",
+                newField.Required || newField.RequiredWhen is not null ? "PKFC105" : "PKFC106",
+                newField.Required || newField.RequiredWhen is not null ? FormCompatibilityImpact.Breaking : FormCompatibilityImpact.Compatible,
+                $"{(newField.Required ? "Required" : newField.RequiredWhen is not null ? "Conditionally required" : "Optional")} field '{newField.Id}' was added.",
                 newField.DataPath));
         }
     }

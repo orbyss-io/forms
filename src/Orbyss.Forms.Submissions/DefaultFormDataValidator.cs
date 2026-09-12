@@ -16,17 +16,39 @@ public sealed class DefaultFormDataValidator : IFormDataValidator
         var diagnostics = new List<FormDataDiagnostic>();
         using var document = JsonDocument.Parse(data.Json, new JsonDocumentOptions { MaxDepth = 64 });
         var fields = release.Candidate.Fields ?? throw new InvalidOperationException("The form release does not contain the provider-neutral field snapshot required for server validation.");
+        if (document.RootElement.ValueKind != JsonValueKind.Object)
+        {
+            diagnostics.Add(Error("PKFD002", "The form data must be an object.", ""));
+            return ValueTask.FromResult<IReadOnlyList<FormDataDiagnostic>>(diagnostics);
+        }
         foreach (var field in fields)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateAncestors(document.RootElement, field.DataPath, diagnostics);
             if (!TryResolve(document.RootElement, field.DataPath, out var value))
             {
-                if (mode == FormDataValidationMode.Submission && field.Required) diagnostics.Add(Error("PKFD001", "A required value is missing.", field.DataPath));
+                if (mode == FormDataValidationMode.Submission && (field.Required || field.RequiredWhen?.Evaluate(document.RootElement, fields) == true)) diagnostics.Add(Error("PKFD001", "A required value is missing.", field.DataPath));
                 continue;
             }
             ValidateValue(field, value, diagnostics);
         }
         return ValueTask.FromResult<IReadOnlyList<FormDataDiagnostic>>(diagnostics);
+    }
+
+    /// <summary>Rejects present non-object ancestors of a declared field path.</summary>
+    private static void ValidateAncestors(JsonElement root, string pointer, ICollection<FormDataDiagnostic> diagnostics)
+    {
+        var value = root;
+        var path = "";
+        var segments = pointer[1..].Split('/');
+        foreach (var segment in segments.Take(segments.Length - 1))
+        {
+            if (!value.TryGetProperty(segment.Replace("~1", "/", StringComparison.Ordinal).Replace("~0", "~", StringComparison.Ordinal), out value)) return;
+            path += "/" + segment;
+            if (value.ValueKind == JsonValueKind.Object) continue;
+            if (!diagnostics.Any(item => item.DataPath == path && item.Code == "PKFD002")) diagnostics.Add(Error("PKFD002", "A data path ancestor must be an object.", path));
+            return;
+        }
     }
 
     /// <summary>Checks one present value against its provider-neutral field contract.</summary>
@@ -46,10 +68,10 @@ public sealed class DefaultFormDataValidator : IFormDataValidator
             if (constraints.Pattern is not null && !Regex.IsMatch(text, constraints.Pattern, RegexOptions.CultureInvariant | RegexOptions.NonBacktracking, TimeSpan.FromMilliseconds(100))) diagnostics.Add(Error("PKFD005", "The value does not match the required pattern.", field.DataPath));
         }
         if (value.ValueKind == JsonValueKind.Array) CheckBounds(value.GetArrayLength(), constraints.MinimumItems, constraints.MaximumItems, field.DataPath, diagnostics, "item count");
-        if (value.ValueKind == JsonValueKind.Number && value.TryGetDecimal(out var number))
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out var number))
         {
-            if (constraints.Minimum is { } minimum && number < minimum) diagnostics.Add(Error("PKFD003", $"The value must be at least {minimum.ToString(CultureInfo.InvariantCulture)}.", field.DataPath));
-            if (constraints.Maximum is { } maximum && number > maximum) diagnostics.Add(Error("PKFD004", $"The value must be at most {maximum.ToString(CultureInfo.InvariantCulture)}.", field.DataPath));
+            if (constraints.Minimum is { } minimum && number < (double)minimum) diagnostics.Add(Error("PKFD003", $"The value must be at least {minimum.ToString(CultureInfo.InvariantCulture)}.", field.DataPath));
+            if (constraints.Maximum is { } maximum && number > (double)maximum) diagnostics.Add(Error("PKFD004", $"The value must be at most {maximum.ToString(CultureInfo.InvariantCulture)}.", field.DataPath));
         }
         if (constraints.Choices is { Count: > 0 } choices && !choices.Any(choice => ChoiceMatches(choice.Value, value))) diagnostics.Add(Error("PKFD006", "The value is not an allowed choice.", field.DataPath));
     }
@@ -65,8 +87,8 @@ public sealed class DefaultFormDataValidator : IFormDataValidator
     private static bool MatchesKind(FormValueKind kind, JsonElement value) => kind switch
     {
         FormValueKind.String => value.ValueKind == JsonValueKind.String,
-        FormValueKind.Integer => value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out _),
-        FormValueKind.Number => value.ValueKind == JsonValueKind.Number,
+        FormValueKind.Integer => FormCondition.MatchesScalar(kind, value),
+        FormValueKind.Number => FormCondition.MatchesScalar(kind, value),
         FormValueKind.Boolean => value.ValueKind is JsonValueKind.True or JsonValueKind.False,
         FormValueKind.Object => value.ValueKind == JsonValueKind.Object,
         FormValueKind.Array => value.ValueKind == JsonValueKind.Array,

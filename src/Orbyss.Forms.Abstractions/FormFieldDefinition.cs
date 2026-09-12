@@ -9,4 +9,6 @@ public sealed record FormFieldDefinition(
     LocalizedTextReference Label,
     LocalizedTextReference? Description = null,
     FormConstraints? Constraints = null,
-    FormComponentReference? Component = null);
+    FormComponentReference? Component = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] FormCondition? RequiredWhen = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] bool ReadOnly = false);
