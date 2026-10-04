@@ -78,28 +78,28 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.localization": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )",
+          "Orbyss.Forms.Abstractions": "[0.2.1, )",
           "Orbyss.Localization.Abstractions": "[0.1.0, )"
         }
       },
       "orbyss.forms.storage.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.storage.filesystem": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {

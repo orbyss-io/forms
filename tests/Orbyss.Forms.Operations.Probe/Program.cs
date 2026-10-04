@@ -141,8 +141,15 @@ try
             using var webClient = new HttpClient { BaseAddress = new Uri(app.Urls.Single()) };
             using var anonymousApi = await webClient.GetAsync("/orbyss-forms/forms/drafts");
             Require(anonymousApi.StatusCode == System.Net.HttpStatusCode.Unauthorized, "form API allowed anonymous access");
-            using var anonymousMcp = await webClient.PostAsync("/orbyss-foundation/mcp", new StringContent("{}", Encoding.UTF8, "application/json"));
-            Require(anonymousMcp.StatusCode == System.Net.HttpStatusCode.Unauthorized, "form MCP allowed anonymous access");
+            // Inspect authorization headers without buffering the transport response body.
+            using (var anonymousRequest = new HttpRequestMessage(HttpMethod.Post, "/orbyss-foundation/mcp")
+            {
+                Content = new StringContent("{}", Encoding.UTF8, "application/json")
+            })
+            using (var anonymousMcp = await webClient.SendAsync(anonymousRequest, HttpCompletionOption.ResponseHeadersRead))
+            {
+                Require(anonymousMcp.StatusCode == System.Net.HttpStatusCode.Unauthorized, "form MCP allowed anonymous access");
+            }
             webClient.DefaultRequestHeaders.Add("X-Test-Auth", "true");
             using var authenticatedApi = await webClient.GetAsync("/orbyss-forms/forms/drafts");
             Require(authenticatedApi.IsSuccessStatusCode, "form API did not use the selected authentication scheme");

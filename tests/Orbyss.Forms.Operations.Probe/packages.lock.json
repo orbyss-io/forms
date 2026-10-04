@@ -52,47 +52,47 @@
       "orbyss.forms.jsonforms": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.management": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )",
-          "Orbyss.Forms.JsonForms": "[0.2.0, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )",
+          "Orbyss.Forms.JsonForms": "[0.2.1, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.storage.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.storage.filesystem": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.storage.inmemory": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.submissions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.submissions.mcp.aspnetcore": {
         "type": "Project",
         "dependencies": {
           "ModelContextProtocol.AspNetCore": "[2.2.0, )",
-          "Orbyss.Forms.Submissions.Tool": "[0.2.0, )",
+          "Orbyss.Forms.Submissions.Tool": "[0.2.1, )",
           "Orbyss.Foundation.Mcp.AspNetCore": "[0.2.0, )"
         }
       },
@@ -100,13 +100,13 @@
         "type": "Project",
         "dependencies": {
           "ModelContextProtocol": "[2.2.0, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.web.submissions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "CShells.Abstractions": {

@@ -31,7 +31,7 @@
         "type": "Direct",
         "requested": "[0.1.0, )",
         "resolved": "0.1.0",
-        "contentHash": "fUa2oNi23gAjFgVIhyjqmhXwAo6S++p7nCJ2XOiU23tOrpRIDSDg22wLnIsWEexs9x4BT6aLDjEvoaICU7SBnw=="
+        "contentHash": "C+wVg9c2LXM+p3PzLV20RUXOLRls8m6v/ArJ5PMlNzgKG2ZcFsNQhmRGv/GBXkpEBY2Z2LmLzOQgKGtbn4KP1A=="
       },
       "Orbyss.Foundation.Mcp.AspNetCore": {
         "type": "Direct",
@@ -137,7 +137,7 @@
         "type": "Project",
         "dependencies": {
           "ModelContextProtocol": "[2.2.0, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "CShells.Abstractions": {

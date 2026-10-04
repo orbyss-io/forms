@@ -111,8 +111,15 @@ try
         using var client = new HttpClient { BaseAddress = new Uri(app.Urls.Single()) };
         using var anonymousManagement = await client.GetAsync("/_orbyss-forms/forms/forms");
         Require(anonymousManagement.StatusCode == HttpStatusCode.Unauthorized, "form management allowed anonymous access");
-        using var anonymousMcp = await client.PostAsync("/orbyss-foundation/mcp", new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
-        Require(anonymousMcp.StatusCode == HttpStatusCode.Unauthorized, "shared MCP allowed anonymous access");
+        // Inspect authorization headers without buffering the transport response body.
+        using (var anonymousRequest = new HttpRequestMessage(HttpMethod.Post, "/orbyss-foundation/mcp")
+        {
+            Content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json")
+        })
+        using (var anonymousMcp = await client.SendAsync(anonymousRequest, HttpCompletionOption.ResponseHeadersRead))
+        {
+            Require(anonymousMcp.StatusCode == HttpStatusCode.Unauthorized, "shared MCP allowed anonymous access");
+        }
         using var runtime = await client.GetAsync("/_orbyss-forms/forms/runtime/forms/registration/current");
         Require(runtime.StatusCode == HttpStatusCode.OK && runtime.Headers.ETag?.Tag.Length == 66, "anonymous immutable form runtime failed");
         var etag = runtime.Headers.ETag ?? throw new InvalidOperationException("form runtime omitted ETag");

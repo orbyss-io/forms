@@ -15,37 +15,37 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.management": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )",
-          "Orbyss.Forms.JsonForms": "[0.2.0, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )",
+          "Orbyss.Forms.JsonForms": "[0.2.1, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.storage.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Orbyss.Forms.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.storage.inmemory": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "orbyss.forms.submissions": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.11, )",
-          "Orbyss.Forms.Abstractions": "[0.2.0, )",
-          "Orbyss.Forms.Storage.Abstractions": "[0.2.0, )"
+          "Orbyss.Forms.Abstractions": "[0.2.1, )",
+          "Orbyss.Forms.Storage.Abstractions": "[0.2.1, )"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
