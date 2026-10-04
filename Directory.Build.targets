@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)/feature.json')">
+    <FoundationFeatureDescriptorSource>$(MSBuildProjectDirectory)/feature.json</FoundationFeatureDescriptorSource>
+  </PropertyGroup>
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)/feature.json')">
+    <PackageReference Include="Orbyss.Foundation.Build" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

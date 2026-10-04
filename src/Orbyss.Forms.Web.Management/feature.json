@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Web.Management",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Web.Management",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [
+        "/_orbyss-forms/forms/forms",
+        "/_orbyss-forms/forms/forms/validate",
+        "/_orbyss-forms/forms/forms/{formId}",
+        "/_orbyss-forms/forms/forms/{formId}/{revision:long}/approve",
+        "/_orbyss-forms/forms/forms/{formId}/{revision:long}/compile",
+        "/_orbyss-forms/forms/forms/{formId}/{revision:long}/publish",
+        "/_orbyss-forms/forms/forms/{formId}/{revision:long}/review",
+        "/_orbyss-forms/forms/releases/{baselineId}/diff/{candidateId}",
+        "/_orbyss-forms/forms/releases/{releaseId}",
+        "/_orbyss-forms/forms/releases/{releaseId}/retire"
+      ],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false,
+      "routePrefixConfigurationPath": "Orbyss:Forms:Management:RoutePrefix",
+      "routeSuffixes": [
+        "/forms",
+        "/forms/validate",
+        "/forms/{formId}",
+        "/forms/{formId}/{revision:long}/approve",
+        "/forms/{formId}/{revision:long}/compile",
+        "/forms/{formId}/{revision:long}/publish",
+        "/forms/{formId}/{revision:long}/review",
+        "/releases/{baselineId}/diff/{candidateId}",
+        "/releases/{releaseId}",
+        "/releases/{releaseId}/retire"
+      ]
+    }
+  ],
+  "sourceSha256": {
+    "FormDefinitionWriteRequest.cs": "08a240a8aace884c655649c42e33cc705607203b31b85ae6d39b62c63afa1103",
+    "FormManagementWebOptions.cs": "0d5c9567687028abb213ba24097ae572b299ead406b63f09b50a0412ebb9bf2b",
+    "FormReviewRequest.cs": "01db480fa0fcfc098e9dcd8f6d3743a05e8899af1e93e589d7332b658a3cdc34",
+    "FormWebMutation.cs": "04692d8b42558172cbd638fa832d63364adb107cdedbcdabdd569a12dcf9c003",
+    "OrbyssFormManagementFeature.cs": "60e59c70d7f17076e06a2c3de584a5bb0b1fff46bf6e9d46c573ef230407d0a9"
+  }
+}

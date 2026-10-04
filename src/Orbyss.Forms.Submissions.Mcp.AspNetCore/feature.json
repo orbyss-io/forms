@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Submissions.Mcp.AspNetCore",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Submissions.Mcp.AspNetCore",
+      "featureDependencies": [
+        "Orbyss.Foundation.Mcp.AspNetCore"
+      ],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "FormSubmissionsMcpOptions.cs": "42451a6d48ff4cd633ca79ceb37b21fed0d97a946f0e125e0fcf37dbac3583bb",
+    "OrbyssFormSubmissionsMcpFeature.cs": "899fd3720cff66f696bd3dc12bbfa7289ea9f1099c0ab50b47bc537438ed35eb"
+  }
+}

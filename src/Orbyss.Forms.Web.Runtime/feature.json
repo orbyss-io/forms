@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Web.Runtime",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Web.Runtime",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [
+        "/_orbyss-forms/forms/runtime/releases/{releaseId}",
+        "/_orbyss-forms/forms/runtime/forms/{formId}/current"
+      ],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false,
+      "routePrefixConfigurationPath": "Orbyss:Forms:Runtime:RoutePrefix",
+      "routeSuffixes": [
+        "/forms/{formId}/current",
+        "/releases/{releaseId}"
+      ]
+    }
+  ],
+  "sourceSha256": {
+    "FormRuntimeWebOptions.cs": "32dd15c813a64716b87d91e26b363589a21306df578ad3ffea423b505dab842b",
+    "OrbyssFormRuntimeFeature.cs": "d2872d780da045c20d01ecf5843515e9d84d52ce234a3f999c43314f6962c788"
+  }
+}

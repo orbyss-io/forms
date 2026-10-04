@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Submissions",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Submissions",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "AllowedFormAttachmentType.cs": "8f65dc712c1686dcbc530cd7db6631fedeaa1652b144e7343f5bc8415d628d35",
+    "DefaultFormAttachmentPolicy.cs": "62e4ec2e51ba6ea6924ddddf43c65ce2829cde2b8d986a82d9750087ab28f71b",
+    "DefaultFormAttachmentService.cs": "f2a31ba809150df5e937611743e832a8a3ebdbd02a348b9774c4883bf99b8e90",
+    "DefaultFormDataValidator.cs": "d3550f3094807fc5f9e8af42acab1c6077269fc3cb0fea4a86fe9f35ae910e01",
+    "DefaultFormSubmissionService.cs": "9038735db5bffa88cc7a0a6e6c739fa2123081f1095089e161241a7bd588beb4",
+    "FormAttachmentPolicyOptions.cs": "2e46693f4696a8c2d70bc957b66d77a409f03ddc317894eaa5ede6a97c0122ee",
+    "FormDataCodec.cs": "3967f57e0303840a898de41883f41554254303030e0323398873cdedbbc8dd03",
+    "FormDataValidationException.cs": "1d902244d022e1525787a55bc7a5d49b51e40776dade1514e7d175d7fb3b95e0",
+    "FormSubmissionOptions.cs": "44e5218006b5d93c3f5e1d235dbcb15442eed8040b97241821961ad8d0126a56",
+    "OrbyssFormsSubmissionsFeature.cs": "14c12f8ecfce67470b7fac312841f742a357190f5b36cd52ff7e51c7cd85b597",
+    "RejectingFormAttachmentPolicy.cs": "95547dd92972c4d2f0985c4bdfc7dcdb0f2532e1c20b9a6e11a092ed57e660c7",
+    "RejectingFormAttachmentScanner.cs": "a7efe9016d80deb9550677974f2f97c48ea1d650fde2501b99473a1d30dbdcbf"
+  }
+}

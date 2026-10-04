@@ -26,6 +26,12 @@
         "resolved": "0.2.0",
         "contentHash": "kjh7m4X6SAh5Kqrf0rr9vm46DZtLn0Q91s7ZZtf/IYSuFHZuQWeUZUJhAb2fHjsuq42xEewKRJsYdLqfRkWA/g=="
       },
+      "Orbyss.Foundation.Build": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "fUa2oNi23gAjFgVIhyjqmhXwAo6S++p7nCJ2XOiU23tOrpRIDSDg22wLnIsWEexs9x4BT6aLDjEvoaICU7SBnw=="
+      },
       "JetBrains.Annotations": {
         "type": "Transitive",
         "resolved": "2025.2.4",

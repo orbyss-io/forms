@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Web.Submissions",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Web.Submissions",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [
+        "/orbyss-forms/forms/attachments/{attachmentId}/content",
+        "/orbyss-forms/forms/attachments/{attachmentId}/remove",
+        "/orbyss-forms/forms/attachments/{attachmentId}/scan",
+        "/orbyss-forms/forms/drafts",
+        "/orbyss-forms/forms/drafts/{draftId}",
+        "/orbyss-forms/forms/drafts/{draftId}/abandon",
+        "/orbyss-forms/forms/drafts/{draftId}/attachments",
+        "/orbyss-forms/forms/drafts/{draftId}/attachments/{attachmentId}",
+        "/orbyss-forms/forms/drafts/{draftId}/migrate",
+        "/orbyss-forms/forms/drafts/{draftId}/submit",
+        "/orbyss-forms/forms/submissions",
+        "/orbyss-forms/forms/submissions/{submissionId}",
+        "/orbyss-forms/forms/submissions/{submissionId}/decision",
+        "/orbyss-forms/forms/submissions/{submissionId}/withdraw"
+      ],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false,
+      "routePrefixConfigurationPath": "Orbyss:Forms:SubmissionsWeb:RoutePrefix",
+      "routeSuffixes": [
+        "/attachments/{attachmentId}/content",
+        "/attachments/{attachmentId}/remove",
+        "/attachments/{attachmentId}/scan",
+        "/drafts",
+        "/drafts/{draftId}",
+        "/drafts/{draftId}/abandon",
+        "/drafts/{draftId}/attachments",
+        "/drafts/{draftId}/attachments/{attachmentId}",
+        "/drafts/{draftId}/migrate",
+        "/drafts/{draftId}/submit",
+        "/submissions",
+        "/submissions/{submissionId}",
+        "/submissions/{submissionId}/decision",
+        "/submissions/{submissionId}/withdraw"
+      ]
+    }
+  ],
+  "sourceSha256": {
+    "CreateFormDraftRequest.cs": "1b717d2e18c23e885f8bae49b2af7d91c516c5e805b8535dabd06e7d4c076818",
+    "FormSubmissionDecisionRequest.cs": "a6416cbfafd7b5436b1383f3ab1414b158afb66cc81b5b683857f98a92b6fb61",
+    "FormSubmissionsWebOptions.cs": "db1d4b038b622f753af08766a803f814846ed20b8eba4349a417ac655473baf9",
+    "FormWebMutation.cs": "72131921b91a8cce62328d2d2cea820a2d8cbbd4ef4d569cc459603f8fdf46ca",
+    "MigrateFormDraftRequest.cs": "196588378ebafdd61e64b938a091f94fc5237a229dd46eea1a8cd29845c945b2",
+    "OrbyssFormSubmissionsFeature.cs": "b13b147f4b8e79b7d129f78811cd9341f05f24683fea7c12bc8e305a17a59ba0",
+    "SaveFormDraftRequest.cs": "305ae6e36ddcbc29d58eb98a6fc5c12593e4c0ad9aca580d8178c0881fb0c373",
+    "SubmitFormDraftRequest.cs": "dea199a98074ab234687e4dc84465e7a10c5f7b97a8878866885056075cffa07"
+  }
+}

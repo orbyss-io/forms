@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Management.Mcp.AspNetCore",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Management.Mcp.AspNetCore",
+      "featureDependencies": [
+        "Orbyss.Foundation.Mcp.AspNetCore"
+      ],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "FormManagementMcpOptions.cs": "1d388a761e04486597d5023503e8f000d7b23d6436278a9902c7ee5893b8d628",
+    "OrbyssFormManagementMcpFeature.cs": "859c4b96cd026891aebf5b47dac59cbca3d0060eb69d65ce195e608a1413d1f5"
+  }
+}
