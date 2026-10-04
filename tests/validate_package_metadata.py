@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import zipfile
 from pathlib import Path
 from xml.etree import ElementTree
@@ -69,6 +70,16 @@ def main() -> int:
             raise AssertionError(f"{package_id} still exposes a ProgramKit package identity.")
         if dependencies & RETIRED_IDS:
             raise AssertionError(f"{package_id} depends on retired package identities: {sorted(dependencies & RETIRED_IDS)}")
+        source = ROOT / 'src' / package_id / 'feature.json'
+        if source.is_file():
+            with zipfile.ZipFile(package) as archive:
+                assert 'orbyss-foundation/feature.json' in archive.namelist(), 'Publisher descriptor is missing'
+                assert 'program-kit/feature.json' not in archive.namelist(), 'New publishers must emit only canonical metadata'
+                descriptor = json.loads(archive.read('orbyss-foundation/feature.json'))
+                for key, expected in json.loads(source.read_text(encoding='utf-8')).items():
+                    assert descriptor.get(key) == expected, 'Packed publisher metadata differs: ' + key
+                assert descriptor['packageId'] == package_id
+                assert b'Orbyss.Foundation.Build' not in nuspec, 'Private build tooling leaked into runtime dependencies'
         found.add(package_id)
 
     if found != expected_ids:

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Localization",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Localization",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "DefaultFormLocalizationBridge.cs": "9135743745f5d8dfa97620ada6939ed4997c860aac2fd5d9ffe8b09dd1ba3aec",
+    "FormLocalizationMergeResult.cs": "4b0c49ee5d808b7fb34cc13af7ace55853924e61a9d79addd41006350f071b94",
+    "IFormLocalizationBridge.cs": "0df42cd2d2bdb4c1abac2248889386e8a34e09660bcb135b34a64449e6f86dae",
+    "OrbyssFormsLocalizationFeature.cs": "0d41567fac10ac9772149c6dd250a49164f44d9b2e2534a3e5a2a5f6f6f54e8e"
+  }
+}

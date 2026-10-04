@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.JsonForms",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.JsonForms",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "FormDefinitionValidator.cs": "bdbc4dcb18657b3df808e201367fa3679e4f7fb97468b2cb878ace78bcd74d94",
+    "FormValidationOptions.cs": "b86f65bb789845752f28937e67ccff8af8673584824f6641fb859cc27f20bed8",
+    "JsonFormsCompiler.cs": "c86cd6858b88c239acc06a7728f1f61a4aef45d36f23149a671d43c3434df417",
+    "OrbyssFormsJsonFormsFeature.cs": "7aba5ccc5b5016383596b86357934332a162363ebd244cc809ebbff5794409d5"
+  }
+}

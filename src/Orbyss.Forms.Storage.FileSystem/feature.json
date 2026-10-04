@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Storage.FileSystem",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Storage.FileSystem",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "FileSystemFormAttachmentContentStore.cs": "58520fcabfd14ca5bf30a4ef3bd59dbde362e31002cd17290e187df4e845819d",
+    "FileSystemFormAttachmentStore.cs": "db225806bd3b7a3a3372c52fc538678fed57db6269993e019b8dba20108c2d05",
+    "FileSystemFormDefinitionStore.cs": "9c57746acd9fd2cb23093ae4687eacc1ddd15207d873d24ee7dacd0ed98c1d34",
+    "FileSystemFormDefinitionStoreOptions.cs": "9c9563d8ccabaf75db80715543646760748ca491f3b4922a626fd641eb1f62d1",
+    "FileSystemFormOperationalStoreOptions.cs": "02d3540520dbe4a5599f7fdce861f5f69dc4dcefbc2102659842e79465b1bbc1",
+    "FileSystemFormReleaseStore.cs": "6d7b2e771ad2ace17a22d300993c56ab76aa71f6f1b3ccd38c482c3cdc1c35bd",
+    "FileSystemFormReleaseStoreOptions.cs": "0d34969f1bc989c3b9886101788cd492b0fb0ab375286ba9e3988561dfeb8f08",
+    "FileSystemFormSubmissionStore.cs": "20bc6dcbea3d18acf3fa47d29bbf8b6bf62e0baa4c64ee0e0ee3c0d21b5d45b7",
+    "FileSystemVerifiedJson.cs": "3258d31f69cf4ae4c02913cb1fb23837573b3a4c61a5c54c2efe006e0e0730f8",
+    "FormAttachmentMetadataCommand.cs": "dc6e5fd3a65d4e3e1a8168efb71ffcb6fca1e3e86a25d47816717b9af558a5a7",
+    "FormAttachmentMetadataDocument.cs": "cb657a192150bac56ea4c6c8f58c2d6fd2e1bb0276a5b3c4b432c6e4c10f46ef",
+    "FormResponseCommand.cs": "a2eea96c0aa90c173f0a225660995a4f7449d4a5c8ceb260594dd01bb461d00e",
+    "FormResponseDocument.cs": "e9b85ca19b39e39c0994b964da6e7e66bdb760d107f2a1073c7705ad4f3f69cb",
+    "OrbyssFormsFileSystemStorageFeature.cs": "6164e2097282e4bc3c6f83b4592086a8735c437ff0ef72ab9a1560e8ade87a05",
+    "StoredFormDefinitionCommand.cs": "2c853ef0f0426fba63dc392a527c3592af22ed75a05396ac9b6b23cc51a03761",
+    "StoredFormDefinitionDocument.cs": "501fdb4716f5bb52c586232df9da8546ca46711d127b08d12c9b7513a68740cd",
+    "StoredFormRetirement.cs": "45381d72af2b6bb381db554330d6da9dd71c2690438372ae7d399d6c33742f1b"
+  }
+}

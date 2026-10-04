@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Management",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Management",
+      "featureDependencies": [
+        "Orbyss.Forms.JsonForms"
+      ],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "DefaultFormCatalogService.cs": "bd1c9939caffbef3502a805741fbe0dcc5775e2f5919ba75f92fa4e31d0de12d",
+    "DefaultFormCompatibilityAnalyzer.cs": "457a3cfcd7b9f159a7fcef7631125479d11d01c096e5e65d66d7207fbdcd6a99",
+    "OrbyssFormsManagementFeature.cs": "5c9a817ebdcc5e0a3a3d79d7e9206c425340862267cc33823b49b49af4030d8f"
+  }
+}

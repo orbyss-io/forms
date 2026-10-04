@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 2,
+  "packageId": "Orbyss.Forms.Storage.InMemory",
+  "features": [
+    {
+      "identity": "Orbyss.Forms.Storage.InMemory",
+      "featureDependencies": [],
+      "runtimeDependencies": [],
+      "routes": [],
+      "dormant": true,
+      "composeForOpenApi": false,
+      "requiresContractCoverage": false
+    }
+  ],
+  "sourceSha256": {
+    "InMemoryFormAttachmentContentStore.cs": "6ce1f7b8622fede657d0189ce3361153f127ea9dae83f3f835ab3bdac0a137c9",
+    "InMemoryFormAttachmentDocument.cs": "8dadd867cabad7d6e401dce761d7678c24e2674de347b8e90bb15cfbab699f49",
+    "InMemoryFormAttachmentReplay.cs": "e9e8643edec3879da4ea905e14745b8b50d76c45743ab354d267159c56019781",
+    "InMemoryFormAttachmentStore.cs": "b1aac40a02c00c22ed28faa76a86adbf4a0b06734d4b56a69e2797871f85b5ea",
+    "InMemoryFormDefinitionDocument.cs": "cadbc572d967d09dc860622b32c995634424549cf61527dd54b557d4336e613e",
+    "InMemoryFormDefinitionReplay.cs": "799fd8b4dafd72493ef2464381cb7ef9518fd89aeba8a0f259582dd502287490",
+    "InMemoryFormDefinitionStore.cs": "84611b09eef1a31d95197bdc1f5195c8b82f28fbe9cb42d3b3a0f78454ac8051",
+    "InMemoryFormReleaseStore.cs": "70ae7ffc7fab728e63685e1b423a274f2f06b3295f02323f5e2182868992c3e4",
+    "InMemoryFormResponseDocument.cs": "e9aaac4cdce274fa48900e19ed268a7bc1e87b2320f3053a77ec17edd5abeb2b",
+    "InMemoryFormResponseReplay.cs": "ad81a2f92db2c583f4b683bd135d21c9d748c8da8ae1349def0d2d68bd644b1f",
+    "InMemoryFormRetirement.cs": "12e9d6713105e3c802c29bef5603db53c6e7e4bdea98eade0d2bdab6cc982f6c",
+    "InMemoryFormStorageCodec.cs": "d63d9b768698ba4debf086d72958fbc612076e4d9ed7403c326c4ae3e7830240",
+    "InMemoryFormStorageOptions.cs": "e2bebdb9034499d1996b18574f04a84f8d3e9733b8c3aac5295c7f1d25c4e986",
+    "InMemoryFormSubmissionStore.cs": "b1fdfe0fe265c36fdc079a5096b716caeee37dbf643b92e1614ac172d7b76abd",
+    "OrbyssFormsInMemoryStorageFeature.cs": "c5d9ebc6e66c8352f28dfa25c3de2575b6ecc2cd42613bcb3c63e0cd20781431"
+  }
+}
